@@ -1,0 +1,32 @@
+{
+	"name": "bravedave/dvc-mail",
+	"description": "Mail Interfaces for DVC",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"homepage": "http://brayworth.com",
+	"type": "library",
+	"license": "MIT",
+	"authors": [{
+		"name": "Brave Dave",
+		"email": "davbray@gmail.com",
+		"homepage": "http://brayworth.com"
+	}],
+		"repositories": [
+			{
+				"type": "git",
+				"url": "https://github.com/bravedave/dvc"
+			}
+		],
+	"require": {
+		"php-ews/php-ews": "^1.0",
+		"bravedave/dvc": "dev-master"
+	},
+	"autoload": {
+		"psr-4": {
+			"dvc\\ews\\": "ews/",
+			"dvc\\imap\\": "imap/",
+			"dvc\\mail\\": "mail/"
+		}
+	}
+
+}
