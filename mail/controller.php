@@ -61,7 +61,7 @@ class controller extends \Controller {
 					if ( $targetFolder = $this->getPost('targetFolder')) {
 						$moved = false;
 						$folders = folders::instance( $this->creds);
-						foreach( $_fldrs = $folders->getAll() as $_fldr) {
+						foreach( $_fldrs = $folders->getAll('json') as $_fldr) {
 							if ( $targetFolder == $_fldr->map) {
 								if ( $inbox->MoveItem( $msg, $targetFolder)) {
 									$moved = true;
