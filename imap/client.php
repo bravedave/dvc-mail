@@ -11,6 +11,7 @@
 namespace dvc\imap;
 
 use dvc\mail\credentials;
+use sys;
 
 class client {
 	protected $_account = '';
@@ -36,7 +37,7 @@ class client {
 			$cred = credentials::getCurrentUser();
 
 		if ( $cred) {
-			// \sys::dump( $cred);
+			// sys::dump( $cred);
 			$client = new self(
 				$cred->server,
 				$cred->account,
@@ -46,7 +47,7 @@ class client {
 
 			// if ( isset( \config::$exchange_verifySSL) && !\config::$exchange_verifySSL) {
 			// 	$client->setCurlOptions([CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST  => false]);
-			// 	\sys::logger( 'ews\client :: disable verify SSL');
+			// 	sys::logger( 'ews\client :: disable verify SSL');
 
 			// }
 
@@ -118,7 +119,165 @@ class client {
 			['\'',	'...'], $string);
 	}
 
-	protected function _Overview( $email_number = -1 ) : \dvc\mail\message {
+	protected function _getmessage( $msgno, $overview = false ) : \dvc\mail\message {
+		// HEADER
+		$headers = imap_headerinfo( $this->_stream, $msgno, 1);
+		if ( !$overview) {
+			$overview = $this->_Overview( $msgno);
+
+		}
+
+		$overview = (object)$overview;
+
+		/* add code here to get date, from, to, cc, subject... */
+		$from = "";
+		if ( isset( $headers->from ) && count( $headers->from )) {
+			$afrom = array_shift( $headers->from );
+			$from = $afrom->mailbox . "@" . $afrom->host;
+			if ( isset( $afrom->personal ))
+				$from = $afrom->personal . " <$from>";
+
+		}
+
+		//~ die( "<pre>" . print_r( $headers, TRUE ) . "</pre>");
+		$mess = new RawMessage( $this->_stream, $msgno );
+		//~ die( "<pre>" . print_r( $mess, TRUE ) . "</pre>");
+
+		$to = [];
+		if ( isset( $headers->to ) && $headers->to) {
+			foreach ( $headers->to as $e) {
+				$s = '';
+				if ( isset( $e->mailbox) && isset( $e->host))
+					$s = $e->mailbox . "@" . $e->host;
+
+				elseif ( isset( $e->mailbox))
+					$s = $e->mailbox;
+
+				if ( isset( $e->personal ))
+					$s = sprintf( '%s <%s>', $e->personal, $s);
+
+				$to[] = $s;
+
+			}
+
+		}
+		$to = implode( ',', $to );
+
+		$cc = [];
+		if ( isset( $headers->cc ) && $headers->cc) {
+			foreach ( $headers->cc as $e) {
+				$s = '';
+				if ( isset( $e->mailbox) && isset( $e->host))
+					$s = $e->mailbox . "@" . $e->host;
+
+				elseif ( isset( $e->mailbox))
+					$s = $e->mailbox;
+
+				if ( isset( $e->personal ))
+					$s = sprintf( '%s <%s>', $e->personal, $s);
+
+				$cc[] = $s;
+
+			}
+
+		}
+		$cc = implode( ', ', $cc );
+
+		//~ sys::dump( $headers);
+		if ( !isset( $headers->subject))
+			$headers->subject = '(subject missing)';
+
+		if ( !isset( $headers->message_id))
+			$headers->message_id = 'no-message-id';
+
+		$headerDate = '';
+		if ( isset( $headers->date))
+			$headerDate = $headers->date;
+
+		$ret = new \dvc\mail\message;
+		$ret->subject = self::decodeMimeStr((string)$headers->subject);
+		$ret->From = self::decodeMimeStr((string)$from);
+		$ret->To = self::decodeMimeStr((string)$to);
+		$ret->CC = self::decodeMimeStr((string)$cc);
+		$ret->MessageID = $headers->message_id;
+		$ret->MSGNo = $headers->Msgno;
+		$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
+		$ret->Recieved = $headerDate;
+		$ret->headers = $headers;
+		$ret->CharSet = $mess->charset;
+		$ret->seen = $headers->Unseen == "U" ? 'no' : 'yes';
+		$ret->references = '';
+		if ( $mess->messageHTML) {
+			sys::logger('has messageHTML');
+			$ret->Body = utf8_decode( $mess->messageHTML);
+
+		}
+		else {
+			sys::logger('no messageHTML');
+
+		}
+
+		if ( $ret->Body) {
+			$ret->BodyType = 'HTML';
+
+		}
+		else {
+			$ret->BodyType = 'text';
+			$ret->Body = utf8_decode( $mess->message);
+
+		}
+		$ret->attachments = $mess->attachments;
+		$ret->cids = $mess->cids;
+
+		if ( isset($overview->in_reply_to)) $ret->in_reply_to = $overview->in_reply_to;
+		if ( isset($overview->references)) $ret->references = $overview->references;
+		if ( isset($overview->{'X-CMS-Draft'})) $ret->{'X-CMS-Draft'} = $overview->{'X-CMS-Draft'};
+
+		//~ if ( \currentUser::isDavid()) \sys::dump( $ret);
+
+		return ( $ret );
+
+	}
+
+	protected function _getMessageHeader( $id, $folder = "default" ) {
+		//~ $stat = $this->_status( $folder );
+		$total = imap_num_msg( $this->_stream);
+		/**
+		 * Reverse chunk sort in pages of 20
+		 */
+		$i = $total;
+		$chunks = [];
+		while ( $i > 0 ) {
+			$end = $i;
+			$i -= 19;
+			$i = max([1, $i]);
+			$chunks[] = implode( ',', range( $i, $end ));
+			$i--;
+
+		}
+
+		foreach ( $chunks as $chunk) {
+			// Fetch an overview for all messages in INBOX
+			$overview = imap_fetch_overview( $this->_stream, $chunk, 0 );
+			if ( count( $overview)) {
+				foreach ( $overview as $msg) {
+					if ( isset( $msg->message_id )) {
+						if ( "{$msg->message_id}" == "{$id}" ) {
+							return ( $msg);
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+	protected function _overview( $email_number = -1 ) : \dvc\mail\message {
 		if ( $email_number < 0 )
 			return ( false );
 
@@ -169,7 +328,7 @@ class client {
 
 		$headerLines = explode( "\n", imap_fetchheader( $this->_stream, $email_number));
 		foreach ( $headerLines as $l) {
-			//~ \sys::logger($l);
+			//~ sys::logger($l);
 			if ( preg_match( '/^X-CMS-Draft/', $l)) {
 				$x = explode( ':', $l);
 				$ret->{'X-CMS-Draft'} = trim( array_pop( $x));
@@ -177,14 +336,14 @@ class client {
 			}
 
 		}
-		//~ \sys::dump( imap_fetchheader( $this->_stream, $email_number));
-		//~ \sys::dump($ret);
-		//~ \sys::dump($headers);
-		//~ \sys::dump($overview);
+		// sys::dump( imap_fetchheader( $this->_stream, $email_number));
+		// sys::dump($ret);
+		// sys::dump($headers);
+		// sys::dump($overview);
 
-		//~ /* output the email body */
-		//~ $message = imap_fetchbody($inbox,$email_number,1);
-		//~ $output.= '<div class="body"><pre>'.$message.'</pre></div>';
+		// /* output the email body */
+		// $message = imap_fetchbody($inbox,$email_number,1);
+		// $output.= '<div class="body"><pre>'.$message.'</pre></div>';
 
 		return ( $ret );
 
@@ -228,14 +387,13 @@ class client {
 			$i = 0;
 			foreach($emails as $email_number) {
 				if ( $i++ > 9 ) break;
-				$ret[] = $this->_Overview($email_number);
+				$ret[] = $this->_overview($email_number);
 
 			}
 
 		}
 
-		// \sys::dump( $ret);
-
+		// sys::dump( $ret);
 		return $ret;
 
 	}
@@ -245,9 +403,33 @@ class client {
 
 	}
 
+	public function getmessage( $id, $folder = "default", $msgno = 0 ) {
+		$ret = false;
+		if ( $this->open( true, $folder )) {
+			if ( $msgno > 0 ) {
+				$ret = $this->_getmessage( $msgno);
+
+			}
+			elseif ( $msg = $this->_getMessageHeader( $id, $folder )) {
+				// sys::dump( $msg);
+				$ret = $this->_getmessage( $msg->msgno, $msg);
+
+			}
+			$this->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'imap\message->getmessage :: failed to open folder : %s :: %s', $folder, $this->_error));
+
+		}
+
+		return ( $ret );
+
+	}
+
 	public function open( $full = true, $folder = 'default' ) {
 		$debug = false;
-		$debug = true;
+		// $debug = true;
 
 		if ( $this->_server) {
 			if ( $folder == 'default' )
@@ -280,13 +462,13 @@ class client {
 			$nogssapi = array("DISABLE_AUTHENTICATOR" => "GSSAPI");
 
 			if ( $full ) {
-				if ( $debug) \sys::logger( sprintf( 'imap_open( %s, %s, %s)',
+				if ( $debug) sys::logger( sprintf( 'imap_open( %s, %s, %s)',
 					$server . $folder, $this->_account, 'password' ));
 
 				/* connect server */
 				if ( $this->_stream = @imap_open($server . $folder, $this->_account, $this->_password, 0, 1, $nogssapi)) {
 					$this->_open = true;
-					if ( $debug) \sys::logger( sprintf( 'successfully opened:imap_open(%s,%s,%s)',
+					if ( $debug) sys::logger( sprintf( 'successfully opened:imap_open(%s,%s,%s)',
 						$server . $folder,
 						$this->_account,
 						'password'));
@@ -294,13 +476,13 @@ class client {
 				}
 				else {
 					$this->_error = sprintf( 'Cannot connect to %s :: %s', $server, imap_last_error());
-					\sys::logger( $this->_error);
+					sys::logger( $this->_error);
 
 				}
 
 			}
 			else {
-				if ( $debug) \sys::logger( sprintf( 'imap_open( %s, %s, %s, OP_HALFOPEN)',
+				if ( $debug) sys::logger( sprintf( 'imap_open( %s, %s, %s, OP_HALFOPEN)',
 					$server . $folder, $this->_account, 'password' ));
 
 				/* connect server */

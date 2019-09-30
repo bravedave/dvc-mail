@@ -9,7 +9,7 @@
  *
 */
 
-namespace dvc\ews\pages;
+namespace dvc\mail\pages;
 use dvc\pages\_page;
 
 class minimal extends _page {

@@ -96,6 +96,14 @@ class home extends dvc\mail\controller {
 
 	}
 
+	function message() {
+		$this->_view([
+			'msg' => '<FE4CC86AFE7A55418896B8277E783C5046E63484@BNE3-0004SMBX.services.admin-domain.net>'
+
+		]);
+
+	}
+
 	public function settings() {
 		$this->render([
 			'title' => $this->title = 'Global Settings',

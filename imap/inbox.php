@@ -56,100 +56,37 @@ class inbox {
 	public function FindItemByMessageID(
 		$MessageID,
 		$includeAttachments = false,
-		$folder = 'INBOX' ) {
+		$folder = 'default' ) {
 
-		// Build the get item request.
-		$request = new Request\FindItemType;
-		$request->ParentFolderIds = new ArrayType\NonEmptyArrayOfBaseFolderIdsType;
+		$ret = false;
 
-		// Return all message properties.
-		$request->ItemShape = new Type\ItemResponseShapeType;
-		//~ $request->ItemShape->BaseShape = Enumeration\DefaultShapeNamesType::ALL_PROPERTIES;
-		$request->ItemShape->BaseShape = Enumeration\DefaultShapeNamesType::ID_ONLY;
-
-		$request->Traversal = Enumeration\ItemQueryTraversalType::SHALLOW;	// Search recursively.
-		//~ $request->Traversal = Enumeration\ItemQueryTraversalType::DEEP;
-
-		// \sys::logger(sprintf( 'folder: %s : %s', $folder, __METHOD__));
-		if ( $folder == 'INBOX') {
-			// Search in the user's inbox.
-			$folder_id = new Type\DistinguishedFolderIdType;
-			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::INBOX;
-			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
-
-		}
-		elseif ( $folder == 'DELETED') {
-			// Search in the user's inbox.
-			$folder_id = new Type\DistinguishedFolderIdType;
-			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::DELETED;
-			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
-
-		}
-		else {
-			$folders = new folders;
-			if ( $_folder = $folders->getByPath( $folder)) {
-				$folder_id = new Type\FolderIdType;
-				$folder_id->Id = $_folder->id->Id;
-				$request->ParentFolderIds->FolderId[] = $folder_id;
-
-			}
-			// throw new \Exception( 'ews_feature_not_written :: select other folders');
-
-		}
-
-		$request->Restriction = new Type\RestrictionType;
-
-		// Build the messageID restriction;
-		$equalTo = new Type\IsEqualToType;
-		$equalTo->FieldURI = new Type\PathToUnindexedFieldType();
-		$equalTo->FieldURI->FieldURI = Enumeration\UnindexedFieldURIType::MESSAGE_INTERNET_MESSAGE_ID;
-		$equalTo->FieldURIOrConstant = new Type\FieldURIOrConstantType;
-		$equalTo->FieldURIOrConstant->Constant = new Type\ConstantValueType;
-		$equalTo->FieldURIOrConstant->Constant->Value = $MessageID;
-
-		$request->Restriction->IsEqualTo = $equalTo;
-
-		/*--- ---[FindItemType]--- ---*/
-
-		try {
-			$response = $this->client->FindItem($request);
-			//~ return ( $response);
-			//~ return ( $response->ResponseMessages);
-			//~ return ( $response->ResponseMessages->FindItemResponseMessage);
-			//~ return ( $response->ResponseMessages->FindItemResponseMessage[0]);
-			//~ return ( $response->ResponseMessages->FindItemResponseMessage[0]->RootFolder);
-			//~ return ( $response->ResponseMessages->FindItemResponseMessage[0]->RootFolder->Items);
-			//~ return ( $response->ResponseMessages->FindItemResponseMessage[0]->RootFolder->Items->Message);
-			$msgs = $response->ResponseMessages->FindItemResponseMessage[0]->RootFolder->Items->Message;
-			if ( count( $msgs))
-				return $msgs[0];
-
-			//~ return ( $response->ResponseMessages->FindItemResponseMessage->Message);
-
-			return ( false);
-
-		}
-		catch (Exception $e) {
-			\sys::logger( "GetItemByMessageID : ResponseCode:" . print_r( $response, TRUE ));	//] => NoError
-
-		}
+		return $ret;
 
 	}
 
 	public function GetItemByMessageID(
 		$MessageID,
 		$includeAttachments = false,
-		$folder = 'INBOX' ) {
+		$folder = 'default' ) {
 
-		if ( $msg = $this->FindItemByMessageID( $MessageID, $includeAttachments, $folder)) {
-			// \sys::logger( 'found message');
-			return $this->GetItemByID( $msg->ItemId->Id, $includeAttachments);
+		$ret = false;
 
-		}
-		else {
-			// \sys::logger( sprintf('message %s not found in %s : %s', $MessageID, $folder, __METHOD__));
+		if ( $this->_client->open( true, $folder)) {
+			$ret = $this->_client->getmessage( $MessageID);
+			$this->_client->close();
 
 		}
+
+			// if ( $msg = $this->FindItemByMessageID( $MessageID, $includeAttachments, $folder)) {
+				// 	// \sys::logger( 'found message');
+				// 	return $this->GetItemByID( $msg->ItemId->Id, $includeAttachments);
+
+				// }
+				// else {
+					// \sys::logger( sprintf('message %s not found in %s : %s', $MessageID, $folder, __METHOD__));
+
+					// }
+		return $ret;
 
 	}
 

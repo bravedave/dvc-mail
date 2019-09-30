@@ -188,7 +188,7 @@ class controller extends \Controller {
 
 				$this->render([
 					'title' => $this->title = $msg->Subject,
-					'template' => __NAMESPACE__ . '\pages\minimal',
+					'template' => 'dvc\mail\pages\minimal',
 					'content' => 'message',
 					'navbar' => []
 

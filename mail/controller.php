@@ -80,6 +80,44 @@ class controller extends \Controller {
 
 	}
 
+	protected function _view( array $params = []) {
+		$options = array_merge([
+			'creds' => $this->creds,
+			'folder' => 'default',
+			'msg' => false
+
+		], $params);
+
+		$inbox = inbox::instance( $options['creds']);
+		if ( $msg = $inbox->GetItemByMessageID( $options['msg'], $includeAttachments = true, $options['folder'])) {
+			// unset( $msg->attachments);
+			// sys::dump( $msg);
+
+			$this->data = (object)[ 'message' => $msg ];
+
+			$this->render([
+				'title' => $this->title = $msg->Subject,
+				'template' => 'dvc\mail\pages\minimal',
+				'content' => 'message',
+				'navbar' => []
+
+			]);
+
+			// $msg->Body = strings::htmlSanitize( $msg->Body);
+			// Json::ack( $action)->add( 'message', $msg);
+
+		}
+		else {
+			$this->render([
+				'title' => $this->title = 'View Message',
+				'content' => 'not-found'
+
+			]);
+
+		}
+
+	}
+
 	protected function _webmail( credentials $creds) {
 		$dump = false;
 		// $dump = true;
@@ -117,6 +155,27 @@ class controller extends \Controller {
 			return ( $view);
 
 		return parent::getView( $viewName, $controller);
+
+	}
+
+	public function view() {
+		if ( $msg = $this->getParam('msg')) {
+			$this->_view([
+				'creds' => $this->creds,
+				'folder' => $this->getParam('folder','default'),
+				'msg' => $msg,
+
+			]);
+
+		}
+		else {
+			$this->render([
+				'title' => $this->title = 'View Message',
+				'content' => 'missing-information'
+
+			]);
+
+		}
 
 	}
 

@@ -218,7 +218,6 @@ class controller extends \Controller {
 			$folder = $this->getParam('folder','INBOX');
 			$inbox = new inbox( $this->creds);
 			if ( $msg = $inbox->GetItemByMessageID( $msg, $includeAttachments = true, $folder)) {
-
 				$this->data = (object)[
 					'message' => $msg
 
@@ -226,7 +225,7 @@ class controller extends \Controller {
 
 				$this->render([
 					'title' => $this->title = $msg->Subject,
-					'template' => __NAMESPACE__ . '\pages\minimal',
+					'template' => 'dvc\mail\pages\minimal',
 					'content' => 'message',
 					'navbar' => []
 
