@@ -408,18 +408,20 @@ class client {
 		if ( $this->open( true, $folder )) {
 			if ( $msgno > 0 ) {
 				$ret = $this->_getmessage( $msgno);
+				sys::logger( sprintf( 'retrieved msgno via imap : %s :: %s : %s', $id, $folder, __METHOD__));
 
 			}
 			elseif ( $msg = $this->_getMessageHeader( $id, $folder )) {
 				// sys::dump( $msg);
 				$ret = $this->_getmessage( $msg->msgno, $msg);
+				sys::logger( sprintf( 'retrieved message via imap : %s :: %s : %s', $id, $folder, __METHOD__));
 
 			}
 			$this->close();
 
 		}
 		else {
-			sys::logger( sprintf( 'imap\message->getmessage :: failed to open folder : %s :: %s', $folder, $this->_error));
+			sys::logger( sprintf( 'failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
 
 		}
 

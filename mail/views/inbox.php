@@ -259,7 +259,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		$.each( messages, function( i, msg) {
 
-			console.log( msg);
+			// console.log( msg);
 			let from = $('<div class="col text-truncate" from />').html( msg.from);
 			if ( 'no' == msg.seen) from.addClass('font-weight-bold');
 
