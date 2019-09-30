@@ -49,6 +49,40 @@ class controller extends \Controller {
 				->add( 'messages', $this->_messages( $params));
 
 		}
+		elseif ( 'move-message' == $action) {
+			if ( $msgID = $this->getPost('messageid')) {
+				// sys::logger( sprintf( '%s : %s', $itemID, __METHOD__));
+
+				$srcFolder = $this->getPost('folder', 'default');
+
+				$inbox = inbox::instance( $options['creds']);
+				if ( $msg = $inbox->GetItemByMessageID( $msgID, false, $srcFolder)) {
+
+					if ( $targetFolder = $this->getPost('targetFolder')) {
+						$moved = false;
+						$folders = folders::instance( $this->creds);
+						foreach( $_fldrs = $folders->getAll() as $_fldr) {
+							if ( $targetFolder == $_fldr->map) {
+								if ( $inbox->MoveItem( $msg, $targetFolder)) {
+									$moved = true;
+									\Json::ack( $action);
+									break;
+
+								}
+
+							}
+
+						}
+
+						if ( !$moved) { \Json::nak( sprintf('%s : message not moved', $action)); }
+
+					} else { \Json::nak( sprintf('%s : folder not found', $action)); }
+
+				} else { \Json::nak( sprintf('%s : message not found in %s', $action, $srcFolder)); }
+
+			}
+
+		}
 
 	}
 
