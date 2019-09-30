@@ -118,7 +118,9 @@ class home extends dvc\mail\controller {
 	}
 
 	public function inbox() {
-		sys::dump( $this->_messages());
+		sys::dump( $this->_messages([
+			'folder' => '_Inbox'
+		]));
 
 	}
 

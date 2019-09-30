@@ -39,7 +39,7 @@ class controller extends \Controller {
 			// todo: creds
 			$params = [
 				'creds' => $this->creds,
-				'folder' => $this->getPost('folder', 'INBOX'),
+				'folder' => $this->getPost('folder', 'default'),
 				'deep' => false
 
 			];

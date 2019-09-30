@@ -18,6 +18,8 @@ class client {
 
 	protected $_error = '';
 
+	protected $_folder = '';
+
 	protected $_open = false;
 
 	protected $_password = '';
@@ -383,17 +385,19 @@ class client {
 
 		$ret = [];
 
-		if ($emails = imap_sort( $this->_stream, SORTARRIVAL, TRUE, SE_NOPREFETCH )) {
+		if ($emails = imap_sort( $this->_stream, SORTARRIVAL, true, SE_NOPREFETCH )) {
+			// sys::dump( $emails);
 			$i = 0;
-			foreach($emails as $email_number) {
+			foreach( $emails as $email_number) {
 				if ( $i++ > 9 ) break;
-				$ret[] = $this->_overview($email_number);
+				$msg = $this->_overview( $email_number);
+				$msg->Folder = $this->_folder;
+				$ret[] = $msg;
 
 			}
 
 		}
 
-		// sys::dump( $ret);
 		return $ret;
 
 	}
@@ -470,6 +474,7 @@ class client {
 				/* connect server */
 				if ( $this->_stream = @imap_open($server . $folder, $this->_account, $this->_password, 0, 1, $nogssapi)) {
 					$this->_open = true;
+					$this->_folder = $folder;
 					if ( $debug) sys::logger( sprintf( 'successfully opened:imap_open(%s,%s,%s)',
 						$server . $folder,
 						$this->_account,
@@ -488,11 +493,18 @@ class client {
 					$server . $folder, $this->_account, 'password' ));
 
 				/* connect server */
-				if ( $this->_stream = @imap_open( $server . $folder, $this->_account, $this->_password, OP_HALFOPEN, 1, $nogssapi ))
+				if ( $this->_stream = @imap_open( $server . $folder, $this->_account, $this->_password, OP_HALFOPEN, 1, $nogssapi )) {
 					$this->_open = true;
+					$this->_folder = $folder;
+					if ( $debug) sys::logger( sprintf( 'successfully half-opened:imap_open(%s,%s,%s)',
+						$server . $folder,
+						$this->_account,
+						'password'));
 
-				else
+				} else {
 					$this->_error = sprintf( 'Cannot connect to %s :: %s', $server, imap_last_error());
+
+				}
 
 			}
 
