@@ -534,6 +534,8 @@ $(document).on( 'view-message', function(e) {
 });
 
 $(document).ready( function() {
+	$(this).data('route', '<?= $this->route ?>');
+
 	let i = $('body > nav').height() + $('body > footer').height();
 	$('div[data-role="main-content-wrapper"]').css({
 		'height' : 'calc( 100% - ' + i + 'px)'
