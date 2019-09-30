@@ -55,7 +55,7 @@ class controller extends \Controller {
 
 				$srcFolder = $this->getPost('folder', 'default');
 
-				$inbox = inbox::instance( $options['creds']);
+				$inbox = inbox::instance( $this->creds);
 				if ( $msg = $inbox->GetItemByMessageID( $msgID, false, $srcFolder)) {
 
 					if ( $targetFolder = $this->getPost('targetFolder')) {
