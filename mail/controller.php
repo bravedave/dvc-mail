@@ -141,7 +141,10 @@ class controller extends \Controller {
 			\dvc\pages\_page::$momentJS = true;
 			$this->render([
 				'title' => $this->title = $this->label,
-				'scripts' => (array)strings::url( sprintf( '%s/localjs', $this->route)),
+				'scripts' => [
+					strings::url( sprintf( '%s/localjs', $this->route))
+
+				],
 				'content' => 'inbox'
 
 			]);
