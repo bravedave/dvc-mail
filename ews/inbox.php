@@ -52,15 +52,13 @@ class inbox {
 		$request->ItemShape = new Type\ItemResponseShapeType;
 		$request->ItemShape->BaseShape = Enumeration\DefaultShapeNamesType::ALL_PROPERTIES;
 
-		if ( $options->folder == 'INBOX' || $options->folder == 'default') {
-			// Search in the user's inbox.
+		if ( $options->folder == $this->defaults()->inbox || $options->folder == 'default') {
 			$folder_id = new Type\DistinguishedFolderIdType;
 			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::INBOX;
 			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
 
 		}
 		elseif ( $options->folder == 'DELETED') {
-			// Search in the user's inbox.
 			$folder_id = new Type\DistinguishedFolderIdType;
 			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::DELETED;
 			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
@@ -171,7 +169,7 @@ class inbox {
 	public function FindItemByMessageID(
 		$MessageID,
 		$includeAttachments = false,
-		$folder = 'INBOX' ) {
+		$folder = 'default' ) {
 
 		// Build the get item request.
 		$request = new Request\FindItemType;
@@ -186,15 +184,13 @@ class inbox {
 		//~ $request->Traversal = Enumeration\ItemQueryTraversalType::DEEP;
 
 		// \sys::logger(sprintf( 'folder: %s : %s', $folder, __METHOD__));
-		if ( $folder == 'INBOX') {
-			// Search in the user's inbox.
+		if ( $options->folder == $this->defaults()->inbox || $options->folder == 'default') {
 			$folder_id = new Type\DistinguishedFolderIdType;
 			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::INBOX;
 			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
 
 		}
 		elseif ( $folder == 'DELETED') {
-			// Search in the user's inbox.
 			$folder_id = new Type\DistinguishedFolderIdType;
 			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::DELETED;
 			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
@@ -254,7 +250,7 @@ class inbox {
 	public function GetItemByMessageID(
 		$MessageID,
 		$includeAttachments = false,
-		$folder = 'INBOX' ) {
+		$folder = 'default' ) {
 
 		if ( $msg = $this->FindItemByMessageID( $MessageID, $includeAttachments, $folder)) {
 			// \sys::logger( 'found message');
