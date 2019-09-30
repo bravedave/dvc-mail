@@ -316,7 +316,7 @@ class client {
 			if ( isset( $msg->subject)) $ret->Subject = self::decodeMimeStr($msg->subject);
 
 			if ( isset( $msg->from)) {
-				$ret->From = $this->self::decodeMimeStr($msg->from);
+				$ret->From = self::decodeMimeStr($msg->from);
 				$ea = new EmailAddress( $ret->From);
 				$ret->fromEmail = $ea->email;
 
