@@ -150,10 +150,10 @@ class folders {
 
 	}
 
-	function getByPath( $FolderPath) {
-		if ( $fldrs = $this->getAll()) {
+	function getByPath( $path) {
+		if ( $fldrs = $this->getAll('json')) {
 			foreach ( $fldrs as $fldr) {
-				if ( $FolderPath == $fldr->map) {
+				if ( $path == $fldr->map) {
 					return ( $fldr);
 
 				}
