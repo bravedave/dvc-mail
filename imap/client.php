@@ -11,6 +11,7 @@
 namespace dvc\imap;
 
 use dvc\mail\credentials;
+use dvc\EmailAddress;
 use sys;
 
 class client {
@@ -303,28 +304,35 @@ class client {
 		$ret = new \dvc\mail\message;
 
 		if ( isset( $overview[0])) {
-			if ( isset( $overview[0]->seen)) $ret->seen = ( $overview[0]->seen ? 'yes' : 'no' );
+			$msg = $overview[0];
+			// sys::dump( $msg);
+			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
 
-			if ( isset( $overview[0]->to)) $ret->To = (string)$overview[0]->to;
+			if ( isset( $msg->to)) $ret->To = $this->ReplaceImap( imap_utf8((string)$msg->to));
 
-			if ( isset( $overview[0]->subject)) $ret->Subject = $this->ReplaceImap( imap_utf8($overview[0]->subject));
+			if ( isset( $msg->subject)) $ret->Subject = $this->ReplaceImap( imap_utf8($msg->subject));
 
-			if ( isset( $overview[0]->from)) $ret->From = $this->ReplaceImap( imap_utf8($overview[0]->from));
-
-			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
-
-			if ( isset( $overview[0]->message_id)) $ret->xmessage_id = $overview[0]->message_id;
-
-			if ( isset( $overview[0]->date)) {
-				$ret->Recieved = $overview[0]->date;
-
-				if ( preg_match( "/^Date:/", $overview[0]->date ))
-					$ret["Recieved"] = preg_replace( "/^Date:/", "", $overview[0]->date );
+			if ( isset( $msg->from)) {
+				$ret->From = $this->ReplaceImap( imap_utf8($msg->from));
+				$ea = new EmailAddress( $ret->From);
+				$ret->fromEmail = $ea->email;
 
 			}
 
-			if ( isset( $overview[0]->in_reply_to)) $ret->in_reply_to = $overview[0]->in_reply_to;
-			if ( isset( $overview[0]->references)) $ret->references = $overview[0]->references;
+			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
+
+			if ( isset( $msg->message_id)) $ret->xmessage_id = $msg->message_id;
+
+			if ( isset( $msg->date)) {
+				$ret->Recieved = $msg->date;
+
+				if ( preg_match( "/^Date:/", $msg->date ))
+					$ret["Recieved"] = preg_replace( "/^Date:/", "", $msg->date );
+
+			}
+
+			if ( isset( $msg->in_reply_to)) $ret->in_reply_to = $msg->in_reply_to;
+			if ( isset( $msg->references)) $ret->references = $msg->references;
 
 		}
 
