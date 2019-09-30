@@ -103,7 +103,17 @@ class home extends dvc\mail\controller {
 			// console.log( options);
 
 			if ( !!options.context) {
-				options.context.prepend(\'<a href="#">noice</a>\');
+				let ctrl = $(\'<a href="#">noice</a>\');
+				ctrl.on( \'click\', function( e) {
+					e.preventDefault();
+
+					_brayworth_.growl( $(this).html());
+
+					options.context.close();
+
+				});
+
+				options.context.prepend(ctrl);
 
 			}
 

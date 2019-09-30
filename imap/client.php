@@ -307,7 +307,7 @@ class client {
 
 			if ( isset( $overview[0]->to)) $ret->To = (string)$overview[0]->to;
 
-			if ( isset( $overview[0]->subject)) $ret->Subject = $overview[0]->subject;
+			if ( isset( $overview[0]->subject)) $ret->Subject = $this->ReplaceImap( imap_utf8($overview[0]->subject));
 
 			if ( isset( $overview[0]->from)) $ret->From = $this->ReplaceImap( imap_utf8($overview[0]->from));
 
@@ -430,6 +430,25 @@ class client {
 		}
 
 		return ( $ret );
+
+	}
+
+	public function move_message( $id, $target) {
+		$ret = false;
+		$total = imap_num_msg( $this->_stream );
+		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
+		foreach ( $result as $msg) {
+			if ( "{$msg->message_id}" == "{$id}" ) {
+				imap_mail_move( $this->_stream, $msg->msgno, $target);
+				imap_expunge( $this->_stream);
+				$ret = sprintf( 'moved to %s : %s', $target, __METHOD__ );
+				break;
+
+			}
+
+		}
+
+		return $ret;
 
 	}
 

@@ -54,33 +54,21 @@ class controller extends \Controller {
 				// sys::logger( sprintf( '%s : %s', $itemID, __METHOD__));
 
 				$srcFolder = $this->getPost('folder', 'default');
+				if ( $targetFolder = $this->getPost('targetFolder')) {
 
-				$inbox = inbox::instance( $this->creds);
-				if ( $msg = $inbox->GetItemByMessageID( $msgID, false, $srcFolder)) {
+					$inbox = inbox::instance( $this->creds);
+					if ( $res = $inbox->MoveItem( $msgID, $srcFolder, $targetFolder)) {
+						\Json::ack( $action);
 
-					if ( $targetFolder = $this->getPost('targetFolder')) {
-						$moved = false;
-						$folders = folders::instance( $this->creds);
-						foreach( $_fldrs = $folders->getAll('json') as $_fldr) {
-							if ( $targetFolder == $_fldr->map) {
-								if ( $inbox->MoveItem( $msg, $targetFolder)) {
-									$moved = true;
-									\Json::ack( $action);
-									break;
+					} else { \Json::nak( $action); }
 
-								}
+				} else { \Json::nak( sprintf('missing target folder : %s', $action)); }
 
-							}
+			} else { \Json::nak( sprintf('invalid message : %s', $action)); }
 
-						}
-
-						if ( !$moved) { \Json::nak( sprintf('%s : message not moved', $action)); }
-
-					} else { \Json::nak( sprintf('%s : folder not found', $action)); }
-
-				} else { \Json::nak( sprintf('%s : message not found in %s', $action, $srcFolder)); }
-
-			}
+		}
+		else {
+			parent::postHandler();
 
 		}
 

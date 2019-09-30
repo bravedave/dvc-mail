@@ -211,20 +211,41 @@ class inbox {
 
 	}
 
-	public function MoveItem( $item, $FolderPath ) {
-		$dao = new folders;
-		if ( $fldr = $dao->getByPath( $FolderPath)) {
-			// Form the move request.
-			$request = new Request\MoveItemType;
-			$request->ItemIds = (array)$item;
-			$request->ToFolderId = new Type\TargetFolderIdType;
-			$request->ToFolderId->FolderId = $fldr->id;
+	// public function MoveItem( $item, $FolderPath ) {
+	// 	$dao = new folders;
+	// 	if ( $fldr = $dao->getByPath( $FolderPath)) {
+	// 		// Form the move request.
+	// 		$request = new Request\MoveItemType;
+	// 		$request->ItemIds = (array)$item;
+	// 		$request->ToFolderId = new Type\TargetFolderIdType;
+	// 		$request->ToFolderId->FolderId = $fldr->id;
 
-			return query::MoveItem( $request);
+	// 		return query::MoveItem( $request);
+
+	// 	}
+
+	// 	return ( false);
+
+	// }
+
+	public function MoveItem(
+		string $itemID,
+		string $folder = "default",
+		string $archiveFolder ) {
+
+		$ret = false;
+
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->move_message( $itemID, $archiveFolder);
+			$this->_client->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
 
 		}
 
-		return ( false);
+		return ( $ret);
 
 	}
 
