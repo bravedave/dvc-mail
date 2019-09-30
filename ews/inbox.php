@@ -184,7 +184,7 @@ class inbox {
 		//~ $request->Traversal = Enumeration\ItemQueryTraversalType::DEEP;
 
 		// \sys::logger(sprintf( 'folder: %s : %s', $folder, __METHOD__));
-		if ( $options->folder == $this->defaults()->inbox || $folder == 'default') {
+		if ( $folder == $this->defaults()->inbox || $folder == 'default') {
 			$folder_id = new Type\DistinguishedFolderIdType;
 			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::INBOX;
 			$request->ParentFolderIds->DistinguishedFolderId[] = $folder_id;
