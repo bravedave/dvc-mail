@@ -86,17 +86,43 @@ class home extends dvc\mail\controller {
 
 	}
 
-	function folders() {
+	public function folders() {
 		sys::dump( $this->_folders());
 
 	}
 
-	function inbox() {
+	public function localjs() {
+		printf( '
+		$(document).on( \'mail-messages-context\', function( e, params) {
+			let options = $.extend({
+				element : false,
+				context : false,
+
+			}, params);
+
+			// console.log( options);
+
+			if ( !!options.context) {
+				options.context.prepend(\'<a href="#">noice</a>\');
+
+			}
+
+		});
+
+		$(document).ready( function() {
+			console.log( \'-- add scripts here -- : %s\');
+
+		});
+		', __METHOD__);
+
+	}
+
+	public function inbox() {
 		sys::dump( $this->_messages());
 
 	}
 
-	function message() {
+	public function message() {
 		$this->_view([
 			'msg' => '<FE4CC86AFE7A55418896B8277E783C5046E63484@BNE3-0004SMBX.services.admin-domain.net>'
 

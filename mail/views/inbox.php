@@ -388,7 +388,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 				let _context = _brayworth_.context();
 				let ctrl;
 
-				_context.append( ctrl = $('<a href="#">delete</a>'));
+				_context.append( ctrl = $('<a href="#"><i class="fa fa-trash" />delete</a>'));
 				ctrl.on( 'click', function( e) {
 					e.stopPropagation();e.preventDefault();
 
@@ -411,6 +411,12 @@ $(document).on( 'mail-messages', function( e, folder) {
 					});
 
 					_context.close();
+
+				});
+
+				$(document).trigger( 'mail-messages-context', {
+					element : this,
+					context : _context
 
 				});
 

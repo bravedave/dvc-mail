@@ -16,7 +16,7 @@ namespace dvc\mail;
 // use bCrypt;
 use Json;
 // use Response;
-// use strings;
+use strings;
 use sys;
 // use url;
 
@@ -141,6 +141,7 @@ class controller extends \Controller {
 			\dvc\pages\_page::$momentJS = true;
 			$this->render([
 				'title' => $this->title = $this->label,
+				'scripts' => (array)strings::url( sprintf( '%s/localjs', $this->route)),
 				'content' => 'inbox'
 
 			]);
@@ -155,6 +156,11 @@ class controller extends \Controller {
 			return ( $view);
 
 		return parent::getView( $viewName, $controller);
+
+	}
+
+	public function localjs() {
+		print '/* placeholder for local scripts */';
 
 	}
 
