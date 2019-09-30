@@ -136,7 +136,7 @@ class home extends dvc\mail\controller {
 
 	public function message() {
 		$this->_view([
-			'msg' => '<FE4CC86AFE7A55418896B8277E783C5046E63484@BNE3-0004SMBX.services.admin-domain.net>'
+			'msg' => '<0a65046c-ce7c-4c8b-a93f-3b71e9777d20@W2008k.ashgrove.darcy.com.au>'
 
 		]);
 

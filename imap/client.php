@@ -200,6 +200,9 @@ class client {
 		$ret = new \dvc\mail\message;
 		$ret->subject = self::decodeMimeStr((string)$headers->subject);
 		$ret->From = self::decodeMimeStr((string)$from);
+			$ea = new EmailAddress( $ret->From);
+			$ret->fromEmail = $ea->email;
+
 		$ret->To = self::decodeMimeStr((string)$to);
 		$ret->CC = self::decodeMimeStr((string)$cc);
 		$ret->MessageID = $headers->message_id;
@@ -308,12 +311,12 @@ class client {
 			// sys::dump( $msg);
 			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
 
-			if ( isset( $msg->to)) $ret->To = $this->ReplaceImap( imap_utf8((string)$msg->to));
+			if ( isset( $msg->to)) $ret->To = self::decodeMimeStr((string)$msg->to);
 
-			if ( isset( $msg->subject)) $ret->Subject = $this->ReplaceImap( imap_utf8($msg->subject));
+			if ( isset( $msg->subject)) $ret->Subject = self::decodeMimeStr($msg->subject);
 
 			if ( isset( $msg->from)) {
-				$ret->From = $this->ReplaceImap( imap_utf8($msg->from));
+				$ret->From = $this->self::decodeMimeStr($msg->from);
 				$ea = new EmailAddress( $ret->From);
 				$ret->fromEmail = $ea->email;
 
