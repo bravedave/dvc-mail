@@ -29,6 +29,8 @@ class ews extends dvc\ews\controller {
          *
          */
         if ( account::$ENABLED) {
+			sys::logger( sprintf( 'account enabled : %s', __METHOD__));
+
 			$this->creds = new credentials(
 				account::$USERNAME,
 				account::$PASSWORD,
@@ -37,6 +39,8 @@ class ews extends dvc\ews\controller {
 			);
 
 		}
+
+		// sys::logger( var_export( $this->creds, true));
 
 	}
 
@@ -121,6 +125,11 @@ class ews extends dvc\ews\controller {
 			'secondary' => ['index']
 
 		]);
+
+	}
+
+	function inbox() {
+		sys::dump( $this->_messages());
 
 	}
 

@@ -14,19 +14,114 @@ namespace dvc\mail;
 // use dvc\mail\credentials;
 
 // use bCrypt;
-// use Json;
+use Json;
 // use Response;
 // use strings;
-// use sys;
+use sys;
 // use url;
 
 class controller extends \Controller {
+	protected function before() {
+		$this->route = get_class( $this);
+		parent::before();
+
+	}
+
+	protected function postHandler() {
+		$action = $this->getPost('action');
+
+		if ( 'get-folders' == $action) {
+			Json::ack( $action)
+				->add( 'folders', $this->_folders());
+
+		}
+		elseif ( 'get-messages' == $action) {
+			// todo: creds
+			$params = [
+				'creds' => $this->creds,
+				'folder' => $this->getPost('folder', 'INBOX'),
+				'deep' => false
+
+			];
+
+			Json::ack( $action)
+				->add( 'folder', $params['folder'])
+				->add( 'messages', $this->_messages( $params));
+
+		}
+
+	}
+
+	protected function _folders( $format = 'json') {
+		$folders = folders::instance( $this->creds);
+		return $folders->getAll( $format);
+
+	}
+
+	protected function _messages( array $params = []) : array {
+
+		$options = array_merge([
+			'creds' => $this->creds,
+			'folder' => 'default',
+			'deep' => false
+
+		], $params);
+
+		$inbox = inbox::instance( $options['creds']);
+		$messages = (array)$inbox->finditems( $options);
+		// sys::dump( $messages);
+
+		$a = [];
+		foreach ( $messages as $message)
+			$a[] = $message->asArray();
+
+		return $a;
+		// return $messages;
+
+	}
+
+	protected function _webmail( credentials $creds) {
+		$dump = false;
+		// $dump = true;
+
+		if ( $dump) {
+			// sys::dump( $creds, __METHOD__);
+
+			$Inbox = inbox::instance( $creds);
+			// sys::dump( $Inbox, __METHOD__);
+			$response = $Inbox->finditems([
+				'deep' => true,
+				'folder' => $Inbox->defaults()->inbox,
+				'pageSize' => 2
+
+			]);
+
+			sys::dump( $response, null, false);
+
+		}
+		else {
+			\dvc\pages\_page::$momentJS = true;
+			$this->render([
+				'title' => $this->title = $this->label,
+				'content' => 'inbox'
+
+			]);
+
+		}
+
+	}
+
 	protected function getView( $viewName = 'index', $controller = null ) {
 		$view = sprintf( '%s/views/%s.php', __DIR__, $viewName );		// php
 		if ( file_exists( $view))
 			return ( $view);
 
 		return parent::getView( $viewName, $controller);
+
+	}
+
+	public function webmail() {
+		$this->_webmail( $this->creds);
 
 	}
 

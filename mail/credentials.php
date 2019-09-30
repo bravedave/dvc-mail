@@ -11,17 +11,28 @@
 namespace dvc\mail;
 
 class credentials {
-	var $account, $password, $server;
+	public $account = '';
+	public $password = '';
+	public $server = '';
+	public $interface = 0;
+
+	const imap = 1;
+	const ews = 2;
 
 	function __construct( $_user, $_pass, $_server = null) {
 		$this->account = $_user;
 		$this->password = $_pass;
 
 		if ( is_null( $_server)) {
-			if ( isset( \config::$exchange_server))
+			if ( isset( \config::$exchange_server)) {
+				$this->interface = self::ews;
 				$this->server = \config::$exchange_server;
-			else
+
+			}
+			else {
 				throw new Exceptions\InvalidExchangeServer;
+
+			}
 
 		}
 		else {

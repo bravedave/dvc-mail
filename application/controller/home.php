@@ -9,6 +9,8 @@
  *
  * */
 
+use dvc\mail\credentials;
+
 class home extends dvc\mail\controller {
     protected function _index() {
 		$this->render([
@@ -30,7 +32,31 @@ class home extends dvc\mail\controller {
          * use this area to establish an account
          *
          */
-		$this->creds = currentUser::exchangeAuth();
+
+		if ( dvc\mail\config::$ENABLED) {
+
+			if ( 'ews' == dvc\mail\config::$MODE) {
+				$this->creds = currentUser::exchangeAuth();
+
+			}
+			elseif ( 'imap' == dvc\mail\config::$MODE) {
+				if ( dvc\imap\account::$ENABLED) {
+					$this->creds = new credentials(
+						dvc\imap\account::$USERNAME,
+						dvc\imap\account::$PASSWORD,
+						dvc\imap\account::$SERVER
+
+					);
+
+					$this->creds->interface = dvc\mail\credentials::imap;
+
+					// sys::dump( $this->creds);
+
+				}
+
+			}
+
+		}
 
 	}
 
@@ -50,13 +76,23 @@ class home extends dvc\mail\controller {
 
 			//~ sys::dump( $a);
 
-			Response::redirect( strings::url( $this->route));
+			Response::redirect( strings::url());
 
 		}
 		else {
 			parent::postHandler();
 
 		}
+
+	}
+
+	function folders() {
+		sys::dump( $this->_folders());
+
+	}
+
+	function inbox() {
+		sys::dump( $this->_messages());
 
 	}
 

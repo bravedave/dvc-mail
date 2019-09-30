@@ -168,6 +168,7 @@ $(document).on( 'mail-folderlist', function( e) {
 	let _list = function( folders) {
 		let ul = $('<ul class="list-unstyled small" />');
 
+		let map = '';
 		$.each( folders, function( i, fldr) {
 			// console.log( fldr);
 
@@ -213,6 +214,7 @@ $(document).on( 'mail-folderlist', function( e) {
 	}
 
 	data.action = 'get-folders';
+	// console.log( data);
 	_brayworth_.post({
 		url : _brayworth_.url('<?= $this->route ?>'),
 		data : data,
@@ -224,6 +226,7 @@ $(document).on( 'mail-folderlist', function( e) {
 
 		}
 		else {
+			console.log( d);
 			_brayworth_.growl( d);
 
 		}
@@ -256,7 +259,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		$.each( messages, function( i, msg) {
 
-			// console.log( msg);
+			console.log( msg);
 			let from = $('<div class="col text-truncate" from />').html( msg.from);
 			if ( 'no' == msg.seen) from.addClass('font-weight-bold');
 

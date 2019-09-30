@@ -15,10 +15,12 @@ abstract class currentUser extends dvc\currentUser {
 		 * return the credentials of the current account
 		 * */
 		if ( dvc\ews\account::$ENABLED) {
-			return new dvc\mail\credentials(
+			$creds = new dvc\mail\credentials(
 				dvc\ews\account::$USERNAME,
 				dvc\ews\account::$PASSWORD,
 				dvc\ews\account::$SERVER);
+
+			$creds->interface = dvc\mail\credentials::ews;
 
 		}
 

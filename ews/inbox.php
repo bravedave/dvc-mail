@@ -25,12 +25,20 @@ class inbox {
 
 	}
 
+    public function defaults() {
+		return (object)[
+			'inbox' => 'INBOX'
+
+		];
+
+    }
+
 	public function finditems( $params) {
 		$options = (object)array_merge([
 			'deep' => false,
 			'page' => 0,
 			'pageSize' => 20,
-			'folder' => 'INBOX',
+			'folder' => $this->defaults()->inbox,
 			'allPages' => false
 
 		], $params);
@@ -44,7 +52,7 @@ class inbox {
 		$request->ItemShape = new Type\ItemResponseShapeType;
 		$request->ItemShape->BaseShape = Enumeration\DefaultShapeNamesType::ALL_PROPERTIES;
 
-		if ( $options->folder == 'INBOX') {
+		if ( $options->folder == 'INBOX' || $options->folder == 'default') {
 			// Search in the user's inbox.
 			$folder_id = new Type\DistinguishedFolderIdType;
 			$folder_id->Id = Enumeration\DistinguishedFolderIdNameType::INBOX;

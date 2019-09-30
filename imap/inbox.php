@@ -17,16 +17,25 @@ class inbox {
 	var $errors = [];
 
 	function __construct( $creds = null) {
+		// sys::dump( $creds);
 		$this->_client = client::instance( $creds);
 
 	}
+
+    public function defaults() {
+		return (object)[
+			'inbox' => client::INBOX
+
+		];
+
+    }
 
 	public function finditems( $params) {
 		$options = array_merge([
 			'deep' => false,
 			'page' => 0,
 			'pageSize' => 20,
-			'folder' => 'INBOX',
+			'folder' => $this->defaults()->inbox,
 			'allPages' => false
 
 		], $params);
@@ -41,79 +50,6 @@ class inbox {
 		}
 
 		return ( $ret );
-
-
-		$messages = [];
-		foreach ( $response_messages as $response_message) {
-			if ( $response_message->ResponseClass != Enumeration\ResponseClassType::SUCCESS) {
-				$code = $response_message->ResponseCode;
-				$message = $response_message->MessageText;
-				$this->errors[] = sprintf( 'Failed to search for messages with "%s: %s"', $code, $message );
-				continue;
-
-			}
-
-			// Set the base values from the first page of results.
-			$messages = $response_message->RootFolder->Items->Message;
-			$last_page = $response_message->RootFolder->IncludesLastItemInRange;
-			if ( $options->allPages) {
-				for ( $page_number = 1; !$last_page; ++$page_number) {
-					//~ break;
-
-					//~ if ( $page_number > 2 ) break;
-
-					// Until we have the last page, keep requesting the next page of messages.
-					// Request the next page.
-					$request->IndexedPageItemView->Offset = self::$page_size * $page_number;
-					//~ \sys::logger( sprintf( '%s : %s', $page_number, $request->IndexedPageItemView->Offset));
-					$response = $this->client->FindItem( $request);
-
-					// Add the messages to the list of messages retrieved. If the total
-					// number of messages is large, you could easily run out of memory here.
-					// It is advised that you perform you operations on messages when you
-					// retrieve them rather than keeping a list of them in memory.
-					$response_message = $response->ResponseMessages->FindItemResponseMessage[0];
-
-					$messages = array_merge(
-						$messages,
-						$response_message->RootFolder->Items->Message
-					);
-
-					// Store the updated last page value.
-					$last_page = $response_message->RootFolder->IncludesLastItemInRange;
-
-				}
-
-			}
-
-		}
-
-		$msgs = [];
-		foreach ( $messages as $message) {
-			$m = new message( $message);
-			$m->Folder = $options->folder;
-			unset( $m->src);
-			$msgs[] = $m;
-
-		}
-
-		//~ \sys::logger( sprintf( 'ews\inbox->finditems :: %d', count( $messages)));
-		//~ return ( $messages);
-
-		if ( $options->deep) {
-			$ms = [];
-			foreach ( $msgs as $msg) {
-				$m = $this->GetItemByID( $msg->ItemId->Id);
-				$m->Folder = $options->folder;
-				$ms[] = $m;
-
-			}
-
-			return ( $ms);
-
-		}
-
-		return ( $msgs);
 
 	}
 

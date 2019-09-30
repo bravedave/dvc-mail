@@ -22,7 +22,7 @@ use url;
 
 class controller extends \Controller {
 	protected $route = config::ews_route;
-	private $creds = null;	// credentials
+	protected $creds = null;	// credentials
 
 	protected function _webmail( credentials $creds) {
 		$dump = false;
@@ -137,22 +137,15 @@ class controller extends \Controller {
 
 			// todo: creds
 			$params = [
-				'folder' => $this->getPost('folder', 'INBOX'),
+				'creds' => $this->creds,
+				'folder' => $this->getPost('folder', 'default'),
 				'deep' => false
 
 			];
 
-			$inbox = new inbox( $this->creds);
-			$messages = (array)$inbox->finditems( $params);
-			//~ sys::dump( $messages);
-
-			$a = [];
-			foreach ( $messages as $message)
-				$a[] = $message->asArray();
-
 			Json::ack( $action)
 				->add( 'folder', $params['folder'])
-				->add( 'messages', $a);
+				->add( 'messages', $this->_messages( $params));
 
 		}
 		elseif ( 'move-message' == $action) {
@@ -193,6 +186,27 @@ class controller extends \Controller {
 
 	}
 
+	protected function _messages( array $params = []) : array {
+
+		$options = array_merge([
+			'creds' => $this->creds,
+			'folder' => 'default',
+			'deep' => false
+
+		], $params);
+
+		$inbox = new inbox( $options['creds']);
+		$messages = (array)$inbox->finditems( $params);
+		//~ sys::dump( $messages);
+
+		$a = [];
+		foreach ( $messages as $message)
+			$a[] = $message->asArray();
+
+		return $a;
+
+	}
+
 	public function __construct( $rootPath ) {
 		$this->label = config::$WEBNAME;
 		parent::__construct( $rootPath);
@@ -202,7 +216,7 @@ class controller extends \Controller {
 	public function view() {
 		if ( $msg = $this->getParam('msg')) {
 			$folder = $this->getParam('folder','INBOX');
-			$inbox = new inbox;
+			$inbox = new inbox( $this->creds);
 			if ( $msg = $inbox->GetItemByMessageID( $msg, $includeAttachments = true, $folder)) {
 
 				$this->data = (object)[

@@ -213,11 +213,13 @@ $(document).on( 'mail-folderlist', function( e) {
 	}
 
 	data.action = 'get-folders';
-	_brayworth_.post({
+	let postData = {
 		url : _brayworth_.url('<?= $this->route ?>'),
 		data : data,
 
-	}).then( function( d) {
+	};
+	// console.log( postData);
+	_brayworth_.post( postData).then( function( d) {
 		if ( 'ack' == d.response) {
 			sessionStorage.setItem( key, JSON.stringify( d.folders));
 			_list( d.folders);

@@ -17,31 +17,8 @@ use \jamesiarmes\PhpEws\Request;
 use \jamesiarmes\PhpEws\Type;
 
 
-class message {
+class message extends \dvc\mail\message {
 	//~ var $src = NULL;
-
-	public $attachmentIDs = [];
-	public $attachments = [];
-	public $answered = 'no';
-	public $flagged = 'no';
-	public $forwarded = 'no';
-	public $fromName = '';
-	public $fromEmail = '';
-	public $seen = 'no';
-	public $tags = '';
-	public $time = '';
-
-	public $BodyType = '';
-	public $Body = '';
-	public $Folder = '';
-	public $From = '';
-	public $ItemId = '';
-	public $MessageID = '';
-	public $Recieved = '';
-	public $Subject = '';
-	public $To = '';
-	public $Uid = '';
-
 
 	function __construct( Type\MessageType $src) {
 		$this->src = $src;

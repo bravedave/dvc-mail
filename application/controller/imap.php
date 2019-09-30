@@ -23,17 +23,6 @@ class imap extends dvc\imap\controller {
          * use this area to establish an account
          *
          */
-        if ( account::$ENABLED) {
-			$this->creds = new credentials(
-				account::$USERNAME,
-				account::$PASSWORD,
-				account::$SERVER
-
-			);
-
-			// sys::dump( $this->creds);
-
-		}
 
 	}
 
@@ -89,11 +78,6 @@ class imap extends dvc\imap\controller {
 			'secondary' => ['index']
 
 		]);
-
-	}
-
-	public function webmail() {
-		$this->_webmail( $this->creds);
 
 	}
 

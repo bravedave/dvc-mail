@@ -31,30 +31,6 @@ class controller extends \Controller {
 
 	}
 
-	protected function _webmail( credentials $creds) {
-		$dump = false;
-		// $dump = true;
-
-		if ( $dump) {
-			// sys::dump( $creds);
-
-			$Inbox = new inbox( $creds);
-			$response = $Inbox->finditems( [ 'deep' => true, 'folder' => 'INBOX', 'pageSize' => 2]);
-			sys::dump( $response, null, false);
-
-		}
-		else {
-			\dvc\pages\_page::$momentJS = true;
-			$this->render([
-				'title' => $this->title = $this->label,
-				'content' => 'inbox'
-
-			]);
-
-		}
-
-	}
-
 	protected function getView( $viewName = 'index', $controller = null ) {
 		$view = sprintf( '%s/views/%s.php', __DIR__, $viewName );		// php
 		if ( file_exists( $view))
@@ -243,11 +219,11 @@ class controller extends \Controller {
 
 	}
 
-	public function folders() {
-		$folders = new folders( $this->creds);
-		sys::dump( $folders->getAll());
+	// public function folders() {
+	// 	$folders = new folders( $this->creds);
+	// 	sys::dump( $folders->getAll());
 
-	}
+	// }
 
 	public function js( $scope = 'global') {
 		if ( 'local' == $scope) {

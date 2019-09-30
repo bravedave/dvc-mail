@@ -10,6 +10,8 @@
 	*/
 namespace dvc\imap;
 
+use dvc\mail\credentials;
+
 class client {
 	protected $_account = '';
 
@@ -116,7 +118,7 @@ class client {
 			['\'',	'...'], $string);
 	}
 
-	protected function _Overview( $email_number = -1 ) {
+	protected function _Overview( $email_number = -1 ) : \dvc\mail\message {
 		if ( $email_number < 0 )
 			return ( false );
 
@@ -125,41 +127,43 @@ class client {
 		//~ $message = imap_fetchbody($stream,$email_number,1);
 		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
 		//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
-		$ret = array(
-			'seen' => '',
-			'Subject' => '',
-			'From' => '',
-			'To' => '',
-			'MessageID' => '',
-			'xmessage_id' => '',
-			'Recieved' => '',
-			'in_reply_to' => '',
-			'references' => '',
-			'X-CMS-Draft' => '' );
+		// $ret = array(
+		// 	'seen' => '',
+		// 	'Subject' => '',
+		// 	'From' => '',
+		// 	'To' => '',
+		// 	'MessageID' => '',
+		// 	'xmessage_id' => '',
+		// 	'Recieved' => '',
+		// 	'in_reply_to' => '',
+		// 	'references' => '',
+		// 	'X-CMS-Draft' => '' );
+
+		$ret = new \dvc\mail\message;
 
 		if ( isset( $overview[0])) {
-			if ( isset( $overview[0]->seen)) $ret['seen'] = ( $overview[0]->seen ? 'yes' : 'no' );
+			if ( isset( $overview[0]->seen)) $ret->seen = ( $overview[0]->seen ? 'yes' : 'no' );
 
-			if ( isset( $overview[0]->to)) $ret['To'] = (string)$overview[0]->to;
+			if ( isset( $overview[0]->to)) $ret->To = (string)$overview[0]->to;
 
-			if ( isset( $overview[0]->subject)) $ret['Subject'] = $overview[0]->subject;
+			if ( isset( $overview[0]->subject)) $ret->Subject = $overview[0]->subject;
 
-			if ( isset( $overview[0]->from)) $ret['From'] = $this->ReplaceImap( imap_utf8($overview[0]->from));
+			if ( isset( $overview[0]->from)) $ret->From = $this->ReplaceImap( imap_utf8($overview[0]->from));
 
-			if ( isset( $headers->message_id)) $ret['MessageID'] = $headers->message_id;
+			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
 
-			if ( isset( $overview[0]->message_id)) $ret['xmessage_id'] = $overview[0]->message_id;
+			if ( isset( $overview[0]->message_id)) $ret->xmessage_id = $overview[0]->message_id;
 
 			if ( isset( $overview[0]->date)) {
-				$ret['Recieved'] = $overview[0]->date;
+				$ret->Recieved = $overview[0]->date;
 
 				if ( preg_match( "/^Date:/", $overview[0]->date ))
 					$ret["Recieved"] = preg_replace( "/^Date:/", "", $overview[0]->date );
 
 			}
 
-			if ( isset( $overview[0]->in_reply_to)) $ret['in_reply_to'] = $overview[0]->in_reply_to;
-			if ( isset( $overview[0]->references)) $ret['references'] = $overview[0]->references;
+			if ( isset( $overview[0]->in_reply_to)) $ret->in_reply_to = $overview[0]->in_reply_to;
+			if ( isset( $overview[0]->references)) $ret->references = $overview[0]->references;
 
 		}
 
@@ -168,7 +172,7 @@ class client {
 			//~ \sys::logger($l);
 			if ( preg_match( '/^X-CMS-Draft/', $l)) {
 				$x = explode( ':', $l);
-				$ret['X-CMS-Draft'] = trim( array_pop( $x));
+				$ret->{'X-CMS-Draft'} = trim( array_pop( $x));
 
 			}
 
@@ -185,7 +189,6 @@ class client {
 		return ( $ret );
 
 	}
-
 
 	protected function __construct( $server, $account, $password) {
 		$this->_server = $server;
@@ -210,7 +213,7 @@ class client {
 
 	}
 
-	public function finditems( array $params) {
+	public function finditems( array $params) : array {
 		$options = (object)array_merge([
 			'deep' => false,
 			'page' => 0,
@@ -231,16 +234,23 @@ class client {
 
 		}
 
+		// \sys::dump( $ret);
+
 		return $ret;
 
 	}
 
-	public function open( $full = true, $folder = "default" ) {
+	public function folders( $spec = '*') {
+		return imap_list( $this->_stream, '{'.$this->_server.'}', $spec );
+
+	}
+
+	public function open( $full = true, $folder = 'default' ) {
 		$debug = false;
 		$debug = true;
 
 		if ( $this->_server) {
-			if ( $folder == "default" )
+			if ( $folder == 'default' )
 				$folder = self::INBOX;
 
 			$server = sprintf( '{%s:%s/%s/novalidate-cert}',
@@ -291,7 +301,7 @@ class client {
 			}
 			else {
 				if ( $debug) \sys::logger( sprintf( 'imap_open( %s, %s, %s, OP_HALFOPEN)',
-					$server . $folder, $this->account, 'password' ));
+					$server . $folder, $this->_account, 'password' ));
 
 				/* connect server */
 				if ( $this->_stream = @imap_open( $server . $folder, $this->_account, $this->_password, OP_HALFOPEN, 1, $nogssapi ))
@@ -311,6 +321,11 @@ class client {
 		}
 
 		return false;
+
+	}
+
+	public function server() {
+		return $this->_server;
 
 	}
 
