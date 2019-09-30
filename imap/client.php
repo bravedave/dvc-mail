@@ -61,8 +61,8 @@ class client {
 
 	static function instance( credentials $cred = null ) {
 		if ( $client = self::_instance( $cred)) {
-			if ( isset( \config::$exchange_timezone))
-				$client->setTimezone( \config::$exchange_timezone);
+			// if ( isset( \config::$exchange_timezone))
+			// 	$client->setTimezone( \config::$exchange_timezone);
 
 		}
 
