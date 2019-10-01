@@ -160,6 +160,11 @@ class controller extends \Controller {
 
 		}
 		else {
+			$this->data = (object)[
+				'user_id' => $creds->user_id
+
+			];
+
 			\dvc\pages\_page::$momentJS = true;
 			$this->render([
 				'title' => $this->title = $this->label,

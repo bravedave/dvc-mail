@@ -12,11 +12,17 @@ namespace dvc\mail;
 
 class credentials {
 	public $account = '';
-	public $password = '';
-	public $server = '';
+
 	public $interface = 0;
 
+	public $password = '';
+
+	public $server = '';
+
+	public $user_id = 0;
+
 	const imap = 1;
+
 	const ews = 2;
 
 	function __construct( $_user, $_pass, $_server = null) {

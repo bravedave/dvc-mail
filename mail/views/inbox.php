@@ -8,7 +8,7 @@
 		http://creativecommons.org/licenses/by/4.0/
 	*/	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
-	<input type="hidden" name="user" value="0" />
+	<input type="hidden" name="user_id" value="<?= $this->data->user_id ?>" />
 	<input type="hidden" name="action" />
 
 </form>
@@ -161,6 +161,16 @@ let MessageDrop = function( e) {	/* drag drop move messages */
 /**------------------------------------------------ */
 
 
+$(document).on( 'mail-change-user', function( e, id) {
+	$('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
+
+	$(document)
+	.trigger('mail-messages')
+	.trigger('mail-folderlist')
+	.trigger('view-message-list');
+
+});
+
 $(document).on( 'mail-folderlist', function( e) {
 	let frm = $('#<?= $uidFrm ?>');
 	let data = frm.serializeFormJSON();
@@ -214,7 +224,7 @@ $(document).on( 'mail-folderlist', function( e) {
 	}
 
 	data.action = 'get-folders';
-	// console.log( data);
+	// console.log( data);	// data from the form
 	_brayworth_.post({
 		url : _brayworth_.url('<?= $this->route ?>'),
 		data : data,
@@ -394,13 +404,15 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					// folder : _data.folder,
 
+					let frm = $('#<?= $uidFrm ?>');
+					let frmData = frm.serializeFormJSON();
+					frmData.action = 'delete-message';
+					frmData.id = _data.message.messageid;
+
+					// console.log( frmData);	// data from the form
 					_brayworth_.post({
 						url : _brayworth_.url('<?= $this->route ?>'),
-						data : {
-							action : 'delete-message',
-							id : _data.message.messageid,
-
-						},
+						data : frmData,
 
 					}).then( function( d) {
 						_brayworth_.growl( d);
@@ -444,25 +456,25 @@ $(document).on( 'mail-messages', function( e, folder) {
 				// removed.push( String( uid));
 				// console.log( 'added message to removed ' + uid);
 
-				let data = $.extend({
-					action :  '',
-					folder : _data.folder,
-					messageid : _data.message.messageid,
-					targetFolder : folder
+				let frm = $('#<?= $uidFrm ?>');
+				let data = frm.serializeFormJSON();
+				data.folder = _data.folder;
+				data.messageid = _data.message.messageid;
+				data.targetFolder = folder;
 
-				}, params);
+				$.extend( data, params);
 
 				// console.log( _data);
-				// console.log( data);
 
 				let ctrl = $('<i class="fa fa-spin fa-spinner pull-right" />');
 				ctrl.appendTo( $('[from]', _me));
 
 				_me.addClass( 'font-italic');
 
+				// console.log( data);	// data from the form
 				_brayworth_.post({
 					url : _brayworth_.url('<?= $this->route ?>'),
-					data : data,
+					data : data,	//
 
 				}).then( function( d) {
 					_brayworth_.growl( d);
@@ -499,7 +511,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 	_brayworth_.post({
 		url : _brayworth_.url('<?= $this->route ?>'),
-		data : data,
+		data : data,	// data from the form
 
 	}).then( function( d) {
 		if ( 'ack' == d.response) {
