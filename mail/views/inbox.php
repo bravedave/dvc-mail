@@ -302,8 +302,19 @@ $(document).on( 'mail-messages', function( e, folder) {
 				$(document).trigger('view-message');
 				if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) return;
 
+				let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
+				let params = [
+					'msg=' + encodeURIComponent( _data.message.messageid),
+					'folder=' + encodeURIComponent( _data.folder)
 
-				let url = _brayworth_.url('<?= $this->route ?>/view?msg=' + encodeURIComponent( _data.message.messageid) + '&folder=' + encodeURIComponent( _data.folder));
+				];
+
+				if ( Number( user_id) > 0) {
+					params.push('user_id=' + user_id);
+
+				}
+
+				let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
 				let frame = $('<iframe class="w-100 border-0" style="height: 100%;" />')
 				frame.on( 'load', function( e) {
 					// console.log( this, e);
