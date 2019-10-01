@@ -36,7 +36,6 @@ class folders {
 
 	}
 
-
 	protected function _getAll() {
 		$ret = [];
 		if ( $this->_client->open( false)) {
@@ -52,12 +51,13 @@ class folders {
 				foreach ($list as $val) {
 					if ( !preg_match( '@contacts|calendar|notes|tasks|journal|outbox|rss\s|sync(.*)@i', $val )) {
 						$fn = preg_replace( $aR, '', imap_utf7_decode($val));
-						//~ error_log( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
-						if ( ( $fldr != "" ) && preg_match( "@^" . $fldr . "(.|/)@", $fn )) {
+						// sys::logger( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
+						if ( $fldr && preg_match( sprintf( '@^%s(.|/)@', $fldr), $fn )) {
 							//~ error_log( "==>".$fn );
 							$a['subfolders'][] = preg_replace( '@^'.$fldr.'(.|/)@', '', $fn );
 
-						} else {
+						}
+						else {
 							//~ error_log( $fldr . ":" . $fn );
 							if ( $append ) {
 								if ( preg_match( "@inbox@i", $a["name"] )) {
@@ -90,7 +90,7 @@ class folders {
 
 			}
 			else {
-				$this->_error = "imap_list failed: " . imap_last_error();
+				$this->errors[] = "imap_list failed: " . imap_last_error();
 
 			}
 
@@ -147,6 +147,58 @@ class folders {
 		}
 
 		return ( $dX);
+
+	}
+
+	public function create( string $folder, string $parent) : bool {
+		$ret = false;
+
+		$a = [];
+		if ( $parent) {
+			$a[] = trim( \str_replace( '/', '.', $parent), '. /');
+
+		}
+
+		$a[] = $folder;
+		$fldr = implode( '.', $a);
+
+		if ( $this->_client->open( false)) {
+			if ( $this->_client->createmailbox( $fldr)) {
+				$this->_client->subscribe( $fldr);
+				$ret = true;
+
+			}
+			else {
+				$this->errors[] = sprintf( 'create mailbox failed : %s : %s', imap_last_error(), __METHOD__);
+
+			}
+
+			$this->_client->close();
+
+		}
+
+		return ( $ret );
+
+	}
+
+	public function delete( string $folder) : bool {
+		$ret = false;
+
+		if ( $this->_client->open( false)) {
+			if ( $this->_client->deletemailbox( trim( \str_replace( '/', '.', $folder), '. /'))) {
+				$ret = true;
+
+			}
+			else {
+				$this->errors[] = sprintf( 'delete mailbox failed : %s : %s', imap_last_error(), __METHOD__);
+
+			}
+
+			$this->_client->close();
+
+		}
+
+		return ( $ret );
 
 	}
 

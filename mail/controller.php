@@ -30,7 +30,39 @@ class controller extends \Controller {
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
-		if ( 'get-folders' == $action) {
+		if ( 'create-folder' == $action) {
+			if ( $folder = (string)$this->getPost( 'folder')) {
+				$parent = (string)$this->getPost( 'parent');
+				$folders = folders::instance( $this->creds);
+				if ( $folders->create( $folder, $parent)) {
+					\Json::ack( $action);
+
+				}
+				else {
+					\Json::nak( $action);
+
+				}
+
+			} else { \Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
+
+		}
+		elseif ( 'delete-folder' == $action) {
+			if ( $folder = (string)$this->getPost( 'folder')) {
+				$parent = (string)$this->getPost( 'parent');
+				$folders = folders::instance( $this->creds);
+				if ( $folders->delete( $folder)) {
+					\Json::ack( $action);
+
+				}
+				else {
+					\Json::nak( $action);
+
+				}
+
+			} else { \Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
+
+		}
+		elseif ( 'get-folders' == $action) {
 			Json::ack( $action)
 				->add( 'folders', $this->_folders());
 

@@ -18,9 +18,9 @@
 </style>
 
 <div class="row h-100">
-	<div class="d-none d-sm-block col-sm-3 col-md-1 h-100" id="<?= $uidFolders = strings::rand() ?>">folders ...</div>
+	<div class="d-none d-sm-block col-sm-3 col-md-2 h-100" id="<?= $uidFolders = strings::rand() ?>">folders ...</div>
 	<div class="col-sm-9 col-md-3 border border-light h-100" style="overflow-y: auto;" id="<?= $uidMsgs = strings::rand() ?>">messages ...</div>
-	<div class="d-none d-md-block col-md-8 h-100" id="<?= $uidViewer = strings::rand() ?>"></div>
+	<div class="d-none d-md-block col-md-7 h-100" id="<?= $uidViewer = strings::rand() ?>"></div>
 
 </div>
 <script>
@@ -174,17 +174,25 @@ $(document).on( 'mail-change-user', function( e, id) {
 $(document).on( 'mail-folderlist', function( e) {
 	let frm = $('#<?= $uidFrm ?>');
 	let data = frm.serializeFormJSON();
+	let folderState = localStorage.getItem('mailFolderState');
+	if ( !!folderState) {
+		folderState = JSON.parse( folderState);
+
+	}
+	else {
+		folderState = {}
+
+	}
 
 	let _list = function( folders) {
 		let ul = $('<ul class="list-unstyled small" />');
 
 		let map = '';
-		$.each( folders, function( i, fldr) {
+		let _list_subfolders = function( i, fldr) {
 			// console.log( fldr);
 
-			let ctrl;
-			$('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo(ul)
-			.append( ctrl = $('<div class="text-truncate" />').html( fldr.name));
+			let ctrl = $('<div class="text-truncate" />').html( fldr.name);
+			$('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo(ul).append( ctrl);
 
 			ctrl
 			.attr('title', fldr.name)
@@ -199,15 +207,150 @@ $(document).on( 'mail-folderlist', function( e) {
 				//~ .val( $(this).data('folder'))
 				//~ .closest('form').submit();
 			})
+			.on( 'contextmenu', function( e) {
+				if ( e.shiftKey)
+					return;
+
+				e.stopPropagation();e.preventDefault();
+
+				_brayworth_.hideContexts();
+
+				let _me = $(this);
+				let _data = _me.data();
+				let _context = _brayworth_.context();
+				let ctrl
+
+				// console.log( 'contextmenu');
+				_context.append( ctrl = $('<a href="#">create subfolder</a>'));
+				ctrl.on( 'click', function( e) {
+					e.preventDefault();
+
+					_brayworth_.textPrompt({
+						title : 'folder name',
+						verbatim : 'create a new folder'
+
+					}).then( function( d) {
+						if ( /[^a-zA-Z0-9_]/.test(d)) {
+							_brayworth.growlError( 'invalid characters detected')
+							return;
+
+						}
+
+						let frm = $('#<?= $uidFrm ?>');
+						let frmData = frm.serializeFormJSON();
+						frmData.action = 'create-folder';
+						frmData.parent = _data.folder;
+						frmData.folder = d;
+
+						// console.log( _data);
+						// console.log( frmData);
+
+						// return;
+
+						// console.log( frmData);	// data from the form
+						_brayworth_.post({
+							url : _brayworth_.url('<?= $this->route ?>'),
+							data : frmData,
+
+						}).then( function( d) {
+							_brayworth_.growl( d);
+							$(document).trigger('mail-folderlist');
+
+						});
+
+					});
+
+					_context.close();
+
+				});
+
+				_context.append( ctrl = $('<a href="#"><i class="fa fa-trash" />delete folder</a>'));
+				ctrl.on( 'click', function( e) {
+					e.preventDefault();
+
+					let frm = $('#<?= $uidFrm ?>');
+					let frmData = frm.serializeFormJSON();
+					frmData.action = 'delete-folder';
+					frmData.folder = _data.folder;
+
+					_brayworth_.post({
+						url : _brayworth_.url('<?= $this->route ?>'),
+						data : frmData,
+
+					}).then( function( d) {
+						_brayworth_.growl( d);
+						$(document).trigger('mail-folderlist');
+
+					});
+
+					_context.close();
+
+				});
+
+				$(document).trigger( 'mail-folders-context', {
+					element : this,
+					context : _context
+
+				});
+
+				_context.open( e);
+
+			})
 			.on( 'dragover', function( e) { e.preventDefault(); })
 			.on( 'dragenter', function( e) { e.preventDefault(); $( this).addClass('<?= $uidCSS_dropHere ?>'); e.originalEvent.dataTransfer.dropEffect = "copy"; })
 			.on( 'dragleave', function( e) { e.preventDefault(); $( this).removeClass('<?= $uidCSS_dropHere ?>'); })
 			.on( 'drop', MessageDrop)
 			;
 
-			//~ if ( !!el.subFolders) {}
+			if ( !!fldr.subFolders) {
+				let caret = $('<i class="fa fa-caret-left fa-fw mt-1 pointer pull-right" />')
+				caret.on( 'click', function( e) {
+					e.stopPropagation();
 
-		});
+					let _me = $(this);
+					let sublist = _me.siblings('ul');
+					if ( sublist.length > 0) {
+						// console.log( sublist);
+						if ( _me.hasClass('fa-caret-left')) {
+							_me.removeClass('fa-caret-left').addClass( 'fa-caret-down');
+							sublist.removeClass( 'd-none');
+							folderState[fldr.fullname] = true;
+
+						}
+						else {
+							_me.removeClass('fa-caret-down').addClass( 'fa-caret-left');
+							sublist.addClass( 'd-none');
+							folderState[fldr.fullname] = false;
+
+						}
+
+						localStorage.setItem('mailFolderState', JSON.stringify(folderState));
+
+					}
+
+				});
+
+				ctrl.prepend( caret);
+
+				let saveUL = ul;
+				ul = $('<ul class="list-unstyled small pl-2" />').appendTo( ctrl);
+				if ( !!folderState[fldr.fullname]) {
+					caret.removeClass('fa-caret-left').addClass( 'fa-caret-down');
+
+				}
+				else {
+					ul.addClass('d-none');
+
+				}
+
+				$.each( fldr.subFolders, _list_subfolders);
+				ul = saveUL;
+
+			}
+
+		};
+
+		$.each( folders, _list_subfolders);
 
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6 class="m-0">Folders</h6></div></div>').append( ul);
 		//~ console.log( folders);

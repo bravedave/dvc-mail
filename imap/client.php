@@ -385,6 +385,16 @@ class client {
 
 	}
 
+	public function createmailbox( $fldr) {
+		return @imap_createmailbox( $this->_stream, imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldr)));
+
+	}
+
+	public function deletemailbox( $fldr) {
+		return @imap_deletemailbox( $this->_stream, imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldr)));
+
+	}
+
 	public function finditems( array $params) : array {
 		$options = (object)array_merge([
 			'deep' => false,
@@ -552,6 +562,11 @@ class client {
 
 	public function server() {
 		return $this->_server;
+
+	}
+
+	public function subscribe( $fldr) {
+		return imap_subscribe($this->_stream, sprintf( '{%s}%s', $this->_server, $fldr));
 
 	}
 
