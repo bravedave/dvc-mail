@@ -48,14 +48,14 @@ class controller extends \Controller {
 		}
 		elseif ( 'delete-folder' == $action) {
 			if ( $folder = (string)$this->getPost( 'folder')) {
-				$parent = (string)$this->getPost( 'parent');
 				$folders = folders::instance( $this->creds);
 				if ( $folders->delete( $folder)) {
 					\Json::ack( $action);
 
 				}
 				else {
-					\Json::nak( $action);
+					\Json::nak( $action)
+						->add('errors', $folders->errors);
 
 				}
 

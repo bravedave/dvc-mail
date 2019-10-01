@@ -280,6 +280,10 @@ $(document).on( 'mail-folderlist', function( e) {
 					}).then( function( d) {
 						_brayworth_.growl( d);
 						$(document).trigger('mail-folderlist');
+						if ( 'nak' == d.response) {
+							console.log( d);
+
+						}
 
 					});
 

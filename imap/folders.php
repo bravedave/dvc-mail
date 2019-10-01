@@ -13,7 +13,7 @@ use sys;
 
 class folders {
 	protected $_client;
-	var $errors = [];
+	public $errors = [];
 
 	function __construct( $creds = null) {
 		$this->_client = client::instance( $creds);
