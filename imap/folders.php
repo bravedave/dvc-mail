@@ -195,12 +195,13 @@ class folders {
 		$ret = false;
 
 		if ( $this->_client->open( false)) {
-			if ( $this->_client->deletemailbox( trim( \str_replace( '/', '.', $folder), '. /'))) {
+			if ( $this->_client->deletemailbox( trim( \str_replace( '/', self::$delimiter, $folder), '. /'))) {
 				$ret = true;
 
 			}
 			else {
 				$this->errors[] = sprintf( 'delete mailbox failed : %s : %s', imap_last_error(), __METHOD__);
+				sys::logger( sprintf( 'delete mailbox %s failed : %s : %s', $folder, imap_last_error(), __METHOD__));
 
 			}
 
