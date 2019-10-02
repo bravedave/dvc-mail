@@ -565,6 +565,11 @@ class client {
 
 	}
 
+	public function stream() {
+		return $this->_stream;
+
+	}
+
 	public function subscribe( $fldr) {
 		return imap_subscribe($this->_stream, sprintf( '{%s}%s', $this->_server, $fldr));
 
