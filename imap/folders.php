@@ -15,6 +15,8 @@ class folders {
 	protected $_client;
 	public $errors = [];
 
+	const delimiter = '.';
+
 	function __construct( $creds = null) {
 		$this->_client = client::instance( $creds);
 
@@ -51,6 +53,7 @@ class folders {
 				foreach ($list as $val) {
 					if ( !preg_match( '@contacts|calendar|notes|tasks|journal|outbox|rss\s|sync(.*)@i', $val )) {
 						$fn = preg_replace( $aR, '', imap_utf7_decode($val));
+						// sys::logger( sprintf('=> %s : %s', $fn, __METHOD__));
 						// sys::logger( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
 						if ( $fldr && preg_match( sprintf( '@^%s(.|/)@', $fldr), $fn )) {
 							//~ error_log( "==>".$fn );
@@ -107,15 +110,15 @@ class folders {
 			return (object)[
 				'name' => $txt,
 				'map' => $map,
-				'fullname' => str_replace( ';', '/', $map),
+				'fullname' => str_replace( ';', self::delimiter, $map),
 				'type' => 0,
-				'delimiter' => '/'
+				'delimiter' => self::delimiter
 			];
 
 		};
 
 		if ( $parent) {
-			$o = $obj( $fldr['name'], sprintf( '%s/%s', $parent->map, $fldr['name']));
+			$o = $obj( $fldr['name'], implode([$parent->map, self::delimiter, $fldr['name']]));
 		}
 		else {
 			$o = $obj( $fldr['name'], $fldr['name']);
@@ -131,6 +134,11 @@ class folders {
 			}
 
 		}
+
+		// sys::logger( sprintf('%s => %s : %s :: %s',
+		// 	$fldr['name'],
+		// 	$o->name, $o->fullname, __METHOD__));
+
 
 		$a[] = $o;
 

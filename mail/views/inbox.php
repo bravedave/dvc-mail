@@ -198,9 +198,12 @@ $(document).on( 'mail-folderlist', function( e) {
 			.attr('title', fldr.name)
 			.data('folder', fldr.fullname)
 			.on( 'click', function( e) {
+				e.stopPropagation();
+
 				let _me = $(this);
 				let _data = _me.data();
 
+				// console.log( _data.folder);
 				$(document).trigger( 'mail-messages', _data.folder);
 
 				//~ $('#submit-folder')
@@ -356,7 +359,7 @@ $(document).on( 'mail-folderlist', function( e) {
 
 		$.each( folders, _list_subfolders);
 
-		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6 class="m-0">Folders</h6></div></div>').append( ul);
+		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6>folders</h6></div></div>').append( ul);
 		//~ console.log( folders);
 
 	}
@@ -401,17 +404,26 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 });
 
 $(document).on( 'mail-messages', function( e, folder) {
+
 	let frm = $('#<?= $uidFrm ?>');
 	let data = frm.serializeFormJSON();
 
 	data.action = 'get-messages';
-	// console.log( data);
 	if ( !!folder) { data.folder = folder; }
+	// console.log( folder, data);
 
 	let _list = function( messages) {
-		// console.log( messages);
-		$('#<?= $uidMsgs ?>').html('<div class="row bg-light text-muted"><div class="col"><h6 class="m-0">'+('undefined' == typeof data.folder ? 'messages' : data.folder)+'</h6></div></div>');
+		let heading = $('<div class="row bg-light text-muted"><div class="col"><i class="fa fa-refresh fa-spin pull-right" /><h6>'+('undefined' == typeof data.folder ? 'messages' : data.folder)+'</h6></div></div>');
+		$('#<?= $uidMsgs ?>').html('').append( heading);
 
+		$('i.fa', heading).on('click', function(e) {
+			if ( !!folder)
+				$(document).trigger('mail-messages', folder);
+			else
+				$(document).trigger('mail-messages');
+
+		});
+		// console.log( messages);
 			//~ if ( !!el.subFolders) {}
 
 		$.each( messages, function( i, msg) {
@@ -667,6 +679,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 	}
 
 
+	$('i.fa-refresh', '#<?= $uidMsgs ?>').addClass('fa-spin');
+
 	_brayworth_.post({
 		url : _brayworth_.url('<?= $this->route ?>'),
 		data : data,	// data from the form
@@ -682,6 +696,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 			// console.log( d);
 
 		}
+
+		$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 
 	});
 
