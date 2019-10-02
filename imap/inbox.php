@@ -77,15 +77,9 @@ class inbox {
 
 		}
 
-			// if ( $msg = $this->FindItemByMessageID( $MessageID, $includeAttachments, $folder)) {
-				// 	// \sys::logger( 'found message');
-				// 	return $this->GetItemByID( $msg->ItemId->Id, $includeAttachments);
+		// sys::logger( sprintf('%s/%s : %s', $folder, $MessageID, __METHOD__));
 
-				// }
-				// else {
-					// \sys::logger( sprintf('message %s not found in %s : %s', $MessageID, $folder, __METHOD__));
 
-					// }
 		return $ret;
 
 	}

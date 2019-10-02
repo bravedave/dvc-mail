@@ -62,6 +62,11 @@ class client {
 
 	}
 
+	static function default_folders() : array {
+		return folders::$default_folders;
+
+	}
+
 	static function instance( credentials $cred = null ) {
 		if ( $client = self::_instance( $cred)) {
 			// if ( isset( \config::$exchange_timezone))
@@ -385,7 +390,7 @@ class client {
 
 	}
 
-	public function createmailbox( $fldr) {
+	public function createmailbox( $fldr) : bool {
 		return @imap_createmailbox( $this->_stream, imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldr)));
 
 	}

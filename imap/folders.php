@@ -17,6 +17,15 @@ class folders {
 
 	static $delimiter = '.';
 
+	static $default_folders = [
+		'Inbox' => client::INBOX,
+
+		'Sent' => 'Sent',
+
+		'Trash' => 'Trash'
+
+	];
+
 	function __construct( $creds = null) {
 		$this->_client = client::instance( $creds);
 

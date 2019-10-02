@@ -33,4 +33,20 @@ abstract class inbox {
 
     }
 
+    static function default_folders( $creds) : array {
+        switch ($creds->interface) {
+            case credentials::imap :
+                return \dvc\imap\client::default_folders();
+                break;
+
+            case credentials::ews :
+                return \dvc\ews\client::default_folders();
+                break;
+
+        }
+
+        return false;
+
+    }
+
 }

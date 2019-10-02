@@ -30,27 +30,7 @@ class controller extends \Controller {
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
-		if ( 'delete-message' == $action) {
-			if ( $msgID = $this->getPost('id')) {
-				if ( $folder = $this->getPost('folder')) {
-					// if ( $debug) sys::logger( sprintf( '%s : ok :: %s', $action, $itemID));
-
-					// $inbox = inbox::instance( $this->creds);
-					// if ( $res = $inbox->MoveItem( $msgID, $folder, 'Deleted Items')) {
-					// 	\Json::ack( $action);
-
-					// } else { \Json::nak( $action); }
-
-					Json::nak( $action);
-					sys::logger( sprintf('%s : we are working on it :) : %s', $action, __METHOD__));
-
-
-				} else { Json::nak( $action); }
-
-			} else { Json::nak( $action); }
-
-		}
-		elseif ( 'create-folder' == $action) {
+		if ( 'create-folder' == $action) {
 			if ( $folder = (string)$this->getPost( 'folder')) {
 				$parent = (string)$this->getPost( 'parent');
 				$folders = folders::instance( $this->creds);
@@ -182,6 +162,8 @@ class controller extends \Controller {
 
 		}
 		else {
+			// sys::logger( sprintf('%s/%s : %s', $options['folder'], $options['msg'], __METHOD__));
+
 			$this->render([
 				'title' => $this->title = 'View Message',
 				'content' => 'not-found'
@@ -213,7 +195,8 @@ class controller extends \Controller {
 		}
 		else {
 			$this->data = (object)[
-				'user_id' => $creds->user_id
+				'user_id' => $creds->user_id,
+				'default_folders' => inbox::default_folders( $this->creds)
 
 			];
 

@@ -20,6 +20,15 @@ class folders {
 	protected $client;
 	var $errors = [];
 
+	static $default_folders = [
+		'Inbox' => client::INBOX,
+
+		'Sent' => 'Sent',
+
+		'Trash' => 'Trash'
+
+	];
+
 	function __construct( $creds = null) {
 		$this->client = client::instance( $creds);
 

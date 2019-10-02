@@ -135,14 +135,7 @@ let MessageDrop = function( e) {	/* drag drop move messages */
 
 	let src = $('#' + data);
 	if ( src.length) {
-		// let _data = src.data();
-
-		// console.log( 'src', src);
-		// console.log( 'data', data);
-		// console.log( 'data', $( e.originalEvent.target).data('folder'));
-		// console.log( 'data', e.originalEvent.target);
 		let _data = $( e.originalEvent.target).data();
-		// console.log( 'data', _data);
 
 		$('#' + data).trigger('execute-action', {
 			action : 'move-message',
@@ -566,39 +559,27 @@ $(document).on( 'mail-messages', function( e, folder) {
 				let _row = $(this);
 				let _data = _row.data();
 				let _context = _brayworth_.context();
-				let ctrl;
+				let defaultFolders = $(document).data( 'default_folders');
 
-				_context.append( ctrl = $('<a href="#"><i class="fa fa-trash" />delete</a>'));
-				ctrl.on( 'click', function( e) {
-					e.stopPropagation();e.preventDefault();
+				// console.log( _data);
 
-					// folder : _data.folder,
+				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
+					let ctrl= $('<a href="#"><i class="fa fa-trash" />move to '+defaultFolders.Trash+'</a>');
+					ctrl.on( 'click', function( e) {
+						e.stopPropagation();e.preventDefault();
 
-					let frm = $('#<?= $uidFrm ?>');
-					let frmData = frm.serializeFormJSON();
-					frmData.action = 'delete-message';
-					frmData.folder = _data.folder;
-					frmData.id = _data.message.messageid;
+						$(_row).trigger('execute-action', {
+							action : 'move-message',
+							targetFolder : defaultFolders.Trash
 
-					// console.log( _data);	// data from the form
-					// console.log( frmData);	// data from the form
-					// return;
+						});
 
-					_brayworth_.post({
-						url : _brayworth_.url('<?= $this->route ?>'),
-						data : frmData,
-
-					}).then( function( d) {
-						_brayworth_.growl( d);
-						_row.remove();
-
-						if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) $('#<?= $uidViewer ?>').trigger('clear');
+						_context.close();
 
 					});
+					_context.append( ctrl);
 
-					_context.close();
-
-				});
+				}
 
 				$(document).trigger( 'mail-messages-context', {
 					element : this,
@@ -724,7 +705,9 @@ $(document).on( 'view-message', function(e) {
 });
 
 $(document).ready( function() {
-	$(this).data('route', '<?= $this->route ?>');
+	$(document)
+	.data('default_folders', <?= json_encode( $this->data->default_folders) ?>)
+	.data('route', '<?= $this->route ?>');
 
 	let i = $('body > nav').height() + $('body > footer').height();
 	$('div[data-role="main-content-wrapper"]').css({

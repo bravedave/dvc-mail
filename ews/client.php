@@ -16,6 +16,8 @@ use \jamesiarmes\PhpEws;
 
 class client extends PhpEws\Client {
 
+	const INBOX = 'INBOX';
+
 	static protected function _instance( credentials $cred = null ) {
 		if ( is_null( $cred))
 			$cred = credentials::getCurrentUser();
@@ -38,6 +40,11 @@ class client extends PhpEws\Client {
 		}
 
 		return ( FALSE );
+
+	}
+
+	static function default_folders() : array {
+		return folders::$default_folders;
 
 	}
 
