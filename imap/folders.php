@@ -15,7 +15,7 @@ class folders {
 	protected $_client;
 	public $errors = [];
 
-	const delimiter = '.';
+	static $delimiter = '.';
 
 	function __construct( $creds = null) {
 		$this->_client = client::instance( $creds);
@@ -110,15 +110,15 @@ class folders {
 			return (object)[
 				'name' => $txt,
 				'map' => $map,
-				'fullname' => str_replace( ';', self::delimiter, $map),
+				'fullname' => str_replace( ';', self::$delimiter, $map),
 				'type' => 0,
-				'delimiter' => self::delimiter
+				'delimiter' => self::$delimiter
 			];
 
 		};
 
 		if ( $parent) {
-			$o = $obj( $fldr['name'], implode([$parent->map, self::delimiter, $fldr['name']]));
+			$o = $obj( $fldr['name'], implode([$parent->map, self::$delimiter, $fldr['name']]));
 		}
 		else {
 			$o = $obj( $fldr['name'], $fldr['name']);
@@ -128,7 +128,7 @@ class folders {
 		if ( isset( $fldr['subfolders'])) {
 			$o->subFolders = [];
 			foreach ( $fldr['subfolders'] as $f) {
-				sys::logger( sprintf( '==> %s : %s', $f, __METHOD__));
+				// sys::logger( sprintf( '==> %s : %s', $f, __METHOD__));
 				// sys::dump( $f);
 				self::_jMap( ['name' => $f], $o, $o->subFolders);
 
@@ -136,9 +136,9 @@ class folders {
 
 		}
 
-		sys::logger( sprintf('%s => %s : %s :: %s',
-			$fldr['name'],
-			$o->name, $o->fullname, __METHOD__));
+		// sys::logger( sprintf('%s => %s : %s :: %s',
+		// 	$fldr['name'],
+		// 	$o->name, $o->fullname, __METHOD__));
 
 
 		$a[] = $o;
@@ -235,4 +235,3 @@ class folders {
 	}
 
 }
-
