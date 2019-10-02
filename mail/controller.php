@@ -30,7 +30,27 @@ class controller extends \Controller {
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
-		if ( 'create-folder' == $action) {
+		if ( 'delete-message' == $action) {
+			if ( $msgID = $this->getPost('id')) {
+				if ( $folder = $this->getPost('folder')) {
+					// if ( $debug) sys::logger( sprintf( '%s : ok :: %s', $action, $itemID));
+
+					// $inbox = inbox::instance( $this->creds);
+					// if ( $res = $inbox->MoveItem( $msgID, $folder, 'Deleted Items')) {
+					// 	\Json::ack( $action);
+
+					// } else { \Json::nak( $action); }
+
+					Json::nak( $action);
+					sys::logger( sprintf('%s : we are working on it :) : %s', $action, __METHOD__));
+
+
+				} else { Json::nak( $action); }
+
+			} else { Json::nak( $action); }
+
+		}
+		elseif ( 'create-folder' == $action) {
 			if ( $folder = (string)$this->getPost( 'folder')) {
 				$parent = (string)$this->getPost( 'parent');
 				$folders = folders::instance( $this->creds);

@@ -577,9 +577,13 @@ $(document).on( 'mail-messages', function( e, folder) {
 					let frm = $('#<?= $uidFrm ?>');
 					let frmData = frm.serializeFormJSON();
 					frmData.action = 'delete-message';
+					frmData.folder = _data.folder;
 					frmData.id = _data.message.messageid;
 
+					// console.log( _data);	// data from the form
 					// console.log( frmData);	// data from the form
+					// return;
+
 					_brayworth_.post({
 						url : _brayworth_.url('<?= $this->route ?>'),
 						data : frmData,

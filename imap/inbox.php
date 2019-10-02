@@ -211,23 +211,6 @@ class inbox {
 
 	}
 
-	// public function MoveItem( $item, $FolderPath ) {
-	// 	$dao = new folders;
-	// 	if ( $fldr = $dao->getByPath( $FolderPath)) {
-	// 		// Form the move request.
-	// 		$request = new Request\MoveItemType;
-	// 		$request->ItemIds = (array)$item;
-	// 		$request->ToFolderId = new Type\TargetFolderIdType;
-	// 		$request->ToFolderId->FolderId = $fldr->id;
-
-	// 		return query::MoveItem( $request);
-
-	// 	}
-
-	// 	return ( false);
-
-	// }
-
 	public function MoveItem(
 		string $itemID,
 		string $folder = "default",

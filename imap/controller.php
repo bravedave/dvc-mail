@@ -43,30 +43,7 @@ class controller extends \Controller {
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
-		if ( 'delete-message' == $action) {
-			if ( $msgID = $this->getPost('id')) {
-				// if ( $debug) sys::logger( sprintf( '%s : ok :: %s', $action, $itemID));
-
-				$inbox = new inbox( $this->creds);
-				if ( $m = $inbox->FindItemByMessageID( $msgID)) {
-					query::DeleteItem( $m->ItemId->Id, $this->creds);
-					\Json::ack( sprintf( '%s : gave it a shot', $action));
-
-				}
-				else {
-					// if ( $debug) sys::logger( sprintf( '%s : not found', $action));
-					Json::nak( sprintf( '%s : not found', $action));
-
-				}
-
-			}
-			else {
-				Json::nak( $action);
-
-			}
-
-		}
-		elseif ( 'get-folders' == $action) {
+		if ( 'get-folders' == $action) {
 			$folders = new folders( $this->creds);
 			Json::ack( $action)
 				->add( 'folders', $folders->getAll('json'));
