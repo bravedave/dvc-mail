@@ -413,7 +413,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 	// console.log( folder, data);
 
 	let _list = function( messages) {
-		let heading = $('<div class="row bg-light text-muted"><div class="col"><i class="fa fa-refresh fa-spin pull-right" /><h6>'+('undefined' == typeof data.folder ? 'messages' : data.folder)+'</h6></div></div>');
+		let heading = $('<div class="row bg-light text-muted"><div class="col"><i class="fa fa-refresh fa-spin pull-right pointer" /><h6>'+('undefined' == typeof data.folder ? 'messages' : data.folder)+'</h6></div></div>');
 		$('#<?= $uidMsgs ?>').html('').append( heading);
 
 		$('i.fa', heading).on('click', function(e) {
