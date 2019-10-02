@@ -135,9 +135,9 @@ class folders {
 
 		}
 
-		// sys::logger( sprintf('%s => %s : %s :: %s',
-		// 	$fldr['name'],
-		// 	$o->name, $o->fullname, __METHOD__));
+		sys::logger( sprintf('%s => %s : %s :: %s',
+			$fldr['name'],
+			$o->name, $o->fullname, __METHOD__));
 
 
 		$a[] = $o;
