@@ -128,6 +128,7 @@ class folders {
 		if ( isset( $fldr['subfolders'])) {
 			$o->subFolders = [];
 			foreach ( $fldr['subfolders'] as $f) {
+				sys::logger( sprintf( '==> %s : %s', $f, __METHOD__));
 				// sys::dump( $f);
 				self::_jMap( ['name' => $f], $o, $o->subFolders);
 
@@ -150,7 +151,7 @@ class folders {
 
 		$dX = [];
 		foreach ( $fldrs as $f) {
-			sys::logger( sprintf( '%s : %s', $f['name'], __METHOD__));
+			// sys::logger( sprintf( '%s : %s', $f['name'], __METHOD__));
 			self::_jMap( $f, null, $dX);
 
 		}
