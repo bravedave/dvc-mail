@@ -53,7 +53,7 @@ class folders {
 				foreach ($list as $val) {
 					if ( !preg_match( '@contacts|calendar|notes|tasks|journal|outbox|rss\s|sync(.*)@i', $val )) {
 						$fn = preg_replace( $aR, '', imap_utf7_decode($val));
-						// sys::logger( sprintf('=> %s : %s', $fn, __METHOD__));
+						sys::logger( sprintf('=> %s : %s', $fn, __METHOD__));
 						// sys::logger( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
 						if ( $fldr && preg_match( sprintf( '@^%s(.|/)@', $fldr), $fn )) {
 							//~ error_log( "==>".$fn );
