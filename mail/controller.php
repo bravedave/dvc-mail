@@ -162,7 +162,7 @@ class controller extends \Controller {
 
 		}
 		else {
-			// sys::logger( sprintf('%s/%s : %s', $options['folder'], $options['msg'], __METHOD__));
+			sys::logger( sprintf('%s/%s : %s', $options['folder'], $options['msg'], __METHOD__));
 
 			$this->render([
 				'title' => $this->title = 'View Message',

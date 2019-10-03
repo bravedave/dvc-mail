@@ -15,6 +15,9 @@ use dvc\EmailAddress;
 use sys;
 
 class client {
+	// static $debug = true;
+	static $debug = false;
+
 	protected $_account = '';
 
 	protected $_error = '';
@@ -286,6 +289,8 @@ class client {
 
 		}
 
+		if ( self::$debug) sys::logger( sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+
 	}
 
 	protected function _overview( $email_number = -1 ) : \dvc\mail\message {
@@ -447,6 +452,12 @@ class client {
 				sys::logger( sprintf( 'retrieved message via imap : %s :: %s : %s', $id, $folder, __METHOD__));
 
 			}
+
+			if ( !$ret) {
+				if ( self::$debug) sys::logger( sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+
+			}
+
 			$this->close();
 
 		}

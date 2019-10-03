@@ -71,11 +71,11 @@ class inbox {
 
 		$ret = false;
 
-		if ( $this->_client->open( true, $folder)) {
-			$ret = $this->_client->getmessage( $MessageID);
-			$this->_client->close();
+		// if ( $this->_client->open( true, $folder)) {
+			$ret = $this->_client->getmessage( $MessageID, $folder);
+			// $this->_client->close();
 
-		}
+		// }
 
 		// sys::logger( sprintf('%s/%s : %s', $folder, $MessageID, __METHOD__));
 
