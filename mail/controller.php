@@ -21,12 +21,6 @@ use sys;
 // use url;
 
 class controller extends \Controller {
-	protected function before() {
-		$this->route = get_class( $this);
-		parent::before();
-
-	}
-
 	protected function postHandler() {
 		$action = $this->getPost('action');
 

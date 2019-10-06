@@ -196,7 +196,7 @@ class client {
 
 		//~ sys::dump( $headers);
 		if ( !isset( $headers->subject))
-			$headers->subject = '(subject missing)';
+			$headers->Subject = '(subject missing)';
 
 		if ( !isset( $headers->message_id))
 			$headers->message_id = 'no-message-id';
@@ -206,7 +206,7 @@ class client {
 			$headerDate = $headers->date;
 
 		$ret = new \dvc\mail\message;
-		$ret->subject = self::decodeMimeStr((string)$headers->subject);
+		$ret->Subject = self::decodeMimeStr((string)$headers->subject);
 		$ret->From = self::decodeMimeStr((string)$from);
 			$ea = new EmailAddress( $ret->From);
 			$ret->fromEmail = $ea->email;
