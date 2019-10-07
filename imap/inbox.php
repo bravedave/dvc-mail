@@ -227,6 +227,7 @@ class inbox {
 	}
 
 	public function SaveToFile( $message, $msgStore) {
+		// TODO: make sure this works
 		$debug = false;
 		//~ $debug = true;
 
@@ -272,7 +273,7 @@ class inbox {
 
 		}
 		else {
-			file_put_contents( $file, json_encode( $j));
+			file_put_contents( $file, json_encode( $j, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 			if ( $debug) \sys::logger( sprintf( 'save msg : %s :: %s', $file, __METHOD__));
 
 		}

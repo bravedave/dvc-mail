@@ -13,6 +13,22 @@ abstract class config extends dvc\_config {
 	static $DATE_FORMAT = 'd/m/Y';
 	static $DATETIME_FORMAT = 'd/m/Y g:ia';
 
-    static $TIMEZONE = 'Australia/Brisbane';
+	static $TIMEZONE = 'Australia/Brisbane';
+
+	static function MESSAGE_STORE() {
+		$data = self::dataPath() . DIRECTORY_SEPARATOR . 'message-store' . DIRECTORY_SEPARATOR;
+
+		if ( ! is_dir( $data)) {
+			mkdir( $data);
+			chmod( $data, 0777);
+
+		}
+
+		if ( ! is_writable( $data))
+			throw new Exception( $data . ' is not writable, please update permissions to allow');
+
+		return ( $data);
+
+	}
 
 }
