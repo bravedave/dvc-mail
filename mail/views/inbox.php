@@ -544,6 +544,13 @@ $(document).on( 'mail-messages', function( e, folder) {
 					toolbar.prependTo( '#<?= $uidViewer ?>');
 					frame.css('height','calc(100% - ' + toolbar.height() + 'px');
 
+					// TODO : pass to local software
+					$(document).trigger( 'mail-message-toolbar', {
+						message : _data.message,
+						toolbar : toolbar
+
+					});
+
 				});
 
 				frame.attr('src', url);
@@ -719,7 +726,7 @@ $(document).on( 'toggle-view', function() {
 
 	}
 
-	console.log( key, view);
+	// console.log( key, view);
 
 	if ( 'condensed' == view) {
 		$(document).data('view', view);
