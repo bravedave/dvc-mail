@@ -143,7 +143,7 @@ let MessageDrop = function( e) {	/* drag drop move messages */
 
 		});
 
-	} else { console.log( 'cannot find src'); }
+	} else { console.dir( 'cannot find src : ', src); }
 
 	e.originalEvent.dataTransfer.clearData();	// Clear the drag data cache (for all formats/types)
 
@@ -178,6 +178,8 @@ $(document).on( 'mail-folderlist', function( e) {
 	}
 
 	let _list = function( folders) {
+		// console.log( folders);
+
 		let ul = $('<ul class="list-unstyled small" />');
 
 		let map = '';
@@ -185,7 +187,7 @@ $(document).on( 'mail-folderlist', function( e) {
 			// console.log( fldr);
 
 			let ctrl = $('<div class="text-truncate" />').html( fldr.name);
-			$('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo(ul).append( ctrl);
+			let li = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo(ul).append( ctrl);
 
 			ctrl
 			.attr('title', fldr.name)
@@ -330,10 +332,10 @@ $(document).on( 'mail-folderlist', function( e) {
 
 				});
 
-				ctrl.prepend( caret);
+				li.prepend( caret);
 
 				let saveUL = ul;
-				ul = $('<ul class="list-unstyled small pl-2" />').appendTo( ctrl);
+				ul = $('<ul class="list-unstyled small pl-2" />').appendTo( li);
 				if ( !!folderState[fldr.fullname]) {
 					caret.removeClass('fa-caret-left').addClass( 'fa-caret-down');
 
@@ -392,6 +394,7 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 	let key = '<?= $this->route ?>' + folder + '-lastmessages-';
 	sessionStorage.removeItem( key);
 
+	// console.log('mail-messages-reload', folder);
 	$(document).trigger( 'mail-messages', folder);
 
 });
@@ -405,7 +408,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 	if ( !!folder) { data.folder = folder; }
 	// console.log( folder, data);
 
-	let _list = function( messages) {
+	let _list_messages = function( messages) {
 		let heading = $('<div class="row bg-light text-muted"><div class="col"><i class="fa fa-refresh fa-spin pull-right pointer" /><h6>'+('undefined' == typeof data.folder ? 'messages' : data.folder)+'</h6></div></div>');
 		$('#<?= $uidMsgs ?>').html('').append( heading);
 
@@ -418,6 +421,9 @@ $(document).on( 'mail-messages', function( e, folder) {
 		});
 		// console.log( messages);
 			//~ if ( !!el.subFolders) {}
+
+		let seed = String( parseInt( Math.random() * 1000000));
+		// console.log( seed);
 
 		$.each( messages, function( i, msg) {
 
@@ -433,7 +439,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 			// console.log( time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD'), stime);
 			received.html( stime);
 
-			let row = $('<div class="row border-bottom border-light py-2" id="<?= strings::rand() ?>" />').appendTo( '#<?= $uidMsgs ?>');
+			let row = $('<div class="row border-bottom border-light py-2" id="uid_' + String( seed) + '_' + String(seed * i) + '" />').appendTo( '#<?= $uidMsgs ?>');
 			let cell = $('<div class="col" />').appendTo( row);
 
 			$('<div class="row" />').append( from).appendTo( cell);
@@ -657,8 +663,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 	let key = '<?= $this->route ?>' + data.folder + '-lastmessages-';
 	let lastMessages = sessionStorage.getItem( key);
 	// console.log( key, lastMessages);
+	$('#<?= $uidMsgs ?>').data('folder', folder);
 	if ( !!lastMessages) {
-		_list( JSON.parse( lastMessages));
+		// console.log( 'lastMessages - ' + data.folder);
+		_list_messages( JSON.parse( lastMessages));
 		sessionStorage.removeItem( key);
 
 	}
@@ -673,7 +681,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 	}).then( function( d) {
 		if ( 'ack' == d.response) {
 			sessionStorage.setItem( key, JSON.stringify( d.messages));
-			_list( d.messages);
+			// console.log( 'messages - ' + data.folder);
+			if ( folder == $('#<?= $uidMsgs ?>').data('folder')) {
+				_list_messages( d.messages);
+
+			}
 
 		}
 		else {
