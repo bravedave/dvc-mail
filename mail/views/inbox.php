@@ -476,12 +476,20 @@ $(document).on( 'mail-messages', function( e, folder) {
 				frame.on( 'load', function( e) {
 					// console.log( this, e);
 					let _frame = this;
+					let params = {
+						message : _data.message,
+						toolbar : $( '<div class="btn-toolbar" />'),
+						btnClass : 'btn btn-sm btn-light px-3'
+
+					};
 
 					/* build a toolbar */
 					let btns = [];
 					( function() {
-						let btn = $('<button type="button" class="btn btn-sm btn-light d-md-none px-4"><i class="fa fa-angle-left" /></button>');
-						btn.on('click', function( e) {
+						let btn = $('<button type="button" class="d-md-none"><i class="fa fa-angle-left" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', function( e) {
 							$(document).trigger('view-message-list');
 
 						});
@@ -493,8 +501,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 					( function() {
 						if ( _brayworth_.browser.isMobileDevice) return;
 
-						let btn = $('<button type="button" class="btn btn-sm btn-light px-4"><i class="fa fa-print" /></button>');
-						btn.on('click', function( e) {
+						let btn = $('<button type="button"><i class="fa fa-print" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', function( e) {
 							_frame.focus();
 							_frame.contentWindow.print();
 
@@ -507,8 +517,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 					( function() {
 						if ( !_brayworth_.email) return;
 
-						let btn = $('<button type="button" class="btn btn-sm btn-light px-4"><i class="fa fa-reply" /></button>');
-						btn.on('click', reply);
+						let btn = $('<button type="button"><i class="fa fa-reply" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', reply);
 
 						btns.push( btn);
 
@@ -516,8 +528,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					let imgs = $('img[data-safe-src]', _frame.contentDocument);
 					if ( imgs.length > 0) {
-						let btn = $('<button type="button" class="btn btn-sm btn-light"><i class="fa fa-file-image-o" /></button>');
-						btn.on('click', function( e) {
+						let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', function( e) {
 							$('img[data-safe-src]', _frame.contentDocument).each( function( i, img) {
 								let _img = $(img);
 
@@ -535,9 +549,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					}
 
-					let toolbar = $( '<div class="btn-toolbar" />');
 					btns.forEach(element => {
-						element.appendTo( toolbar);
+						element.appendTo( params.toolbar);
 
 					});
 
@@ -545,11 +558,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 					frame.css('height','calc(100% - ' + toolbar.height() + 'px');
 
 					// TODO : pass to local software
-					$(document).trigger( 'mail-message-toolbar', {
-						message : _data.message,
-						toolbar : toolbar
-
-					});
+					$(document).trigger( 'mail-message-toolbar', params)
 
 				});
 
