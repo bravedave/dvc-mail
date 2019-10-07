@@ -153,7 +153,6 @@ let MessageDrop = function( e) {	/* drag drop move messages */
 
 /**------------------------------------------------ */
 
-
 $(document).on( 'mail-change-user', function( e, id) {
 	$('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
 
@@ -700,8 +699,55 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 });
 
+$(document).on( 'toggle-view', function() {
+	let view = $(document).data('view');
+	let key = '<?= $this->route ?>-view';
+	let lastView = sessionStorage.getItem( key);
+
+	if ( 'condensed' == view) {
+		view = 'wide';
+		sessionStorage.setItem( key, view);
+	}
+	else if ( 'wide' == view) {
+		view = 'condensed';
+		sessionStorage.setItem( key, view);
+
+	}
+	else {
+		view = sessionStorage.getItem( key);
+		if ( !view) view = 'wide';
+
+	}
+
+	console.log( key, view);
+
+	if ( 'condensed' == view) {
+		$(document).data('view', view);
+		$('#<?= $uidFolders ?>').removeClass('d-sm-block');
+		$('#<?= $uidMsgs ?>').removeClass('col-sm-9');
+		$('#<?= $uidViewer ?>').removeClass('col-md-7').addClass('col-md-9');
+
+	}
+	else if ( 'wide' == view) {
+		$(document).data('view', view);
+		$('#<?= $uidFolders ?>').addClass('d-sm-block');
+		$('#<?= $uidMsgs ?>').addClass('col-sm-9');
+		$('#<?= $uidViewer ?>').removeClass('col-md-9').addClass('col-md-7');
+
+	}
+	// console.log( $(document).data('view'));
+
+})
+.trigger( 'toggle-view');
+
 $(document).on( 'view-message-list', function(e) {
-	$('#<?= $uidFolders ?>').removeClass('d-md-block').addClass('d-none d-sm-block');
+	let view = $(document).data('view');
+
+	if ( 'condensed' != view) {
+		$('#<?= $uidFolders ?>').removeClass('d-md-block').addClass('d-sm-block');
+
+	}
+
 	$('#<?= $uidMsgs ?>').removeClass('d-none d-md-block');
 	$('#<?= $uidViewer ?>').addClass('d-none d-md-block');
 
@@ -710,7 +756,12 @@ $(document).on( 'view-message-list', function(e) {
 });
 
 $(document).on( 'view-message', function(e) {
-	$('#<?= $uidFolders ?>').removeClass('d-sm-block').addClass('d-none d-md-block');
+	let view = $(document).data('view');
+	if ( 'condensed' != view) {
+		$('#<?= $uidFolders ?>').removeClass('d-sm-block').addClass('d-md-block');
+
+	}
+
 	$('#<?= $uidMsgs ?>').addClass('d-none d-md-block');
 	$('#<?= $uidViewer ?>').removeClass('d-none d-md-block');
 

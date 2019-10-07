@@ -119,7 +119,7 @@ class home extends dvc\mail\controller {
 
 			if ( !!options.context && !!options.element) {
 				let _data = $(options.element).data();
-				console.log( _data);
+				// console.log( _data);
 
 				let ctrl = $(\'<a href="#">save to file</a>\');
 				ctrl.on( \'click\', function( e) {
