@@ -600,7 +600,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					});
 
-					toolbar.prependTo( '#<?= $uidViewer ?>');
+					params.toolbar.prependTo( '#<?= $uidViewer ?>');
 					frame.css('height','calc(100% - ' + toolbar.height() + 'px');
 
 					// TODO : pass to local software
