@@ -418,12 +418,16 @@ class client {
 
 		if ($emails = imap_sort( $this->_stream, SORTARRIVAL, true, SE_NOPREFETCH )) {
 			// sys::dump( $emails);
-			$i = 0;
+			$start = $i = 0;
+			$_start = (int)$options->page * (int)$options->pageSize;
 			foreach( $emails as $email_number) {
-				if ( $i++ > 9 ) break;
-				$msg = $this->_overview( $email_number);
-				$msg->Folder = $this->_folder;
-				$ret[] = $msg;
+				if ( $start++ >= $_start ) {
+					if ( $i++ >= $options->pageSize ) break;
+					$msg = $this->_overview( $email_number);
+					$msg->Folder = $this->_folder;
+					$ret[] = $msg;
+
+				}
 
 			}
 

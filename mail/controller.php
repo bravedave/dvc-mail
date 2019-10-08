@@ -66,6 +66,7 @@ class controller extends \Controller {
 			$params = [
 				'creds' => $this->creds,
 				'folder' => $this->getPost('folder', 'default'),
+				'page' => (int)$this->getPost('page'),
 				'deep' => false
 
 			];
@@ -111,6 +112,7 @@ class controller extends \Controller {
 		$options = array_merge([
 			'creds' => $this->creds,
 			'folder' => 'default',
+			'page' => 0,
 			'deep' => false
 
 		], $params);

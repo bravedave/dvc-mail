@@ -9,6 +9,7 @@
 	*/	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
 	<input type="hidden" name="user_id" value="<?= $this->data->user_id ?>" />
+	<input type="hidden" name="page" value="0" />
 	<input type="hidden" name="action" />
 
 </form>
@@ -156,6 +157,8 @@ let MessageDrop = function( e) {	/* drag drop move messages */
 $(document).on( 'mail-change-user', function( e, id) {
 	$('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
 
+	$('input[name="page"]','<?= $uidFrm ?>').val( 0);
+
 	$(document)
 	.trigger('mail-messages')
 	.trigger('mail-folderlist')
@@ -198,6 +201,7 @@ $(document).on( 'mail-folderlist', function( e) {
 				let _data = _me.data();
 
 				// console.log( _data.folder);
+				$('input[name="page"]','<?= $uidFrm ?>').val( 0);
 				$(document).trigger( 'mail-messages', _data.folder);
 
 				//~ $('#submit-folder')
@@ -351,9 +355,9 @@ $(document).on( 'mail-folderlist', function( e) {
 
 		};
 
+		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6>folders</h6></div></div>');
 		$.each( folders, _list_subfolders);
-
-		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6>folders</h6></div></div>').append( ul);
+		$('#<?= $uidFolders ?>').append( ul);
 		//~ console.log( folders);
 
 	}
@@ -408,16 +412,58 @@ $(document).on( 'mail-messages', function( e, folder) {
 	// console.log( folder, data);
 
 	let _list_messages = function( messages) {
-		let heading = $('<div class="row bg-light text-muted"><div class="col"><i class="fa fa-refresh fa-spin pull-right pointer" /><h6>'+('undefined' == typeof data.folder ? 'messages' : data.folder)+'</h6></div></div>');
+		let heading = $('<div class="row bg-light text-muted" />');
+		let col = $('<div class="col" />').appendTo( heading);
+		let h = $('<h6/>').html('undefined' == typeof data.folder ? 'messages' : data.folder).appendTo( col);
+
 		$('#<?= $uidMsgs ?>').html('').append( heading);
 
-		$('i.fa', heading).on('click', function(e) {
+		$('<i class="fa fa-fw fa-angle-left pull-right pointer" title="previous page" />')
+		.prependTo( col)
+		.on('click', function(e) {
+			let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
+			if ( v > 0) {
+				v --;
+				$('input[name="page"]','#<?= $uidFrm ?>').val( v);
+
+				if ( !!folder)
+					$(document).trigger('mail-messages', folder);
+				else
+					$(document).trigger('mail-messages');
+
+			}
+
+		});
+
+		let page = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
+		if ( page > 0) {
+			$('<span class="badge badge-pill badge-light pull-right" />').html('#' + (page+1)).prependTo( col);
+
+		}
+		$('<i class="fa fa-fw fa-angle-right pull-right pointer" title="next page" />')
+		.prependTo( col)
+		.on('click', function(e) {
+			let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
+			v ++;
+			$('input[name="page"]','#<?= $uidFrm ?>').val( v);
+
 			if ( !!folder)
 				$(document).trigger('mail-messages', folder);
 			else
 				$(document).trigger('mail-messages');
 
 		});
+
+		$('<i class="fa fa-fw fa-refresh fa-spin pull-right pointer" />')
+		.prependTo( col)
+		.on('click', function(e) {
+			if ( !!folder)
+				$(document).trigger('mail-messages', folder);
+			else
+				$(document).trigger('mail-messages');
+
+		});
+
 		// console.log( messages);
 			//~ if ( !!el.subFolders) {}
 
@@ -698,7 +744,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 			sessionStorage.setItem( key, JSON.stringify( d.messages));
 			// console.log( 'messages - ' + data.folder);
 			if ( folder == $('#<?= $uidMsgs ?>').data('folder')) {
-				_list_messages( d.messages);
+				if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
+					_list_messages( d.messages);
+					$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+
+				}
 
 			}
 
@@ -706,10 +756,9 @@ $(document).on( 'mail-messages', function( e, folder) {
 		else {
 			_brayworth_.growl( d);
 			// console.log( d);
+			$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 
 		}
-
-		$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 
 	});
 
