@@ -55,6 +55,7 @@ class message {
 			'subject' => $this->Subject,
 			'seen' => $this->seen,
 			'folder' => $this->Folder,
+			'uid' => $this->Uid,
 
 		];
 

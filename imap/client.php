@@ -222,7 +222,7 @@ class client {
 		$ret->seen = $headers->Unseen == "U" ? 'no' : 'yes';
 		$ret->references = '';
 		if ( $mess->messageHTML) {
-			sys::logger('has messageHTML');
+			// sys::logger('has messageHTML');
 			$ret->Body = utf8_decode( $mess->messageHTML);
 
 		}
@@ -301,6 +301,7 @@ class client {
 		$overview = imap_fetch_overview( $this->_stream, $email_number, 0);
 		//~ $message = imap_fetchbody($stream,$email_number,1);
 		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
+		// sys::dump( $headers);
 		//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 		// $ret = array(
 		// 	'seen' => '',
@@ -367,6 +368,8 @@ class client {
 		// /* output the email body */
 		// $message = imap_fetchbody($inbox,$email_number,1);
 		// $output.= '<div class="body"><pre>'.$message.'</pre></div>';
+
+		$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
 
 		return ( $ret );
 
@@ -453,6 +456,7 @@ class client {
 			elseif ( $msg = $this->_getMessageHeader( $id, $folder )) {
 				// sys::dump( $msg);
 				$ret = $this->_getmessage( $msg->msgno, $msg);
+				// sys::dump( $ret);
 				sys::logger( sprintf( 'retrieved message via imap : %s :: %s : %s', $id, $folder, __METHOD__));
 
 			}
@@ -493,7 +497,7 @@ class client {
 
 	}
 
-	public function open( $full = true, $folder = 'default' ) {
+	public function open( $full = true, &$folder = 'default' ) {
 		$debug = false;
 		// $debug = true;
 

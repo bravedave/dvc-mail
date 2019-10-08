@@ -26,103 +26,8 @@
 </div>
 <script>
 /**------------------------------------------------ */
-let reply = function() {
-	let frame = $('iframe', '#<?= $uidViewer ?>');
-	if ( frame.length < 1) return;
-
-	let _document = frame[0].contentDocument;
-	let _body = $('div[message]', _document);
-
-	let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;"></div>');
-		if ( _brayworth_.browser.isMobileDevice) {
-			_wrap.text( _body.text().replace(/\n\s*/g,"\n").replace(/\n\n/g,"\n").trim())
-
-		}
-		else {
-			_wrap.html( _body.clone().html());
-
-		}
-		$('p', _wrap).each(function() {
-			let _me = $(this);
-			if( _me.html().length == 0)
-				_me.remove();
-
-		});
-
-	let _subject = $('[data-role="subject"]', _document).text().trim();
-	let _to = $('[data-role="from"]', _document).text();
-	let _time = $('[data-role="time"]', _document).text();
-	if ( '' != String( _time)) {
-		if ( '' != String( _to)) {
-			_wrap.prepend('on ' + _time + ' ' + _to + ' wrote:');
-
-		}
-		else {
-			_wrap.prepend('message on ' + _time + ' contained:');
-
-		}
-
-	}
-
-	_wrap.prepend('<br />');
-
-	if ( !/^re: /i.test( _subject))
-		_subject = 're: ' + _subject;
-
-	let j = {
-		to : _to,
-		subject : _subject,
-		message : _brayworth_.browser.isMobileDevice ? _wrap.text() : _wrap[0].outerHTML
-
-	};
-
-	_brayworth_.email.activate( j);
-	// console.log( _to, _time, _body);
-
-	return;
-
-	var wrap = $('<div />');
-	if ( $(this).data('role') == 'reply-fast')
-		wrap.append('<p>' + $('#reply-fast-response').val() + '</p>');
-
-	$('[data-role="attachment-control"],  [data-role="tag-control"]', _wrap).each(function() {
-		$(this).remove();
-	});
-
-	if ( /^reply/.test( $(this).data('role')) && to != undefined) {
-		j.to = to;
-		j.in_reply_to = container.data('messageid');
-		j.in_reply_to_msg = container.data('uid');
-		j.in_reply_to_folder = container.data('folder');
-		//~ console.log( 'reply', j.in_reply_to_msg = container.data('uid'));
-
-	}
-	else if ( /^forward/.test( $(this).data('role'))) {
-		j.forward_msg = container.data('uid');
-		j.forward_folder = container.data('folder');
-		//~ console.log( 'forward', j.forward_msg = container.data('uid'));
-		j.callback = function() {
-			this.GetAttachmentsFromAnotherMessage( j.forward_msg, j.forward_folder );
-
-		}
-
-	}
-
-	if ( $(this).data('role') == 'reply-all-button') {
-		var e, a = [];
-		e = container.data('to');
-		if ( e != undefined) a.push(e);
-
-		e = container.data('cc');
-		if ( e != undefined) a.push(e);
-
-		if ( a.length) j.cc = a.join(',');
-
-	}
-
-}
-
-let MessageDrop = function( e) {	/* drag drop move messages */
+/*---- ----[drag drop move messages]---- ----*/
+let MessageDrop = function( e) {
 	// console.log( 'handle drop');
 	e.preventDefault();
 
@@ -150,9 +55,8 @@ let MessageDrop = function( e) {	/* drag drop move messages */
 
 	$(this).trigger( 'dragleave');
 
-}	/* end: drag drop move messages */
-
-/**------------------------------------------------ */
+}
+/*--- ---[end: drag drop move messages]--- ---*/
 
 $(document).on( 'mail-change-user', function( e, id) {
 	$('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
@@ -418,6 +322,118 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 	$(document).trigger( 'mail-clear-reloader');
 
+	let reply = function( _data) {
+		let frame = $('iframe', '#<?= $uidViewer ?>');
+		if ( frame.length < 1) return;
+
+		let _document = frame[0].contentDocument;
+		let _body = $('div[message]', _document);
+
+		let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;" />');
+			if ( _brayworth_.browser.isMobileDevice) {
+				_wrap.text( _body.text().replace(/\n\s*/g,"\n").replace(/\n\n/g,"\n").trim())
+
+			}
+			else {
+				_wrap.html( _body.clone().html());
+
+			}
+			$('p', _wrap).each(function() {
+				let _me = $(this);
+				if( _me.html().length == 0)
+					_me.remove();
+
+			});
+
+		let _subject = $('[data-role="subject"]', _document).text().trim();
+		let _to = $('[data-role="from"]', _document).text();
+		let _time = $('[data-role="time"]', _document).text();
+		if ( '' != String( _time)) {
+			if ( '' != String( _to)) {
+				_wrap.prepend('on ' + _time + ' ' + _to + ' wrote:');
+
+			}
+			else {
+				_wrap.prepend('message on ' + _time + ' contained:');
+
+			}
+
+		}
+
+		_wrap.prepend('<br />');
+
+		if ( !/^re: /i.test( _subject)) _subject = 're: ' + _subject;
+
+		let j = {
+			subject : _subject,
+			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : _wrap[0].outerHTML
+
+		};
+
+		// console.log( _data);
+		// console.log( _data.message);
+		// console.log( this);
+		if ( /^reply/.test( $(this).data('role')) && _to != undefined) {
+			j.to = _to;
+			j.in_reply_to = _data.message.messageid;
+			j.in_reply_to_msg = _data.message.uid;
+			j.in_reply_to_folder = _data.message.folder;
+
+			// console.log( j);
+			//~ console.log( 'reply', j.in_reply_to_msg = container.data('uid'));
+
+		}
+		else if ( /^forward/.test( $(this).data('role'))) {
+			j.forward_msg = _data.message.uid;
+			j.forward_folder = _data.message.folder;
+			//~ console.log( 'forward', j.forward_msg = container.data('uid'));
+
+			// console.log( j);
+			j.callback = function() {
+				this.GetAttachmentsFromAnotherMessage( j.forward_msg, j.forward_folder );
+
+			}
+
+		}
+
+		if ( _brayworth_.email) {
+			_brayworth_.email.activate( j);
+
+		}
+		else {
+			_brayworth_.modal({
+				title:'alert',
+				text:'no email program to run ..'
+
+			})
+
+		}
+		// console.log( _to, _time, _body);
+
+		return;
+
+		var wrap = $('<div />');
+		if ( $(this).data('role') == 'reply-fast')
+			wrap.append('<p>' + $('#reply-fast-response').val() + '</p>');
+
+		$('[data-role="attachment-control"],  [data-role="tag-control"]', _wrap).each(function() {
+			$(this).remove();
+		});
+
+		if ( $(this).data('role') == 'reply-all-button') {
+			var e, a = [];
+			e = container.data('to');
+			if ( e != undefined) a.push(e);
+
+			e = container.data('cc');
+			if ( e != undefined) a.push(e);
+
+			if ( a.length) j.cc = a.join(',');
+
+		}
+
+	}
+
 	let frm = $('#<?= $uidFrm ?>');
 	let data = frm.serializeFormJSON();
 
@@ -589,12 +605,20 @@ $(document).on( 'mail-messages', function( e, folder) {
 					})();
 
 					( function() {
-						if ( !_brayworth_.email) return;
-
-						let btn = $('<button type="button"><i class="fa fa-reply" /></button>');
+						let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
 						btn
 						.addClass( params.btnClass)
-						.on('click', reply);
+						.on('click', () => { reply.call( btn, _data)});
+
+						btns.push( btn);
+
+					})();
+
+					( function() {
+						let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', () => { reply.call( btn, _data)});
 
 						btns.push( btn);
 

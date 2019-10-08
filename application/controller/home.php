@@ -160,13 +160,17 @@ class home extends dvc\mail\controller {
 	public function inbox() {
 		sys::dump( $this->_messages([
 			'folder' => 'Inbox'
-		]));
+			]),
+			sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
+			false
+
+		);
 
 	}
 
 	public function message() {
 		$this->_view([
-			'msg' => '<0a65046c-ce7c-4c8b-a93f-3b71e9777d20@W2008k.ashgrove.darcy.com.au>'
+			'msg' => '<D4BB1C8D1A502348BC4DACAC06A932050BB5D723@w2008k.ashgrove.darcy.com.au>'
 
 		]);
 

@@ -152,7 +152,10 @@ class controller extends \Controller {
 		], $params);
 
 		$inbox = inbox::instance( $options['creds']);
-		if ( $msg = $inbox->GetItemByMessageID( $options['msg'], $includeAttachments = true, $options['folder'])) {
+		if ( $msg = $inbox->GetItemByMessageID(
+			$options['msg'],
+			$includeAttachments = true,
+			$options['folder'])) {
 			// unset( $msg->attachments);
 			// sys::dump( $msg);
 

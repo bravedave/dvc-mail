@@ -69,16 +69,9 @@ class inbox {
 		$includeAttachments = false,
 		$folder = 'default' ) {
 
-		$ret = false;
-
-		// if ( $this->_client->open( true, $folder)) {
-			$ret = $this->_client->getmessage( $MessageID, $folder);
-			// $this->_client->close();
-
-		// }
+		$ret = $this->_client->getmessage( $MessageID, $folder);
 
 		// sys::logger( sprintf('%s/%s : %s', $folder, $MessageID, __METHOD__));
-
 
 		return $ret;
 
