@@ -485,6 +485,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 			received.html( stime);
 
 			let row = $('<div class="row border-bottom border-light py-2" id="uid_' + String( seed) + '_' + String(seed * i) + '" />').appendTo( '#<?= $uidMsgs ?>');
+			row.attr('msgid', msg.messageid);
 			let cell = $('<div class="col" />').appendTo( row);
 
 			$('<div class="row" />').append( from).appendTo( cell);
@@ -572,6 +573,36 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					})();
 
+					( function() {
+						let defaultFolders = $(document).data( 'default_folders');
+
+						if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
+							let btn = $('<button type="button"><i class="fa fa-trash" /></button>');
+							btn
+							.attr('title', 'move to '+defaultFolders.Trash)
+							.addClass( params.btnClass)
+							.on( 'click', function( e) {
+								// _me is the active row
+								// console.log( _me[0]);
+								// return;
+								let id = params.message.messageid;
+								// console.log( id);
+								// console.log( $('[msgid="'+id+'"]'));
+
+								$('[msgid="'+id+'"]').trigger('execute-action', {
+									action : 'move-message',
+									targetFolder : defaultFolders.Trash
+
+								});
+
+							});
+
+							btns.push( btn);
+
+						}
+
+					})();
+
 					let imgs = $('img[data-safe-src]', _frame.contentDocument);
 					if ( imgs.length > 0) {
 						let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');
@@ -634,7 +665,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 					ctrl.on( 'click', function( e) {
 						e.stopPropagation();e.preventDefault();
 
-						$(_row).trigger('execute-action', {
+						_row.trigger('execute-action', {
 							action : 'move-message',
 							targetFolder : defaultFolders.Trash
 
@@ -666,7 +697,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 			.on( 'execute-action', function( e, params) {
 				let _me = $(this);
 				let _data = _me.data();
-				// function( uid, folder, action, targetFolder)
+
+				// console.log( params);
 				/**
 				 * All these action remove the item from this folder
 				 * and simultaneously:
