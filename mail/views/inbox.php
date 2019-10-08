@@ -166,6 +166,18 @@ $(document).on( 'mail-change-user', function( e, id) {
 
 });
 
+$(document).on( 'mail-clear-reloader', function( e) {
+	(function( i) {
+		if ( !!i) {
+			window.clearTimeout( i);
+			$(document).removeData( 'mail-reloader');
+
+		}
+
+	})( $(document).data( 'mail-reloader'));
+
+});
+
 $(document).on( 'mail-folderlist', function( e) {
 	let frm = $('#<?= $uidFrm ?>');
 	let data = frm.serializeFormJSON();
@@ -404,6 +416,8 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 $(document).on( 'mail-messages', function( e, folder) {
 
+	$(document).trigger( 'mail-clear-reloader');
+
 	let frm = $('#<?= $uidFrm ?>');
 	let data = frm.serializeFormJSON();
 
@@ -454,7 +468,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-		$('<i class="fa fa-fw fa-refresh fa-spin pull-right pointer" />')
+		$('<i class="fa fa-fw fa-spinner fa-spin pull-right pointer" />')
 		.prependTo( col)
 		.on('click', function(e) {
 			if ( !!folder)
@@ -473,8 +487,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 		$.each( messages, function( i, msg) {
 
 			// console.log( msg);
-			let from = $('<div class="col text-truncate" from />').html( msg.from);
-			if ( 'no' == msg.seen) from.addClass('font-weight-bold');
+			let from = $('<div class="col text-truncate font-weight-bold" from />').html( msg.from);
+			if ( 'no' == msg.seen) {
+				$('<span class="pull-left font-weight-bold" style="margin-left: -.4em; font-size: 2em; line-height: .6;" unseen>&bull;</span>').prependTo( from);
+
+			}
 
 			let received = $('<div class="col-3 pl-0 text-right text-truncate small" />');
 			let subject = $('<div class="col-9 text-truncate" subject />').html( msg.subject).attr( 'title', msg.subject);
@@ -529,6 +546,16 @@ $(document).on( 'mail-messages', function( e, folder) {
 						btnClass : 'btn btn-sm btn-light px-3'
 
 					};
+
+					frame[0].contentWindow.setTimeout( () => {
+						let id = params.message.messageid;
+								// console.log( id);
+								// console.log( $('[msgid="'+id+'"]'));
+
+						$('[msgid="'+id+'"]').trigger('mark-seen');
+
+					}, 4000);
+
 
 					/* build a toolbar */
 					let btns = [];
@@ -741,12 +768,34 @@ $(document).on( 'mail-messages', function( e, folder) {
 				});
 
 			})
-			;
+			.on('mark-seen', function( e) {
+				let _me = $(this);
+				let _data = _me.data();
+
+				let frm = $('#<?= $uidFrm ?>');
+				let data = frm.serializeFormJSON();
+				data.folder = _data.folder;
+				data.messageid = _data.message.messageid;
+				data.action = 'mark-seen';
 
 
-			// console.log( msg);
-			// console.log( '------', time);
-			// console.log( row);
+				_brayworth_.post({
+					url : _brayworth_.url('<?= $this->route ?>'),
+					data : data,
+
+				}).then( function( d) {
+					if ( 'ack' == d.response) {
+						$('[unseen]', _me).remove();
+
+					}
+					else {
+						_brayworth_.growl( d);
+
+					}
+
+				});
+
+			});
 
 		});
 
@@ -764,7 +813,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 	}
 
 
-	$('i.fa-refresh', '#<?= $uidMsgs ?>').addClass('fa-spin');
+	$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-refresh').addClass('fa-spinner fa-spin');
 
 	_brayworth_.post({
 		url : _brayworth_.url('<?= $this->route ?>'),
@@ -777,7 +826,25 @@ $(document).on( 'mail-messages', function( e, folder) {
 			if ( folder == $('#<?= $uidMsgs ?>').data('folder')) {
 				if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
 					_list_messages( d.messages);
-					$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+					$('i.fa-spinner', '#<?= $uidMsgs ?>').addClass('fa-refresh').removeClass('fa-spinner fa-spin');
+
+					if ( 0 == data.page) {
+						(function( i) {
+							if ( !!i) {
+								window.clearTimeout( i);
+								$(document).removeData( 'mail-reloader');
+
+							}
+
+						})( $(document).data( 'mail-reloader'));
+
+						$(document).data( 'mail-reloader', window.setTimeout(() => {
+							$(document).trigger( 'mail-messages-reload', folder);
+							console.log( 'trigger : mail-messages-reload', folder);
+
+						}, 20000));
+
+					}
 
 				}
 
@@ -787,7 +854,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 		else {
 			_brayworth_.growl( d);
 			// console.log( d);
-			$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+			// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+			$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
 
 		}
 

@@ -590,6 +590,24 @@ class client {
 
 	}
 
+	public function setflag( $id, $flag) {
+		$ret = false;
+		$total = imap_num_msg( $this->_stream );
+		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
+		foreach ( $result as $msg) {
+			if ( "{$msg->message_id}" == "{$id}" ) {
+				imap_setflag_full( $this->_stream, $msg->msgno, $flag);
+				$ret = true;
+				break;
+
+			}
+
+		}
+
+		return $ret;
+
+	}
+
 	public function subscribe( $fldr) {
 		return imap_subscribe($this->_stream, sprintf( '{%s}%s', $this->_server, $fldr));
 

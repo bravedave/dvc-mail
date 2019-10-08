@@ -76,6 +76,19 @@ class controller extends \Controller {
 				->add( 'messages', $this->_messages( $params));
 
 		}
+		elseif ( 'mark-seen' == $action) {
+			if ( $msgID = $this->getPost('messageid')) {
+				$folder = $this->getPost('folder', 'default');
+
+				$inbox = inbox::instance( $this->creds);
+				if ( $res = $inbox->setflag( $msgID, $folder, '\seen')) {
+					Json::ack( $action);
+
+				} else { Json::nak( $action); }
+
+			} else { Json::nak( $action); }
+
+		}
 		elseif ( 'move-message' == $action) {
 			if ( $msgID = $this->getPost('messageid')) {
 				// sys::logger( sprintf( '%s : %s', $itemID, __METHOD__));

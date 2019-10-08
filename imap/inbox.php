@@ -296,4 +296,18 @@ class inbox {
 
 	}
 
+	public function setflag( $id, $folder, $flag) {
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->setflag( $id, $flag);
+			$this->_client->close();
+
+			return $ret;
+
+		}
+
+		return false;
+
+
+	}
+
 }
