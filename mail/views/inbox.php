@@ -601,9 +601,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 					});
 
 					params.toolbar.prependTo( '#<?= $uidViewer ?>');
-					frame.css('height','calc(100% - ' + toolbar.height() + 'px');
+					frame.css('height','calc(100% - ' + params.toolbar.height() + 'px');
 
-					// TODO : pass to local software
 					$(document).trigger( 'mail-message-toolbar', params)
 
 				});
