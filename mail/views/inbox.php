@@ -646,6 +646,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 								});
 
+								$('#<?= $uidViewer ?>').trigger('clear');
+
 							});
 
 							btns.push( btn);
