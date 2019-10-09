@@ -230,13 +230,26 @@ class message {
 
 		}
 
-		$html =  $doc->saveHTML();
-		$html = str_replace( chr(146), '&rsquo;', $html);
-		$html = mb_convert_encoding($html, 'utf-8', 'html-entities');
+		$html = $doc->saveHTML();
+		// sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
+		$html = preg_replace(
+			[
+				sprintf( '@%s@', chr(146)),
+				sprintf( '@%s%s@', chr(194), chr(160)),
+			],
+			[
+				'&rsquo;',
+				'&nbsp;',
+			], $html);
+		// sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
+		// $html = str_replace( chr(146), '&rsquo;', $html);
+		// $html = str_replace( chr(160), '&nbsp;', $html);
 
 		// $f = sprintf('%s/temp.txt', \config::dataPath());
 		// if ( \file_exists($f)) unlink( $f);
 		// \file_put_contents( $f, $html);
+
+		$html = mb_convert_encoding( $html, 'utf-8', 'html-entities');
 
 		return \strings::htmlSanitize( $html);
 
