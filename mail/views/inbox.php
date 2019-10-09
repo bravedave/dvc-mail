@@ -66,7 +66,7 @@ $(document).on( 'mail-change-user', function( e, id) {
 	$(document)
 	.trigger('mail-messages')
 	.trigger('mail-folderlist')
-	.trigger('view-message-list');
+	.trigger('mail-view-message-list');
 
 });
 
@@ -536,7 +536,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 				let msg = _data.message;
 
 				// console.log( msg);
-				$(document).trigger('view-message');
+				$(document).trigger('mail-view-message');
 				if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) return;
 
 				let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
@@ -580,7 +580,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 						btn
 						.addClass( params.btnClass)
 						.on('click', function( e) {
-							$(document).trigger('view-message-list');
+							$(document).trigger('mail-view-message-list');
 
 						});
 
@@ -928,7 +928,7 @@ $(document).on( 'toggle-view', function() {
 })
 .trigger( 'toggle-view');
 
-$(document).on( 'view-message-list', function(e) {
+$(document).on( 'mail-view-message-list', function(e) {
 	let view = $(document).data('view');
 
 	if ( 'condensed' != view) {
@@ -939,11 +939,11 @@ $(document).on( 'view-message-list', function(e) {
 	$('#<?= $uidMsgs ?>').removeClass('d-none d-md-block');
 	$('#<?= $uidViewer ?>').addClass('d-none d-md-block');
 
-	// console.log('view-message-list');
+	// console.log('mail-view-message-list');
 
 });
 
-$(document).on( 'view-message', function(e) {
+$(document).on( 'mail-view-message', function(e) {
 	let view = $(document).data('view');
 	if ( 'condensed' != view) {
 		$('#<?= $uidFolders ?>').removeClass('d-sm-block').addClass('d-md-block');
@@ -970,7 +970,7 @@ $(document).ready( function() {
 	$(document)
 	.trigger('mail-messages')
 	.trigger('mail-folderlist')
-	.trigger('view-message-list');
+	.trigger('mail-view-message-list');
 
 	$('#<?= $uidViewer ?>')
 	.on('clear', function( e) {
@@ -979,6 +979,8 @@ $(document).ready( function() {
 				.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
 
 	}).trigger('clear');
+
+	$(document).trigger('mail-load-complete');
 
 });
 </script>

@@ -131,6 +131,9 @@ class client {
 	}
 
 	protected function _getmessage( $msgno, $overview = false ) : \dvc\mail\message {
+		$debug = false;
+		// $debug = true;
+
 		// HEADER
 		$headers = imap_headerinfo( $this->_stream, $msgno, 1);
 		if ( !$overview) {
@@ -150,9 +153,9 @@ class client {
 
 		}
 
-		//~ die( "<pre>" . print_r( $headers, TRUE ) . "</pre>");
+		// die( "<pre>" . print_r( $headers, TRUE ) . "</pre>");
 		$mess = new RawMessage( $this->_stream, $msgno );
-		//~ die( "<pre>" . print_r( $mess, TRUE ) . "</pre>");
+		// die( "<pre>" . print_r( $mess, TRUE ) . "</pre>");
 
 		$to = [];
 		if ( isset( $headers->to ) && $headers->to) {
@@ -223,7 +226,8 @@ class client {
 		$ret->references = '';
 		if ( $mess->messageHTML) {
 			// sys::logger('has messageHTML');
-			$ret->Body = utf8_decode( $mess->messageHTML);
+			// $ret->Body = utf8_decode( $mess->messageHTML);
+			$ret->Body = $mess->messageHTML;
 
 		}
 		else {
@@ -237,7 +241,8 @@ class client {
 		}
 		else {
 			$ret->BodyType = 'text';
-			$ret->Body = utf8_decode( $mess->message);
+			// $ret->Body = utf8_decode( $mess->message);
+			$ret->Body = $mess->message;
 
 		}
 		$ret->attachments = $mess->attachments;
@@ -248,6 +253,8 @@ class client {
 		if ( isset($overview->{'X-CMS-Draft'})) $ret->{'X-CMS-Draft'} = $overview->{'X-CMS-Draft'};
 
 		//~ if ( \currentUser::isDavid()) \sys::dump( $ret);
+		if ( $debug) sys::logger( sprintf('exit : %s', __METHOD__));
+
 
 		return ( $ret );
 
@@ -457,7 +464,7 @@ class client {
 				// sys::dump( $msg);
 				$ret = $this->_getmessage( $msg->msgno, $msg);
 				// sys::dump( $ret);
-				sys::logger( sprintf( 'retrieved message via imap : %s :: %s : %s', $id, $folder, __METHOD__));
+				// sys::logger( sprintf( 'retrieved message via imap : %s :: %s : %s', $id, $folder, __METHOD__));
 
 			}
 

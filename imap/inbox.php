@@ -69,9 +69,9 @@ class inbox {
 		$includeAttachments = false,
 		$folder = 'default' ) {
 
+		// sys::logger( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
 		$ret = $this->_client->getmessage( $MessageID, $folder);
-
-		// sys::logger( sprintf('%s/%s : %s', $folder, $MessageID, __METHOD__));
+		// sys::logger( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
 
 		return $ret;
 

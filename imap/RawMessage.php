@@ -15,7 +15,6 @@ use dvc\mail\attachment;
 use sys;
 
 class RawMessage {
-
 	var $charset = '',
 		$messageType = '',
 		$message = '',
@@ -24,41 +23,70 @@ class RawMessage {
 		$cids = [];
 
 	function __construct( $stream, $email_number ) {
+		$debug = false;
+		$debug = true;
+
 		// BODY
 		$s = imap_fetchstructure( $stream, $email_number );
 		if ( !isset( $s->parts ) || !$s->parts )  // simple
 			$this->getpart( $stream, $email_number, $s, 0 );  // pass 0 as part-number
 
 		else {  // multipart: cycle through each part
-			foreach ($s->parts as $partno0 => $p)
+			// sys::logger( sprintf('get parts :s: %s', __METHOD__));
+			foreach ($s->parts as $partno0 => $p) {
 				$this->getpart( $stream, $email_number, $p, $partno0+1 );
+
+			}
+
+			// sys::logger( sprintf('get parts :e: %s', __METHOD__));
 
 		}
 
 	}
 
 	protected function getpart( $mbox, $mid, $p, $partno ) {
-		$debug = FALSE;
-		//~ $debug = TRUE;
+		$debug = false;
+		// $debug = true;
 
-		//~ if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
+		// if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
 
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 
 		// DECODE DATA
 		$data = ($partno)?
-			imap_fetchbody($mbox,$mid,$partno):  // multipart
-			imap_body($mbox,$mid);  // simple
+			imap_fetchbody( $mbox, $mid, $partno):  // multipart
+			imap_body( $mbox, $mid);  // simple
 
 		//~ if ( $debug) sys::logger( sprintf( 'encoding : %s : %s',  $p->encoding, $data));
 		//~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
 		// Any part may be encoded, even plain text messages, so check everything.
-		if ($p->encoding==4)
+		if ($p->encoding==4) {
+			if ( $debug) sys::logger( sprintf('imap_qprint : %s', __METHOD__));
 			$data = quoted_printable_decode( $data);
 
-		elseif ($p->encoding==3)
-			$data = base64_decode( $data);
+
+		}
+		elseif ( $p->encoding==3) {
+			if ( $debug) sys::logger( sprintf('imap_base64 :s: %s', __METHOD__));
+			$data = imap_base64( $data);
+			if ( $debug) sys::logger( sprintf('imap_base64 :e: %s', __METHOD__));
+			// $data = base64_decode( $data);
+
+		}
+		elseif ( $p->encoding == 1) {
+			if ( $debug) sys::logger( sprintf('imap_8bit : %s', __METHOD__));
+			$data = imap_8bit( $data);
+
+		}
+		else {
+			if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, __METHOD__));
+			if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $data, __METHOD__));
+			$data = quoted_printable_decode( $data);
+
+		}
+
+		// return;
 
 		// PARAMETERS : get all parameters, like charset, filenames of attachments, etc.
 		$params = [];
@@ -172,11 +200,11 @@ class RawMessage {
 
 			if ( strtolower($p->subtype)=='plain') {
 				$this->messageType = 'text';
-				$this->message .= trim($data) . "\n\n";
+				$this->message .= trim( $data) . "\n\n";
 
 			}
 			elseif ( strtolower($p->subtype)=='rfc822-headers')
-				$this->message .= "--[rfc822-headers]--\n\n" . trim($data) . "\n\n";
+				$this->message .= "--[rfc822-headers]--\n\n" . trim( $data) . "\n\n";
 
 			elseif ( strtolower($p->subtype)=='calendar') {
 				$this->attachments[ 'calendar.ics'] = $data;  // this is a problem if two files have same name
@@ -185,7 +213,7 @@ class RawMessage {
 
 			else {
 				$this->messageType = 'html';
-				$this->messageHTML .= $data . "<br><br>";
+				$this->messageHTML .= $data . "<br /><br />";
 
 			}
 
@@ -213,6 +241,8 @@ class RawMessage {
 			}
 
 		}
+
+		if ( $debug) sys::logger( sprintf('exit : %s', __METHOD__));
 
 	}
 

@@ -10,7 +10,7 @@
 */	?>
 <nav class="navbar navbar-light bg-light sticky-top" role="navigation" >
 	<ul class="navbar-nav mr-auto d-none d-sm-flex">
-		<li class="nav-item">
+		<li class="nav-item d-none" id="<?= $uid = strings::rand() ?>">
 			<a id="<?= $uidFolderHide = strings::rand() ?>"
 				class="btn btn-outline-dark rounded-circle"
 				href="#">
@@ -26,6 +26,11 @@
 
 </nav>
 <script>
+$(document).on('mail-load-complete', function( e) {
+	$('#<?= $uid ?>').removeClass('d-none');
+
+});
+
 $(document).ready( function() {
 	$('#<?= $uidFolderHide ?>').on( 'click', function( e) {
 		e.stopPropagation(); e.preventDefault();

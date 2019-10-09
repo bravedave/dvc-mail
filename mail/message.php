@@ -10,6 +10,7 @@
 */
 
 namespace dvc\mail;
+use sys;
 
 class message {
 
@@ -71,8 +72,8 @@ class message {
 
 		}
 
-		$decodecs = array( '@(“|”|’|‘)@');
-		$decodeca = array( '&rsquo;');
+		$decodecs = ['@(“|”|’|‘|' . chr(146) . ')@'];
+		$decodeca = ['&rsquo;'];
 
 		/* and possibly these as well */
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '–', '–');
@@ -80,10 +81,20 @@ class message {
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '-', '-');
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '…', '…');
 
-		$doc = new \DOMDocument();
+		$_string = preg_replace( $decodecs, $decodeca, $this->Body);
+		// sys::logger( sprintf('%s : %s', mb_detect_encoding($_string), __METHOD__));
+
+		$_string = mb_convert_encoding( $_string, 'utf-8', mb_detect_encoding($_string));
+		$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+
+		// $f = sprintf('%s/temp.html', \config::dataPath());
+		// if ( \file_exists($f)) unlink( $f);
+		// \file_put_contents( $f, $_string);
+		// die( $_string);
+
+		$doc = new \DOMDocument;
 		ini_set ('error_reporting', "5");
-		//~ $doc->loadHTML( preg_replace( $safetyS, $safetyR, $this->Body ) );
-		$doc->loadHTML( preg_replace( $decodecs, $decodeca, $this->Body));
+		$doc->loadHTML( $_string);
 		ini_set ('error_reporting', "6143");
 
 		$unsets = array();
@@ -219,7 +230,15 @@ class message {
 
 		}
 
-		return \strings::htmlSanitize( $doc->saveHTML());
+		$html =  $doc->saveHTML();
+		$html = str_replace( chr(146), '&rsquo;', $html);
+		$html = mb_convert_encoding($html, 'utf-8', 'html-entities');
+
+		// $f = sprintf('%s/temp.txt', \config::dataPath());
+		// if ( \file_exists($f)) unlink( $f);
+		// \file_put_contents( $f, $html);
+
+		return \strings::htmlSanitize( $html);
 
 	}
 

@@ -57,21 +57,12 @@ class controller extends \Controller {
 				if ( $msg = $inbox->GetItemByMessageID( $itemID)) {
 
 					// sys::logger( sprintf( 'found : %s : %s', $itemID, __METHOD__));
-
 					$msg->Body = strings::htmlSanitize( $msg->Body);
 					Json::ack( $action)->add( 'message', $msg);
 
-				}
-				else {
-					Json::nak( $action);
+				} else { Json::nak( $action); }
 
-				}
-
-			}
-			else {
-				Json::nak( $action);
-
-			}
+			} else { Json::nak( $action); }
 
 		}
 		elseif ( 'get-message-by-id' == $action) {
