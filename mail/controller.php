@@ -114,6 +114,96 @@ class controller extends \Controller {
 
 	}
 
+	protected function _file( array $params = []) {
+		$options = array_merge([
+			'creds' => $this->creds,
+			'item' => false,
+			'folder' => 'default',
+			'msg' => false,
+			'uid' => false
+
+		], $params);
+
+		$inbox = inbox::instance( $options['creds']);
+		if ( $options['msg']) {
+			$msg = $inbox->GetItemByMessageID(
+				$options['msg'],
+				$includeAttachments = true,
+				$options['folder']
+
+			);
+
+			if ( $msg) {
+				sys::dump( $msg->attachments);
+
+			}
+			else {
+				sys::logger( sprintf('%s/%s : %s',
+					$options['folder'],
+					$options['msg'],
+					__METHOD__
+
+				));
+
+				$this->render([
+					'title' => $this->title = 'Message not found',
+					'content' => 'not-found'
+
+				]);
+
+			}
+
+		}
+		elseif ( $options['uid']) {
+			$msg = $inbox->GetItemByUID(
+				$options['uid'],
+				$includeAttachments = true,
+				$options['folder']);
+
+			if ( $msg) {
+				if ( count( $msg->attachments)) {
+					// printf( '%s<br />', $options['item']);
+					$finfo = new \finfo(FILEINFO_MIME);
+					foreach ( $msg->attachments as $attachment) {
+						// printf( '%s<br />', $attachment->ContentId);
+						if ( $options['item'] == $attachment->ContentId) {
+							header( sprintf( 'Content-type: %s', $finfo->buffer( $attachment->Content)));
+							header( sprintf( 'Content-Disposition: inline; filename="%s"', $attachment->Name));
+							print $attachment->Content;
+							return;
+
+							// printf( 'found %s', $finfo->buffer( $attachment->Content));
+
+						}
+
+					}
+
+				}
+
+				$this->render([
+					'title' => $this->title = 'item not found',
+					'content' => 'not-found'
+
+				]);
+			}
+			else {
+				sys::logger( sprintf('%s/%s : %s',
+					$options['folder'],
+					$options['uid'],
+					__METHOD__));
+
+				$this->render([
+					'title' => $this->title = 'Message not found',
+					'content' => 'not-found'
+
+				]);
+
+			}
+
+		}
+
+	}
+
 	protected function _folders( $format = 'json') {
 		$folders = folders::instance( $this->creds);
 		return $folders->getAll( $format);
@@ -159,7 +249,10 @@ class controller extends \Controller {
 			// unset( $msg->attachments);
 			// sys::dump( $msg);
 
-			$this->data = (object)[ 'message' => $msg ];
+			$this->data = (object)[
+				'message' => $msg
+
+			];
 
 			$this->render([
 				'title' => $this->title = $msg->Subject,
@@ -233,6 +326,42 @@ class controller extends \Controller {
 			return ( $view);
 
 		return parent::getView( $viewName, $controller);
+
+	}
+
+	public function file() {
+		$msg = $this->getParam('msg');
+		$uid = $this->getParam('uid');
+		if ( $msg || $uid) {
+			if ( $file = $this->getParam('item')) {
+				$this->_file([
+					'creds' => $this->creds,
+					'folder' => $this->getParam('folder','default'),
+					'item' => $this->getParam('item'),
+					'msg' => $msg,
+					'uid' => $uid
+
+				]);
+
+			}
+			else {
+				$this->render([
+					'title' => $this->title = 'attachment - file',
+					'content' => 'missing-information'
+
+				]);
+
+			}
+
+		}
+		else {
+			$this->render([
+				'title' => $this->title = 'attachment - uid',
+				'content' => 'missing-information'
+
+			]);
+
+		}
 
 	}
 

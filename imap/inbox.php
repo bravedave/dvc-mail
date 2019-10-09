@@ -77,6 +77,19 @@ class inbox {
 
 	}
 
+	public function GetItemByUID(
+		$UID,
+		$includeAttachments = false,
+		$folder = 'default' ) {
+
+		// sys::logger( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
+		$ret = $this->_client->getmessageByUID( $UID, $folder);
+		// sys::logger( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
+
+		return $ret;
+
+	}
+
 	protected function GetAttachments( $attachmentIDs) {
 		// Build the request to get the attachments.
 		$request = new Request\GetAttachmentType;

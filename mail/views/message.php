@@ -11,6 +11,8 @@
 
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
+// unset( $this->data->message);
+// sys::dump( $this->data);
 $colStyle = 'width: 5rem; font-size: small;';
 ?>
 <table style="width: 100%; font-family: sans-serif; border-bottom: 1px solid silver;" cellpadding="2">
@@ -81,7 +83,15 @@ $colStyle = 'width: 5rem; font-size: small;';
     if ( count( $msg->attachments)) {
         print '<ul>';
         foreach ( $msg->attachments as $key => $attachment) {
-            printf('<li>%s</li>', $attachment->Name);
+            $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
+                    $this->route,
+                    $msg->Uid,
+                    urlencode($msg->Folder),
+                    urlencode($attachment->ContentId)
+                );
+            printf('<li><a href="%s" target="_blank">%s</a></li>',
+                strings::url( $path),
+                $attachment->Name);
 
         }
 

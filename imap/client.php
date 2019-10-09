@@ -452,24 +452,79 @@ class client {
 
 	}
 
-	public function getmessage( $id, $folder = "default", $msgno = 0 ) {
+	public function getmessage( $id, $folder = "default") {
 		$ret = false;
 		if ( $this->open( true, $folder )) {
-			if ( $msgno > 0 ) {
-				$ret = $this->_getmessage( $msgno);
-				sys::logger( sprintf( 'retrieved msgno via imap : %s :: %s : %s', $id, $folder, __METHOD__));
-
-			}
-			elseif ( $msg = $this->_getMessageHeader( $id, $folder )) {
-				// sys::dump( $msg);
+			if ( $msg = $this->_getMessageHeader( $id, $folder )) {
 				$ret = $this->_getmessage( $msg->msgno, $msg);
-				// sys::dump( $ret);
-				// sys::logger( sprintf( 'retrieved message via imap : %s :: %s : %s', $id, $folder, __METHOD__));
+				$ret->Folder = $folder;
 
 			}
 
 			if ( !$ret) {
-				if ( self::$debug) sys::logger( sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+				if ( self::$debug) {
+					sys::logger( sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+
+				}
+
+			}
+
+			$this->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+		}
+
+		return ( $ret );
+
+	}
+
+	public function getmessageByMsgNo( $msgno, $folder = "default") {
+		$ret = false;
+		if ( $this->open( true, $folder )) {
+			if ( $msgno > 0 ) {
+				$ret = $this->_getmessage( $msgno);
+				$ret->Folder = $folder;
+
+			}
+
+			if ( !$ret) {
+				if ( self::$debug) {
+					sys::logger( sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+
+				}
+
+			}
+
+			$this->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+		}
+
+		return ( $ret );
+
+	}
+
+	public function getmessageByUID( $uid, $folder = "default") {
+		$ret = false;
+		if ( $this->open( true, $folder )) {
+			$msgno = imap_msgno( $this->_stream, $uid);
+			if ( $msgno > 0 ) {
+				if ( $ret = $this->_getmessage( $msgno)) {
+					$ret->Folder = $folder;
+					sys::logger( sprintf( 'retrieved msgno via imap : %s :: %s : %s', $uid, $folder, __METHOD__));
+
+				}
+
+			}
+
+			if ( !$ret) {
+				if ( self::$debug) sys::logger( sprintf('not found : %s/%s : %s', $folder, $uid, __METHOD__));
 
 			}
 
