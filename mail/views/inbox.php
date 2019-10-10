@@ -98,7 +98,7 @@ $(document).on( 'mail-folderlist', function( e) {
 	let _list = function( folders) {
 		// console.log( folders);
 
-		let ul = $('<ul class="list-unstyled small" />');
+		let ul = $('<ul class="list-unstyled" />');
 
 		let map = '';
 		let _list_subfolders = function( i, fldr) {
