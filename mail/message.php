@@ -84,14 +84,18 @@ class message {
 		$_string = preg_replace( $decodecs, $decodeca, $this->Body);
 
 		$encoding = mb_detect_encoding($_string);
-		if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
-			sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
-
-		}
 
 		if ( $encoding) {
+			if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
+				sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
+
+			}
 			$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
 			$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+
+		}
+		else {
+			sys::logger( sprintf('no encoding on string : %s', __METHOD__));
 
 		}
 
