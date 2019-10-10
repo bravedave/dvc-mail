@@ -88,8 +88,12 @@ class message {
 			sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
 
 		}
-		$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
-		$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+
+		if ( $encoding) {
+			$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
+			$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+
+		}
 
 		if ( $debug) {
 			$f = sprintf('%s/temp-start.html', \config::dataPath());
