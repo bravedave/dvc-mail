@@ -505,7 +505,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 			// console.log( msg);
 			let from = $('<div class="col text-truncate font-weight-bold" from />').html( msg.from);
 			if ( 'no' == msg.seen) {
-				$('<span class="pull-left font-weight-bold" style="margin-left: -.4em; font-size: 2em; line-height: .6;" unseen>&bull;</span>').prependTo( from);
+				$('<span class="pull-left font-weight-bold" style="margin-left: -.5em; font-size: 1.5em; line-height: .8; color: #c2c7cb;" unseen>&bull;</span>').prependTo( from);
+				// $('<i class="pull-left fa fa-square" style="margin-left: -.4em;" unseen />').prependTo( from);
 
 			}
 
