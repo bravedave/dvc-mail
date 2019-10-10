@@ -19,7 +19,7 @@
 </style>
 
 <div class="row h-100">
-	<div class="d-none d-sm-block col-sm-3 col-md-2 h-100" id="<?= $uidFolders = strings::rand() ?>">folders ...</div>
+	<div class="d-none d-sm-block col-sm-3 col-md-2 h-100" id="<?= $uidFolders = strings::rand() ?>" data-role="mail-folder-list">folders ...</div>
 	<div class="col-sm-9 col-md-3 border border-light h-100" style="overflow-y: auto;" id="<?= $uidMsgs = strings::rand() ?>">messages ...</div>
 	<div class="d-none d-md-block col-md-7 h-100" id="<?= $uidViewer = strings::rand() ?>" data-role="mail-message-viewer"></div>
 
