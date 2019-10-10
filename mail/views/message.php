@@ -83,15 +83,22 @@ $colStyle = 'width: 5rem; font-size: small;';
     if ( count( $msg->attachments)) {
         print '<ul>';
         foreach ( $msg->attachments as $key => $attachment) {
-            $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
-                    $this->route,
-                    $msg->Uid,
-                    urlencode($msg->Folder),
-                    urlencode($attachment->ContentId)
-                );
-            printf('<li><a href="%s" target="_blank">%s</a></li>',
-                strings::url( $path),
-                $attachment->Name);
+            if ( 'object' == gettype( $attachment)) {
+                $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
+                        $this->route,
+                        $msg->Uid,
+                        urlencode($msg->Folder),
+                        urlencode($attachment->ContentId)
+                    );
+                printf('<li><a href="%s" target="_blank">%s</a></li>',
+                    strings::url( $path),
+                    $attachment->Name);
+
+            }
+            else {
+                printf('<li>%s</li>', $attachment);
+
+            }
 
         }
 
