@@ -82,9 +82,13 @@ class message {
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '…', '…');
 
 		$_string = preg_replace( $decodecs, $decodeca, $this->Body);
-		// sys::logger( sprintf('%s : %s', mb_detect_encoding($_string), __METHOD__));
 
-		$_string = mb_convert_encoding( $_string, 'utf-8', mb_detect_encoding($_string));
+		$encoding = mb_detect_encoding($_string);
+		if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
+			sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
+
+		}
+		$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
 		$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
 
 		if ( $debug) {
