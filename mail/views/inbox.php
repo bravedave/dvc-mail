@@ -269,6 +269,8 @@ $(document).on( 'mail-folderlist', function( e) {
 
 			}
 
+			$(document).trigger('mail-folderlist-complete');
+
 		};
 
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6>folders</h6></div></div>');
