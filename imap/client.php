@@ -198,18 +198,28 @@ class client {
 		$cc = implode( ', ', $cc );
 
 		//~ sys::dump( $headers);
-		if ( !isset( $headers->subject))
+		if ( !isset( $headers->subject)) {
 			$headers->Subject = '(subject missing)';
 
-		if ( !isset( $headers->message_id))
+		}
+
+		if ( !isset( $headers->message_id)) {
 			$headers->message_id = 'no-message-id';
 
+		}
+
 		$headerDate = '';
-		if ( isset( $headers->date))
+		if ( isset( $headers->date)) {
 			$headerDate = $headers->date;
 
+		}
+
 		$ret = new \dvc\mail\message;
-		$ret->Subject = self::decodeMimeStr((string)$headers->subject);
+		if ( isset( $headers->subject)) {
+			$ret->Subject = self::decodeMimeStr((string)$headers->subject);
+
+		}
+
 		$ret->From = self::decodeMimeStr((string)$from);
 			$ea = new EmailAddress( $ret->From);
 			$ret->fromEmail = $ea->email;
