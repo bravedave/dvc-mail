@@ -35,6 +35,7 @@ class imap extends dvc\imap\controller {
 				'server' => $this->getPost('server'),
 				'username' => $this->getPost('username'),
 				'password' => $this->getPost('password'),
+				'type' => $this->getPost('type'),
 
 			];
 
@@ -67,6 +68,7 @@ class imap extends dvc\imap\controller {
 				'server' => account::$SERVER,
 				'username' => account::$USERNAME,
 				'password' => account::$PASSWORD,
+				'type' => account::$TYPE,
 
 			]
 

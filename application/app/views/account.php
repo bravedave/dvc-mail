@@ -28,6 +28,19 @@ $account = $this->data->account;
 
 	<div class="form-group row">
 		<div class="col">
+			<label for="<?= $uid = strings::rand() ?>">server type:</label>
+			<select class="form-control" name="type" id="<?= $uid ?>">
+				<option value="">linux</option>
+				<option value="exchange" <?php if ( 'exchange' == $account->type) print 'selected'  ?>>exchange</option>
+
+			</select>
+
+		</div>
+
+	</div>
+
+	<div class="form-group row">
+		<div class="col">
 			<label for="<?= $uid = strings::rand() ?>">username:</label>
 			<input type="text" class="form-control" name="username"
 				autocomplete="off"
@@ -42,9 +55,7 @@ $account = $this->data->account;
 		<div class="col">
 			<label for="<?= $uid = strings::rand() ?>">password:</label>
 			<div class="input-group">
-				<input type="password" class="form-control" name="password" value="--------"
-					autocomplete="off"
-					id="<?= $uid ?>" />
+				<input class="form-control" name="password" id="<?= $uid ?>" />
 				<div class="input-group-append" id="<?= $uid ?>-control">
 					<div class="input-group-text">
 						<i class="fa fa-eye"></i>
@@ -52,6 +63,15 @@ $account = $this->data->account;
 					</div>
 
 				</div>
+
+				<script>
+				$(document).ready( function() {
+					$('#<?= $uid ?>')
+					.attr('type','password')
+					.val('--------');
+
+				});
+				</script>
 
 			</div>
 

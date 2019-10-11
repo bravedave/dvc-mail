@@ -49,6 +49,10 @@ class home extends dvc\mail\controller {
 					);
 
 					$this->creds->interface = dvc\mail\credentials::imap;
+					if ( 'exchange' == $this->creds->type) {
+						dvc\imap\folders::$delimiter = '/';									// for exchange server
+
+					}
 
 					// sys::dump( $this->creds);
 
