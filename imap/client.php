@@ -671,10 +671,13 @@ class client {
 		$total = imap_num_msg( $this->_stream );
 		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
 		foreach ( $result as $msg) {
-			if ( "{$msg->message_id}" == "{$id}" ) {
-				imap_setflag_full( $this->_stream, $msg->msgno, $flag);
-				$ret = true;
-				break;
+			if ( isset($msg->message_id)) {
+				if ( "{$msg->message_id}" == "{$id}" ) {
+					imap_setflag_full( $this->_stream, $msg->msgno, $flag);
+					$ret = true;
+					break;
+
+				}
 
 			}
 
