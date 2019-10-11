@@ -6,7 +6,11 @@
 
 	This work is licensed under a Creative Commons Attribution 4.0 International Public License.
 		http://creativecommons.org/licenses/by/4.0/
-	*/	?>
+	*/
+
+	$keyLastFolders = sprintf('%s-lastfolders', $this->route);
+
+	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
 	<input type="hidden" name="user_id" value="<?= $this->data->user_id ?>" />
 	<input type="hidden" name="page" value="0" />
@@ -280,12 +284,11 @@ $(document).on( 'mail-folderlist', function( e) {
 
 	}
 
-	let key = '<?= $this->route ?>-lastfolders';
-	let lastFolders = sessionStorage.getItem( key);
+	let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
 	// console.log( key, lastFolders);
 	if ( !!lastFolders) {
 		_list( JSON.parse( lastFolders));
-		sessionStorage.removeItem( key);
+		sessionStorage.removeItem( '<?= $keyLastFolders ?>');
 
 	}
 
@@ -297,7 +300,7 @@ $(document).on( 'mail-folderlist', function( e) {
 
 	}).then( function( d) {
 		if ( 'ack' == d.response) {
-			sessionStorage.setItem( key, JSON.stringify( d.folders));
+			sessionStorage.setItem( '<?= $keyLastFolders ?>', JSON.stringify( d.folders));
 			_list( d.folders);
 
 		}
@@ -659,6 +662,73 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					})();
 
+					( function() {
+						let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
+						// console.log( key, lastFolders);
+						if ( !!lastFolders) {
+							let btn = $('<button type="button"><i class="fa fa-flip-horizontal fa-share-square-o" /></button>');
+							btn
+							.attr('title', 'move ')
+							.addClass( params.btnClass)
+							.on( 'click', function( e) {
+								let select = $('<select class="form-control" />');
+
+								let level = 0;
+								let _list_subfolders = function( i, fldr) {
+									// console.log( fldr);
+
+									$('<option />')
+									.html( '&nbsp;'.repeat(level) + fldr.name)
+									.val(fldr.fullname)
+									.appendTo( select);
+
+									if ( !!fldr.subFolders) {
+										level ++;
+										$.each( fldr.subFolders, _list_subfolders);
+										level --;
+
+									}
+
+								};
+
+								$.each( JSON.parse( lastFolders), _list_subfolders);
+
+								let ig = $('<div class="input-group input-group-sm" />');
+								select.appendTo( ig);
+
+								let btn = $('<button type="button" class="btn btn-primary">move</button>');
+								$('<div class="input-group-append" />').append( btn).appendTo( ig);
+
+								console.log( _data.message);
+
+								// $('<input type="hidden" name="folder" />').val( _data.message.folder).appendTo( frm);
+
+								btn
+								.on( 'click', function(e) {
+
+									let target = select.val();
+									console.log( target);
+
+									let id = params.message.messageid;
+									$('[msgid="'+id+'"]').trigger('execute-action', {
+										action : 'move-message',
+										targetFolder : target
+
+									});
+
+								})
+
+								ig.insertAfter( this);
+								$(this).remove();
+
+							});
+
+							btns.push( btn);
+
+						}
+
+					})();
+
 					let imgs = $('img[data-safe-src]', _frame.contentDocument);
 					if ( imgs.length > 0) {
 						let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');
@@ -690,7 +760,12 @@ $(document).on( 'mail-messages', function( e, folder) {
 					params.toolbar.prependTo( '#<?= $uidViewer ?>');
 					frame.css('height','calc(100% - ' + params.toolbar.height() + 'px');
 
-					$(document).trigger( 'mail-message-toolbar', params)
+					$(document)
+					.trigger( 'mail-message-toolbar', params)
+					.trigger( 'mail-message-loaded', {
+						message : _data.message,
+						window : _frame.contentDocument
+					});
 
 				});
 
@@ -699,6 +774,13 @@ $(document).on( 'mail-messages', function( e, folder) {
 				$('#<?= $uidViewer ?>')
 				.data('message', _data.message.messageid)
 				.html('').append( frame);
+
+				$('> .row', _me.parent()).each( function() {
+					$(this).removeClass( 'bg-light');
+
+				});
+
+				_me.addClass('bg-light');
 
 			})
 			.on( 'contextmenu', function( e) {
@@ -792,6 +874,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					_me.remove();
 
+					if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) {
+						$('#<?= $uidViewer ?>').trigger('clear');
+
+					}
+
 					$(document).trigger('mail-messages-reload', _data.folder);
 
 				});
@@ -869,7 +956,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 						$(document).data( 'mail-reloader', window.setTimeout(() => {
 							$(document).trigger( 'mail-messages-reload', folder);
-							console.log( 'trigger : mail-messages-reload', folder);
+							// console.log( 'trigger : mail-messages-reload', folder);
 
 						}, 20000));
 
