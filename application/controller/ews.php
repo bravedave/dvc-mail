@@ -86,6 +86,7 @@ class ews extends dvc\ews\controller {
 				'server' => account::$SERVER,
 				'username' => account::$USERNAME,
 				'password' => account::$PASSWORD,
+				'type' => account::$TYPE,
 
 			]
 

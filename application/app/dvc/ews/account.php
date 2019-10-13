@@ -16,6 +16,7 @@ abstract class account {
 	static $SERVER = '';
 	static $USERNAME = '';
 	static $PASSWORD = '';
+	static $TYPE = '';
 	static $ENABLED = false;
 
     static function config() {
@@ -28,6 +29,7 @@ abstract class account {
 			$j = json_decode( file_get_contents( $config));
 
 			if ( isset( $j->server)) self::$SERVER = $j->server;
+			if ( isset( $j->type)) self::$TYPE = $j->type;
 			if ( isset( $j->username)) self::$USERNAME = $j->username;
 			if ( isset( $j->password)) self::$PASSWORD = bCrypt::decrypt( $j->password);
 

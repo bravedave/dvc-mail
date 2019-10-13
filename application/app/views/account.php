@@ -26,6 +26,7 @@ $account = $this->data->account;
 
 	</div>
 
+<?php	if ( 'imap' == dvc\mail\config::$MODE) {	?>
 	<div class="form-group row">
 		<div class="col">
 			<label for="<?= $uid = strings::rand() ?>">server type:</label>
@@ -38,6 +39,8 @@ $account = $this->data->account;
 		</div>
 
 	</div>
+
+<?php	}	// if ( 'imap' == dvc\mail\config::$MODE)	?>
 
 	<div class="form-group row">
 		<div class="col">
