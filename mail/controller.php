@@ -250,6 +250,7 @@ class controller extends \Controller {
 			// sys::dump( $msg);
 
 			$this->data = (object)[
+				'default_folders' => inbox::default_folders( $this->creds),
 				'message' => $msg
 
 			];

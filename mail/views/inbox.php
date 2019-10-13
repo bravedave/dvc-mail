@@ -450,6 +450,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 		let heading = $('<div class="row bg-light text-muted" />');
 		let col = $('<div class="col" />').appendTo( heading);
 		let h = $('<h6/>').html('undefined' == typeof data.folder ? 'messages' : data.folder).appendTo( col);
+		let defaultFolders = $(document).data( 'default_folders');
+		// console.log( defaultFolders);
 
 		$('#<?= $uidMsgs ?>').html('').append( heading);
 
@@ -508,7 +510,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 		$.each( messages, function( i, msg) {
 
 			// console.log( msg);
-			let from = $('<div class="col text-truncate font-weight-bold" from />').html( msg.from);
+			// msg.folder ==
+			let email = msg.from;
+			if ( msg.folder == defaultFolders.Sent) email = msg.to;
+			let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
 			if ( 'no' == msg.seen) {
 				$('<span class="pull-left font-weight-bold" style="margin-left: -.5em; font-size: 1.5em; line-height: .8; color: #c2c7cb;" unseen>&bull;</span>').prependTo( from);
 				// $('<i class="pull-left fa fa-square" style="margin-left: -.4em;" unseen />').prependTo( from);

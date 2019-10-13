@@ -51,6 +51,8 @@ class home extends dvc\mail\controller {
 					$this->creds->interface = dvc\mail\credentials::imap;
 					if ( 'exchange' == dvc\imap\account::$TYPE) {
 						dvc\imap\folders::$delimiter = '/';									// for exchange server
+						dvc\imap\folders::$default_folders['Trash'] = 'Deleted Items';		// for exchange server
+						dvc\imap\folders::$default_folders['Sent'] = 'Sent Items';		// for exchange server
 
 					}
 

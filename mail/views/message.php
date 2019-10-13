@@ -12,7 +12,10 @@
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
 // unset( $this->data->message);
-// sys::dump( $this->data);
+// $msg->attachments = [];
+// $msg->Body = '';
+// sys::dump( $msg);
+// sys::dump( $this->data->default_folders);
 $colStyle = 'width: 5rem; font-size: small;';
 ?>
 <table style="width: 100%; font-family: sans-serif; border-bottom: 1px solid silver;" cellpadding="2">
@@ -21,21 +24,29 @@ $colStyle = 'width: 5rem; font-size: small;';
             <td>
                 <span style="float: right;"><?= strings::asLocalDate( $msg->Recieved, $time = true) ?></span>
                 <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
-                <strong data-role="from"><?php
+                <?php
+                if ( $this->data->default_folders['Sent'] == $msg->Folder) {
+                    printf( '<small>to&nbsp;</small><strong data-role="from">%s</strong>', $msg->To);
+
+                }
+                else {
                     if ( $msg->From && $msg->From != $msg->fromEmail) {
-                        printf( '%s <%s>', htmlentities( $msg->From), $msg->fromEmail);
+                        printf( '<strong data-role="from">%s <%s></strong>', htmlentities( $msg->From), $msg->fromEmail);
 
                     }
                     else {
                         print $msg->fromEmail;
 
                     }
-                    ?></strong>
+
+                }
+                ?>
 
             </td>
 
         </tr>
 
+<?php   if ( $this->data->default_folders['Sent'] != $msg->Folder) {    ?>
         <tr>
             <td>
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -47,6 +58,8 @@ $colStyle = 'width: 5rem; font-size: small;';
             </td>
 
         </tr>
+
+<?php   }   // if ( $this->data->default_folders['Sent'] == $msg->Folder)   ?>
 
         <tr>
             <td>
