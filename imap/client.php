@@ -246,6 +246,7 @@ class client {
 			// sys::logger('has messageHTML');
 			// $ret->Body = utf8_decode( $mess->messageHTML);
 			$ret->Body = $mess->messageHTML;
+			// die( $ret->Body);
 
 		}
 		else {
@@ -562,6 +563,8 @@ class client {
 		$total = imap_num_msg( $this->_stream );
 		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
 		foreach ( $result as $msg) {
+			if ( !isset($msg->message_id)) continue;
+
 			if ( "{$msg->message_id}" == "{$id}" ) {
 				imap_mail_move( $this->_stream, $msg->msgno, $target);
 				imap_expunge( $this->_stream);
