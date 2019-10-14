@@ -15,7 +15,7 @@ namespace dvc\mail;
 
 // use bCrypt;
 use Json;
-// use Response;
+use Response;
 use strings;
 use sys;
 // use url;
@@ -248,6 +248,13 @@ class controller extends \Controller {
 			$options['folder'])) {
 			// unset( $msg->attachments);
 			// sys::dump( $msg);
+			// print $msg->safehtml();
+			// return;
+
+			if ( $msg->hasMso()) {
+		        pages\minimal::$docType = Response::mso_docType();
+
+			}
 
 			$this->data = (object)[
 				'default_folders' => inbox::default_folders( $this->creds),

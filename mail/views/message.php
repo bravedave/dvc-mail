@@ -1,13 +1,12 @@
 <?php
-/*
+/**
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
  * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
  *      http://creativecommons.org/licenses/by/4.0/
- *
-*/
+ ** */
 
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
@@ -106,6 +105,13 @@ $colStyle = 'width: 5rem; font-size: small;';
         printf( '<div message><pre>%s</pre></div>', $msg->Body);
 
     }
+    elseif ( $msg->hasMso()) {
+        // printf( '<div message style="max-width: 100%%">%s</div>', htmlentities( $msg->header()));
+        printf( '<div message style="max-width: 100%%">%s %s</div>',
+            $msg->getMso(),
+            $msg->safehtml());
+
+    }
     else {
         printf( '<div message style="max-width: 100%%">%s</div>', $msg->safehtml());
 
@@ -137,8 +143,3 @@ $colStyle = 'width: 5rem; font-size: small;';
         print '</ul>';
 
     }
-    // sys::dump( $msg);
-    // sys::dump( $msg->attachments);
-
-    // printf( '<hr />%s<br />', __DIR__ . '/normalize.css');
-    printf('<style>%s</style>', file_get_contents( __DIR__ . '/mso.css'));

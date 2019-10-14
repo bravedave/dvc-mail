@@ -10,6 +10,7 @@
 */
 
 namespace dvc\mail;
+use strings;
 use sys;
 
 class message {
@@ -59,6 +60,45 @@ class message {
 			'uid' => $this->Uid,
 
 		];
+
+	}
+
+	public function getMso() {
+        $header = trim( $this->header());
+        if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
+            if ( strings::endswith( $header, '<![endif]-->')) {
+				return $header;
+
+            }
+
+		}
+
+		return '';
+
+	}
+
+	public function hasMso() {
+		$header = trim( $this->header());
+        if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
+            if ( strings::endswith( $header, '<![endif]-->')) {
+                return true;
+
+            }
+
+		}
+
+		return false;
+
+	}
+
+	public function header() {
+		$search = array(
+			'@.*<head[^>]*?>@si',		// before the head element
+			'@</head>.*@si',			// after head element
+			'@<meta[^>]*?>@si',			// strip meta tags
+		);
+
+		return( preg_replace($search, '', $this->Body));
 
 	}
 
@@ -256,7 +296,12 @@ class message {
 
 		}
 
-		$html = $doc->saveHTML();
+		// $html = $doc->saveHTML();
+		$tmpfile = \tempnam( \config::dataPath(), 'msg_');
+		$doc->saveHTMLfile( $tmpfile);
+		$html = \file_get_contents( $tmpfile);
+		// unlink( $tmpfile);
+
 		// sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
 		$html = preg_replace(
 			[
@@ -293,9 +338,7 @@ class message {
 			sys::logger( sprintf('no encoding on string : %s', __METHOD__));
 
 		}
-		// sys::logger( $html);
-		// sys::logger( mb_detect_encoding( $html));
-		// sys::logger( $html);
+
 		$_html = \strings::htmlSanitize( $html);
 
 		if ( $debug) {
@@ -308,6 +351,5 @@ class message {
 		return $_html;
 
 	}
-
 
 }

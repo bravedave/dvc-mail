@@ -220,7 +220,7 @@ class RawMessage {
 
 			else {
 				$this->messageType = 'html';
-				$this->messageHTML .= $data . "<br /><br />";
+				$this->messageHTML .= $data;	// . "<br /><br />";
 
 			}
 
