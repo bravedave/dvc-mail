@@ -72,8 +72,14 @@ class message {
 
 		}
 
-		$decodecs = ['@(“|”|’|‘|' . chr(146) . ')@'];
-		$decodeca = ['&rsquo;'];
+		$decodecs = [
+			'@(“|”|’|‘|' . chr(146) . ')@',
+			'@<!DOCTYPE[^>]*>@'
+		];
+		$decodeca = [
+			'&rsquo;',
+			''
+		];
 
 		/* and possibly these as well */
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '–', '–');
@@ -112,9 +118,11 @@ class message {
 		// die( $_string . '<br />die...');
 
 		$doc = new \DOMDocument;
-		ini_set ('error_reporting', "5");
+		// ini_set ('error_reporting', "5");
+		libxml_use_internal_errors(true);
 		$doc->loadHTML( $_string);
-		ini_set ('error_reporting', "6143");
+		libxml_clear_errors();
+		// ini_set ('error_reporting', "6143");
 
 		$unsets = [];
 
