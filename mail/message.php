@@ -45,6 +45,17 @@ class message {
 	public $references = '';	// imap
 	public $cids = '';	// imap
 
+	protected function getHeader() {
+		$search = array(
+			'@.*<head[^>]*?>@si',		// before the head element
+			'@</head>.*@si',			// after head element
+			'@<meta[^>]*?>@si',			// strip meta tags
+		);
+
+		return( preg_replace($search, '', $this->Body));
+
+	}
+
     public function asArray() {
 		// \sys::logger( $this->fromEmail);
 
@@ -64,7 +75,7 @@ class message {
 	}
 
 	public function getMso() {
-        $header = trim( $this->header());
+        $header = trim( $this->getHeader());
         if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
             if ( strings::endswith( $header, '<![endif]-->')) {
 				return $header;
@@ -78,7 +89,7 @@ class message {
 	}
 
 	public function hasMso() {
-		$header = trim( $this->header());
+		$header = trim( $this->getHeader());
         if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
             if ( strings::endswith( $header, '<![endif]-->')) {
                 return true;
@@ -88,17 +99,6 @@ class message {
 		}
 
 		return false;
-
-	}
-
-	public function header() {
-		$search = array(
-			'@.*<head[^>]*?>@si',		// before the head element
-			'@</head>.*@si',			// after head element
-			'@<meta[^>]*?>@si',			// strip meta tags
-		);
-
-		return( preg_replace($search, '', $this->Body));
 
 	}
 
