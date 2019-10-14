@@ -45,7 +45,7 @@ class message {
 	public $references = '';	// imap
 	public $cids = '';	// imap
 
-	protected function getHeader() {
+	protected function getHtmlHeader() {
 		$search = array(
 			'@.*<head[^>]*?>@si',		// before the head element
 			'@</head>.*@si',			// after head element
@@ -75,7 +75,7 @@ class message {
 	}
 
 	public function getMso() {
-        $header = trim( $this->getHeader());
+        $header = trim( $this->getHtmlHeader());
         if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
             if ( strings::endswith( $header, '<![endif]-->')) {
 				return $header;
@@ -89,7 +89,7 @@ class message {
 	}
 
 	public function hasMso() {
-		$header = trim( $this->getHeader());
+		$header = trim( $this->getHtmlHeader());
         if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
             if ( strings::endswith( $header, '<![endif]-->')) {
                 return true;
