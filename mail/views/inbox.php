@@ -359,13 +359,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		}
 
-		_wrap.prepend('<br />');
-
 		if ( !/^re: /i.test( _subject)) _subject = 're: ' + _subject;
 
 		let j = {
 			subject : _subject,
-			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : _wrap[0].outerHTML
+			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : '<br /><br />' + _wrap[0].outerHTML
 
 		};
 
