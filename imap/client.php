@@ -135,7 +135,19 @@ class client {
 		// $debug = true;
 
 		// HEADER
-		$headers = imap_headerinfo( $this->_stream, $msgno, 1);
+		// https://www.php.net/manual/en/function.imap-headerinfo.php#98809
+		$_headers = imap_fetchheader( $this->_stream, $msgno, 0);
+		$_headers_rfc822 = imap_rfc822_parse_headers( $_headers);
+		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', false);
+		$_headerInfo = imap_headerinfo( $this->_stream, $msgno);
+		// sys::dump( $_headerInfo, 'imap_headerinfo', true);
+		// sys::dump( $headers, 'headers');
+		// sys::dump( $overview, 'overview');
+		// sys::dump( imap_fetch_overview( $this->_stream, $msgno ,0 ), 'imap_fetch_overview');
+		// sys::dump( imap_headerinfo( $this->_stream, $msgno ,1 ), 'imap_headerinfo');
+		// sys::dump( imap_fetchstructure( $this->_stream, $msgno ), 'imap_fetchstructure');
+		$mess = new RawMessage( $this->_stream, $msgno );
+
 		if ( !$overview) {
 			$overview = $this->_Overview( $msgno);
 
@@ -145,21 +157,17 @@ class client {
 
 		/* add code here to get date, from, to, cc, subject... */
 		$from = "";
-		if ( isset( $headers->from ) && count( $headers->from )) {
-			$afrom = array_shift( $headers->from );
+		if ( isset( $_headers_rfc822->from ) && count( $_headers_rfc822->from )) {
+			$afrom = array_shift( $_headers_rfc822->from );
 			$from = $afrom->mailbox . "@" . $afrom->host;
 			if ( isset( $afrom->personal ))
 				$from = $afrom->personal . " <$from>";
 
 		}
 
-		// die( "<pre>" . print_r( $headers, TRUE ) . "</pre>");
-		$mess = new RawMessage( $this->_stream, $msgno );
-		// die( "<pre>" . print_r( $mess, TRUE ) . "</pre>");
-
 		$to = [];
-		if ( isset( $headers->to ) && $headers->to) {
-			foreach ( $headers->to as $e) {
+		if ( isset( $_headers_rfc822->to ) && $_headers_rfc822->to) {
+			foreach ( $_headers_rfc822->to as $e) {
 				$s = '';
 				if ( isset( $e->mailbox) && isset( $e->host))
 					$s = $e->mailbox . "@" . $e->host;
@@ -178,8 +186,8 @@ class client {
 		$to = implode( ',', $to );
 
 		$cc = [];
-		if ( isset( $headers->cc ) && $headers->cc) {
-			foreach ( $headers->cc as $e) {
+		if ( isset( $_headers_rfc822->cc ) && $_headers_rfc822->cc) {
+			foreach ( $_headers_rfc822->cc as $e) {
 				$s = '';
 				if ( isset( $e->mailbox) && isset( $e->host))
 					$s = $e->mailbox . "@" . $e->host;
@@ -197,28 +205,25 @@ class client {
 		}
 		$cc = implode( ', ', $cc );
 
-		//~ sys::dump( $headers);
-		if ( !isset( $headers->subject)) {
-			$headers->Subject = '(subject missing)';
-
-		}
-
-		if ( !isset( $headers->message_id)) {
-			$headers->message_id = 'no-message-id';
+		if ( !isset( $_headers_rfc822->message_id)) {
+			$_headers_rfc822->message_id = 'no-message-id';
 
 		}
 
 		$headerDate = '';
-		if ( isset( $headers->date)) {
-			$headerDate = $headers->date;
+		if ( isset( $_headers_rfc822->date)) {
+			$headerDate = $_headers_rfc822->date;
+
+		}
+
+		//~ sys::dump( $_headers_rfc822);
+		if ( !isset( $_headers_rfc822->Subject)) {
+			$_headers_rfc822->Subject = '(subject missing)';
 
 		}
 
 		$ret = new \dvc\mail\message;
-		if ( isset( $headers->subject)) {
-			$ret->Subject = self::decodeMimeStr((string)$headers->subject);
-
-		}
+		$ret->Subject = self::decodeMimeStr((string)$_headers_rfc822->Subject);
 
 		$ret->From = self::decodeMimeStr((string)$from);
 			$ea = new EmailAddress( $ret->From);
@@ -226,13 +231,16 @@ class client {
 
 		$ret->To = self::decodeMimeStr((string)$to);
 		$ret->CC = self::decodeMimeStr((string)$cc);
-		$ret->MessageID = $headers->message_id;
-		$ret->MSGNo = $headers->Msgno;
-		$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
+		$ret->MessageID = $_headers_rfc822->message_id;
 		$ret->Recieved = $headerDate;
-		$ret->headers = $headers;
+		$ret->headers = $_headerInfo;
+
+		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', true);
+		// sys::dump( $_headers, 'imap_fetchheader', true);
+		$ret->MSGNo = $_headerInfo->Msgno;
+		$ret->Uid = imap_uid( $this->_stream, $_headerInfo->Msgno);
 		$ret->CharSet = $mess->charset;
-		$ret->seen = $headers->Unseen == "U" ? 'no' : 'yes';
+		$ret->seen = $_headerInfo->Unseen == "U" ? 'no' : 'yes';
 		$ret->references = '';
 		if ( $mess->messageHTML) {
 			// sys::logger('has messageHTML');
@@ -264,7 +272,6 @@ class client {
 
 		//~ if ( \currentUser::isDavid()) \sys::dump( $ret);
 		if ( $debug) sys::logger( sprintf('exit : %s', __METHOD__));
-
 
 		return ( $ret );
 

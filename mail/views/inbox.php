@@ -734,6 +734,21 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					})();
 
+					$('a[data-role="extra-recipients"]', _frame.contentDocument).each( function( i, el) {
+						$(el).on( 'click', function( e) {
+							e.stopPropagation();e.preventDefault();
+
+							let _me = $(this);
+							let _data = _me.data();
+							let target = _data.target;
+							$('#' + target, _frame.contentDocument).css('display','');
+							// console.log( target, $('#' + target, _frame.contentDocument)[0]);
+							_me.remove();	// ciao ..
+
+						});;
+
+					});
+
 					let imgs = $('img[data-safe-src]', _frame.contentDocument);
 					if ( imgs.length > 0) {
 						let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');

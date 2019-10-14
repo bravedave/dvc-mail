@@ -51,7 +51,26 @@ $colStyle = 'width: 5rem; font-size: small;';
             <td>
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <small>to&nbsp;</small>
-                    <?= $msg->To ?>
+                    <?php
+                    $tos = explode( ',', $msg->To);
+                    if ( ( $ito = count( $tos)) > 1) {
+                        $uid = strings::rand();
+                        print htmlentities( $tos[0]);
+                        printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito-1);
+                        array_shift( $tos);
+                        $_tos = [];
+                        foreach( $tos as $to) {
+                            $_tos[] = htmlentities( $to);
+
+                        }
+                        printf( '<span style="display: none;" id="%s">&nbsp;%s</a>', $uid, implode( ',', $_tos));
+
+
+                    }
+                    else {
+                        print htmlentities( $msg->To);
+
+                    } ?>
 
                 </div>
 
