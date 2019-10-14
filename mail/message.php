@@ -90,7 +90,6 @@ class message {
 		$_string = preg_replace( $decodecs, $decodeca, $this->Body);
 
 		$encoding = mb_detect_encoding($_string);
-
 		if ( $encoding) {
 			if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
 				sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
@@ -281,9 +280,21 @@ class message {
 
 		}
 
+		$encoding = mb_detect_encoding($html);
+		if ( $encoding) {
+			if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
+				sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
+
+			}
+			$html = mb_convert_encoding( $html, 'html-entities', $encoding);
+
+		}
+		else {
+			sys::logger( sprintf('no encoding on string : %s', __METHOD__));
+
+		}
 		// sys::logger( $html);
 		// sys::logger( mb_detect_encoding( $html));
-		$html = mb_convert_encoding( $html, 'html-entities', mb_detect_encoding( $html));
 		// sys::logger( $html);
 		$_html = \strings::htmlSanitize( $html);
 
