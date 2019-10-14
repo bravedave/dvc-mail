@@ -90,7 +90,10 @@ class message {
 				sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
 
 			}
-			$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
+			if ( strtolower( $encoding) != 'utf-8') {
+				$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
+
+			}
 			$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
 
 		}
@@ -270,13 +273,16 @@ class message {
 
 		}
 
-		$html = mb_convert_encoding( $html, 'utf-8', 'html-entities');
+		// sys::logger( $html);
+		// sys::logger( mb_detect_encoding( $html));
+		$html = mb_convert_encoding( $html, 'html-entities', mb_detect_encoding( $html));
+		// sys::logger( $html);
 		$_html = \strings::htmlSanitize( $html);
 
 		if ( $debug) {
 			$f = sprintf('%s/temp-late.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
-			\file_put_contents( $f, $html);
+			\file_put_contents( $f, $_html);
 
 		}
 

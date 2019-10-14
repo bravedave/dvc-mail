@@ -62,7 +62,8 @@ class RawMessage {
 
 		// Any part may be encoded, even plain text messages, so check everything.
 		if ($p->encoding==4) {
-			if ( $debug) sys::logger( sprintf('imap_qprint : %s', __METHOD__));
+			if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s', __METHOD__));
+			if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s : %s', print_r( $p, true), __METHOD__));
 			$data = quoted_printable_decode( $data);
 
 
@@ -79,9 +80,15 @@ class RawMessage {
 			$data = imap_8bit( $data);
 
 		}
+		elseif ( isset( $p->subtype) && 'plain' == strtolower( $p->subtype)) {
+			if ( $debug) sys::logger( sprintf('plain text : %s', __METHOD__));
+			// $data = quoted_printable_decode( $data);
+			// $data = $data;
+
+		}
 		else {
-			if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, __METHOD__));
-			if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $data, __METHOD__));
+			if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, print_r( $p, true), __METHOD__));
+			// if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $data, __METHOD__));
 			$data = quoted_printable_decode( $data);
 
 		}
