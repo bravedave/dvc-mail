@@ -1067,6 +1067,18 @@ $(document).on( 'mail-view-message', function(e) {
 
 });
 
+$('#<?= $uidViewer ?>').on('clear', function( e) {
+	$(this)
+	.html('')
+	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
+
+});
+
+$(document).on('mail-clear-viewer', function( e) {
+	$('#<?= $uidViewer ?>').trigger('clear');
+
+})
+
 $(document).ready( function() {
 	$(document)
 	.data('default_folders', <?= json_encode( $this->data->default_folders) ?>)
@@ -1082,15 +1094,8 @@ $(document).ready( function() {
 	$(document)
 	.trigger('mail-messages')
 	.trigger('mail-folderlist')
-	.trigger('mail-view-message-list');
-
-	$('#<?= $uidViewer ?>')
-	.on('clear', function( e) {
-			$(this)
-				.html('')
-				.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
-
-	}).trigger('clear');
+	.trigger('mail-view-message-list')
+	.trigger('mail-clear-viewer');
 
 	$(document).trigger('mail-load-complete');
 
