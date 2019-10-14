@@ -501,6 +501,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
+		let firstMsg = $('[msgid]');
 		$.each( messages, function( i, msg) {
 			let row = $('[msgid="'+msg.messageid+'"]');
 			if ( row.length > 0) {
@@ -530,7 +531,15 @@ $(document).on( 'mail-messages', function( e, folder) {
 			// console.log( time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD'), stime);
 			received.html( stime);
 
-			row = $('<div class="row border-bottom border-light py-2" id="uid_' + String( seed) + '_' + String(seed * i) + '" />').appendTo( '#<?= $uidMsgs ?>');
+			row = $('<div class="row border-bottom border-light py-2" id="uid_' + String( seed) + '_' + String(seed * i) + '" />');
+			if ( firstMsg.length > 0) {
+				row.insertBefore( firstMsg[0]);
+
+			}
+			else {
+				row.appendTo( '#<?= $uidMsgs ?>');
+
+			}
 			row.data('seen', true);
 			row.attr('msgid', msg.messageid);
 			let cell = $('<div class="col" />').appendTo( row);

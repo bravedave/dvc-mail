@@ -141,7 +141,4 @@ $colStyle = 'width: 5rem; font-size: small;';
     // sys::dump( $msg->attachments);
 
     // printf( '<hr />%s<br />', __DIR__ . '/normalize.css');
-    printf('<style>
-        %s
-
-    </style>', file_get_contents( __DIR__ . '/remedy.css'));
+    printf('<style>%s</style>', file_get_contents( __DIR__ . '/mso.css'));

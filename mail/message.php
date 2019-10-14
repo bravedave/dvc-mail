@@ -109,14 +109,14 @@ class message {
 
 		}
 
-		// die( $_string);
+		// die( $_string . '<br />die...');
 
 		$doc = new \DOMDocument;
 		ini_set ('error_reporting', "5");
 		$doc->loadHTML( $_string);
 		ini_set ('error_reporting', "6143");
 
-		$unsets = array();
+		$unsets = [];
 
 		if ( $debug) \sys::logger( "processing ..." );
 		foreach($doc->getElementsByTagName('a') as $img)
