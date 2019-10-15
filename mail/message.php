@@ -104,7 +104,7 @@ class message {
 
 	public function safehtml() {
 		$debug = false;
-		$debug = true;
+		// $debug = true;
 
 		if ( !$this->Body ) {
 			$this->comments = sprintf( 'no html : %s %s', strlen($this->Body), __METHOD__);
