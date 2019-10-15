@@ -35,7 +35,7 @@ $(document).ready( function() {
 	$('#<?= $uidFolderHide ?>').on( 'click', function( e) {
 		e.stopPropagation(); e.preventDefault();
 
-		$(document).trigger( 'toggle-view');
+		$(document).trigger( 'mail-toggle-view');
 
 	});
 
