@@ -1076,10 +1076,10 @@ $(document).on( 'mail-set-view', function() {
 
 	}
 
-	console.log( $(document).data('view'), '/', $(document).data('focus'));
-	console.log( 'folders', $('#<?= $uidFolders ?>').attr('class'));
-	console.log( 'list', $('#<?= $uidMsgs ?>').attr('class'));
-	console.log( 'viewer', $('#<?= $uidViewer ?>').attr('class'));
+	// console.log( $(document).data('view'), '/', $(document).data('focus'));
+	// console.log( 'folders', $('#<?= $uidFolders ?>').attr('class'));
+	// console.log( 'list', $('#<?= $uidMsgs ?>').attr('class'));
+	// console.log( 'viewer', $('#<?= $uidViewer ?>').attr('class'));
 
 });
 

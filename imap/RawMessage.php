@@ -24,7 +24,7 @@ class RawMessage {
 
 	function __construct( $stream, $email_number ) {
 		$debug = false;
-		$debug = true;
+		// $debug = true;
 
 		// BODY
 		$s = imap_fetchstructure( $stream, $email_number );
@@ -47,6 +47,8 @@ class RawMessage {
 	protected function getpart( $mbox, $mid, $p, $partno ) {
 		$debug = false;
 		// $debug = true;
+		$debugPart = $debug;
+		// $debugPart = true;
 
 		// if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
 
@@ -63,16 +65,17 @@ class RawMessage {
 		// Any part may be encoded, even plain text messages, so check everything.
 		if ($p->encoding==4) {
 			if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s', __METHOD__));
-			if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s : %s', print_r( $p, true), __METHOD__));
+			// if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s : %s', print_r( $p, true), __METHOD__));
 			$data = quoted_printable_decode( $data);
 
 
 		}
 		elseif ( $p->encoding==3) {
 			if ( $debug) sys::logger( sprintf('imap_base64 :s: %s', __METHOD__));
-			$data = imap_base64( $data);
+			// $data = imap_base64( $data);
+			$data = base64_decode( $data);
+			// die( $data);
 			if ( $debug) sys::logger( sprintf('imap_base64 :e: %s', __METHOD__));
-			// $data = base64_decode( $data);
 
 		}
 		elseif ( $p->encoding == 1) {
@@ -87,8 +90,10 @@ class RawMessage {
 
 		}
 		else {
-			if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, print_r( $p, true), __METHOD__));
+			if ( $debug) sys::logger( sprintf('other encoding : %s', $p->encoding, __METHOD__));
+			// if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, print_r( $p, true), __METHOD__));
 			// if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $data, __METHOD__));
+			// die( quoted_printable_decode( $data));
 			$data = quoted_printable_decode( $data);
 
 		}
@@ -110,7 +115,7 @@ class RawMessage {
 
 		}
 
-		//~ if ( $debug) sys::logger( sprintf( 'params : ',  implode( ':', $params)));
+		// if ( $debug) sys::logger( sprintf( 'params : %s',  print_r( $params, true)));
 
 		// ATTACHMENT
 		// Any part with a filename is an attachment,
@@ -162,7 +167,7 @@ class RawMessage {
 				// 	if ( isset( $p->id ))
 				// 		$this->cids[$filename] = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
 
-				// 	if ( $debug) sys::logger( "b. $filename (" . strlen($data) . ")" );
+				// if ( $debug) sys::logger( "b. $filename (" . strlen($data) . ")" );
 
 				// }
 
@@ -207,7 +212,9 @@ class RawMessage {
 
 			if ( strtolower($p->subtype)=='plain') {
 				$this->messageType = 'text';
-				$this->message .= trim( $data) . "\n\n";
+				$this->message .= quoted_printable_decode( trim( $data)) . "\n\n";
+				if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s', mb_detect_encoding( $data), __METHOD__ ));
+				// die( $data);
 
 			}
 			elseif ( strtolower($p->subtype)=='rfc822-headers')
@@ -221,11 +228,14 @@ class RawMessage {
 			else {
 				$this->messageType = 'html';
 				$this->messageHTML .= $data;	// . "<br /><br />";
+				if ( $debugPart) sys::logger( sprintf( 'html : %s', __METHOD__ ));
 
 			}
 
-			if ( isset( $params['charset']))
+			if ( isset( $params['charset'])) {
 				$this->charset = $params['charset'];  // assume all parts are same charset
+
+			}
 
 		}
 
@@ -236,6 +246,7 @@ class RawMessage {
 		// so this just appends the raw source to the main message.
 		elseif ($p->type==2 && $data) {
 			$this->message .= $data."\n\n";
+			if ( $debugPart) sys::logger( sprintf( 'part type 2 : %s', __METHOD__ ));
 
 		}
 

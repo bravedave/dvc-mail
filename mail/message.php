@@ -104,11 +104,18 @@ class message {
 
 	public function safehtml() {
 		$debug = false;
-		// $debug = true;
+		$debug = true;
 
 		if ( !$this->Body ) {
 			$this->comments = sprintf( 'no html : %s %s', strlen($this->Body), __METHOD__);
 			return;
+
+		}
+
+		if ( $debug) {
+			$f = sprintf('%s/temp-start-0.html', \config::dataPath());
+			if ( \file_exists($f)) unlink( $f);
+			\file_put_contents( $f, $this->Body);
 
 		}
 
@@ -143,7 +150,14 @@ class message {
 
 		}
 		else {
-			sys::logger( sprintf('no encoding on string : %s', __METHOD__));
+			if ( $debug) sys::logger( sprintf('no encoding on string :: %s', __METHOD__));
+			// die( $_string . '<br />die...');
+			$_string = str_replace( '&rsquo;', chr(146), $_string);
+			$_string = str_replace( '&nbsp;', chr(194).chr(160), $_string);
+			$_string = str_replace( '&rsquo;', '’', $_string);
+			$_string = str_replace( chr(150), '-', $_string);
+			$_string = str_replace( '<o:', '<o_namespace_', $_string);
+			$_string = str_replace( '</o:', '</o_namespace_', $_string);
 
 		}
 
@@ -151,6 +165,7 @@ class message {
 			$f = sprintf('%s/temp-start.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $_string);
+			// $_string = \file_get_contents( $f);
 
 		}
 
@@ -300,8 +315,10 @@ class message {
 		$tmpfile = \tempnam( \config::dataPath(), 'msg_');
 		$doc->saveHTMLfile( $tmpfile);
 		$html = \file_get_contents( $tmpfile);
-		// unlink( $tmpfile);
+		unlink( $tmpfile);
 
+		$html = str_replace( '<o_namespace_', '<o:', $html);
+		$html = str_replace( '</o_namespace_', '</o:', $html);
 		// sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
 		$html = preg_replace(
 			[
@@ -319,13 +336,13 @@ class message {
 		// $html = str_replace( chr(160), '&nbsp;', $html);
 
 		if ( $debug) {
-			$f = sprintf('%s/temp.txt', \config::dataPath());
+			$f = sprintf('%s/temp-middle.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $html);
 
 		}
 
-		$encoding = mb_detect_encoding($html);
+		$encoding = mb_detect_encoding( $html);
 		if ( $encoding) {
 			if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
 				sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
@@ -335,7 +352,7 @@ class message {
 
 		}
 		else {
-			sys::logger( sprintf('no encoding on string : %s', __METHOD__));
+			if ( $debug) sys::logger( sprintf('no encoding on string :: %s', __METHOD__));
 
 		}
 
