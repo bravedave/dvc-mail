@@ -687,13 +687,25 @@ $(document).on( 'mail-messages', function( e, folder) {
 								let select = $('<select class="form-control" />');
 
 								let level = 0;
-								let _list_subfolders = function( i, fldr) {
-									// console.log( fldr);
+								/**
+								 * you can set this:
+								 *
+								 * $(document).data('mail-archive-location', 'Archives/2019')
+								 */
+								let archiveFolder = String( $(document).data('mail-archive-location'));
 
-									$('<option />')
+								let _list_subfolders = function( i, fldr) {
+
+									let opt = $('<option />')
 									.html( '&nbsp;'.repeat(level) + fldr.name)
-									.val(fldr.fullname)
-									.appendTo( select);
+									.val(fldr.fullname);
+
+									if ( archiveFolder == fldr.fullname) {
+										opt.prop( 'selected', true);
+
+									}
+
+									opt.appendTo( select);
 
 									if ( !!fldr.subFolders) {
 										level ++;
