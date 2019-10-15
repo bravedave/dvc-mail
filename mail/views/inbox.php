@@ -722,7 +722,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 								select.appendTo( ig);
 
 								let btn = $('<button type="button" class="btn btn-primary">move</button>');
-								$('<div class="input-group-append" />').append( btn).appendTo( ig);
+								$('<div class="input-group-prepend" />').append( btn).prependTo( ig);
 
 								// console.log( _data.message);
 
@@ -1039,10 +1039,53 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 });
 
-$(document).on( 'toggle-view', function() {
+$(document).on( 'mail-set-view', function() {
+	let view = $(document).data('view');
+	let focus = $(document).data('focus');
+
+	if ( 'condensed' == view) {
+		$('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
+
+		if ('message-view' == focus) {
+			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-light h-100');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9');
+
+		}
+		else {
+			// message-list
+			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-light h-100');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9');
+
+		}
+
+	}
+	else if ( 'wide' == view) {
+		$('#<?= $uidFolders ?>').attr('class', 'd-none d-sm-block col-sm-3 col-md-2 h-100');
+
+		if ('message-view' == focus) {
+			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-light h-100');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7');
+
+		}
+		else {
+			// message-list
+			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-light h-100');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7');
+
+		}
+
+	}
+
+	console.log( $(document).data('view'), '/', $(document).data('focus'));
+	console.log( 'folders', $('#<?= $uidFolders ?>').attr('class'));
+	console.log( 'list', $('#<?= $uidMsgs ?>').attr('class'));
+	console.log( 'viewer', $('#<?= $uidViewer ?>').attr('class'));
+
+});
+
+$(document).on( 'mail-toggle-view', function() {
 	let view = $(document).data('view');
 	let key = '<?= $this->route ?>-view';
-	let lastView = sessionStorage.getItem( key);
 
 	if ( 'condensed' == view) {
 		view = 'wide';
@@ -1056,53 +1099,25 @@ $(document).on( 'toggle-view', function() {
 	else {
 		view = sessionStorage.getItem( key);
 		if ( !view) view = 'wide';
+		if ( ['condensed','wide'].indexOf(view) > -1) view = 'wide';
 
 	}
+	$(document).data('view', view);
+	$(document).trigger('mail-set-view');
 
 	// console.log( key, view);
-
-	if ( 'condensed' == view) {
-		$(document).data('view', view);
-		$('#<?= $uidFolders ?>').removeClass('d-sm-block');
-		$('#<?= $uidMsgs ?>').removeClass('col-sm-9');
-		$('#<?= $uidViewer ?>').removeClass('col-md-7').addClass('col-md-9');
-
-	}
-	else if ( 'wide' == view) {
-		$(document).data('view', view);
-		$('#<?= $uidFolders ?>').addClass('d-sm-block');
-		$('#<?= $uidMsgs ?>').addClass('col-sm-9');
-		$('#<?= $uidViewer ?>').removeClass('col-md-9').addClass('col-md-7');
-
-	}
-	// console.log( $(document).data('view'));
 
 });
 
 $(document).on( 'mail-view-message-list', function( e) {
-	let view = $(document).data('view');
-
-	if ( 'condensed' != view) {
-		$('#<?= $uidFolders ?>').removeClass('d-md-block').addClass('d-sm-block');
-
-	}
-
-	$('#<?= $uidMsgs ?>').removeClass('d-none d-md-block');
-	$('#<?= $uidViewer ?>').addClass('d-none d-md-block');
-
-	// console.log('mail-view-message-list');
+	$(document).data('focus', 'message-list');
+	$(document).trigger('mail-set-view');
 
 });
 
 $(document).on( 'mail-view-message', function( e) {
-	let view = $(document).data('view');
-	if ( 'condensed' != view) {
-		$('#<?= $uidFolders ?>').removeClass('d-sm-block').addClass('d-md-block');
-
-	}
-
-	$('#<?= $uidMsgs ?>').addClass('d-none d-md-block');
-	$('#<?= $uidViewer ?>').removeClass('d-none d-md-block');
+	$(document).data('focus', 'message-view');
+	$(document).trigger('mail-set-view');
 
 });
 
@@ -1130,12 +1145,19 @@ $(document).ready( function() {
 	})
 	$('html, body, div[data-role="main-content-wrapper"] > .row, div[data-role="main-content-wrapper"] > .row > .col').addClass( 'h-100');
 	$('div[data-role="content"]').removeClass( 'pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
+
 	$(document)
-	.trigger( 'toggle-view')
 	.trigger('mail-messages')
-	.trigger('mail-folderlist')
-	.trigger('mail-view-message-list')
-	.trigger('mail-clear-viewer');
+	.trigger('mail-folderlist');
+	// console.log('init');
+
+	$(document).trigger('mail-toggle-view')
+	// console.log('init-2');
+
+	$(document).trigger('mail-view-message-list');
+	// console.log('init-3');
+
+	$(document).trigger('mail-clear-viewer');
 
 	$(document).trigger('mail-load-complete');
 
