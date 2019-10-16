@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
@@ -58,7 +58,7 @@ $account = $this->data->account;
 		<div class="col">
 			<label for="<?= $uid = strings::rand() ?>">password:</label>
 			<div class="input-group">
-				<input class="form-control" name="password" id="<?= $uid ?>" />
+				<input class="form-control" name="password" autocomplete="off" id="<?= $uid ?>" />
 				<div class="input-group-append" id="<?= $uid ?>-control">
 					<div class="input-group-text">
 						<i class="fa fa-eye"></i>

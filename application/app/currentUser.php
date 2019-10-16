@@ -28,4 +28,12 @@ abstract class currentUser extends dvc\currentUser {
 
 	}
 
+	static public function option( $key, $value = null) {
+		if ( self::user()->valid())
+			return ( self::user()->option( $key, $value));
+
+		return ( false);
+
+	}
+
 }

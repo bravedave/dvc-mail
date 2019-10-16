@@ -12,6 +12,11 @@
 use dvc\mail\credentials;
 
 class home extends dvc\mail\controller {
+	const allowedOptions = [
+		'email_autoloadnext',
+
+	];
+
     protected function _index() {
 		$this->render([
 			'title' => $this->title = $this->label,
@@ -100,6 +105,17 @@ class home extends dvc\mail\controller {
 			} else { Json::nak( sprintf( 'missing id : %s', $action)); }
 
 		}
+		elseif ( 'set-option' == $action) {
+			if ( $key = $this->getPost('key')) {
+				if ( in_array( $key, self::allowedOptions)) {
+					currentUser::option( $key, $this->getPost('val'));
+					Json::ack( $action);
+
+				} else { Json::nak( sprintf( 'invalid key : %s', $action)); }
+
+			} else { Json::nak( $action); }
+
+		}
 		else {
 			parent::postHandler();
 
@@ -177,6 +193,16 @@ class home extends dvc\mail\controller {
 	public function message() {
 		$this->_view([
 			'msg' => '<D4BB1C8D1A502348BC4DACAC06A932050BB5D723@w2008k.ashgrove.darcy.com.au>'
+
+		]);
+
+	}
+
+	public function options() {
+		$this->render([
+			'title' => $this->title = 'Global Options',
+			'primary' => 'options',
+			'secondary' => ['index']
 
 		]);
 

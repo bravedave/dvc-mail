@@ -549,10 +549,31 @@ $(document).on( 'mail-messages', function( e, folder) {
 			.data( 'folder', msg.folder)
 			.data( 'message', msg)
 			.addClass( 'pointer')
-			.on( 'click', function( e) {
+			.on( 'view', function( e) {
 				let _me = $(this);
 				let _data = _me.data();
 				let msg = _data.message;
+
+				if ( 'yes' == $(document).data('autoloadnext')) {
+					let _next = _me.next();
+					if ( _next.length > 0) {
+						// console.table({
+						// 	me : _me.attr('id'),
+						// 	next : _next.attr('id'),
+						// 	type : typeof _next
+
+						// });
+
+						$('#<?= $uidViewer ?>').data('next', _next.attr('id'))
+
+					}
+					else {
+						// console.log( 'last');
+						$('#<?= $uidViewer ?>').removeData('next');
+
+					}
+
+				}
 
 				// console.log( msg);
 				$(document).trigger('mail-view-message');
@@ -599,6 +620,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 						btn
 						.addClass( params.btnClass)
 						.on('click', function( e) {
+							$('#<?= $uidViewer ?>').removeData('next');
 							$(document).trigger('mail-view-message-list');
 
 						});
@@ -821,6 +843,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 				});
 
 				_me.addClass('bg-light');
+
+			})
+			.on( 'click', function( e) {
+				$(this).trigger('view');
 
 			})
 			.on( 'contextmenu', function( e) {
@@ -1076,10 +1102,19 @@ $(document).on( 'mail-set-view', function() {
 
 	}
 
-	// console.log( $(document).data('view'), '/', $(document).data('focus'));
-	// console.log( 'folders', $('#<?= $uidFolders ?>').attr('class'));
-	// console.log( 'list', $('#<?= $uidMsgs ?>').attr('class'));
-	// console.log( 'viewer', $('#<?= $uidViewer ?>').attr('class'));
+	// $(document).trigger( 'mail-view-state');
+
+});
+
+$(document).on( 'mail-view-state', function() {
+	console.table({
+		view : $(document).data('view'),
+		focus : $(document).data('focus'),
+		folders : $('#<?= $uidFolders ?>').attr('class'),
+		list : $('#<?= $uidMsgs ?>').attr('class'),
+		viewer : $('#<?= $uidViewer ?>').attr('class')
+
+	});
 
 });
 
@@ -1126,6 +1161,30 @@ $('#<?= $uidViewer ?>').on('clear', function( e) {
 	.html('')
 	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
 
+	if ( 'yes' == $(document).data('autoloadnext')) {
+					// let _next = _me.next();
+					// if ( _next.length > 0) {
+					// 	// console.table({
+						// 	me : _me.attr('id'),
+						// 	next : _next.attr('id'),
+						// 	type : typeof _next
+
+						// });
+
+		let nid = $('#<?= $uidViewer ?>').data('next');
+		if ( 'undefined' != typeof nid) {
+			$('#<?= $uidViewer ?>').removeData('next');
+			// console.log( 'nid', nid);
+			let _row = $('#' + nid);
+			if ( _row.length > 0) {
+				_row.trigger('view');
+
+			}
+
+		}
+
+	}
+
 });
 
 $(document).on('mail-clear-viewer', function( e) {
@@ -1136,7 +1195,8 @@ $(document).on('mail-clear-viewer', function( e) {
 $(document).ready( function() {
 	$(document)
 	.data('default_folders', <?= json_encode( $this->data->default_folders) ?>)
-	.data('route', '<?= $this->route ?>');
+	.data('route', '<?= $this->route ?>')
+	.data('autoloadnext', '<?= ( currentUser::option('email_autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
 
 	let i = $('body > nav').height() + $('body > footer').height();
 	$('div[data-role="main-content-wrapper"]').css({

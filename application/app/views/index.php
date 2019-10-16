@@ -33,6 +33,7 @@
 		}	?>
 
 			<li class="mt-1"><a href="<?= strings::url( 'settings') ?>">settings</a></li>
+			<li class="mt-1"><a href="<?= strings::url( 'options') ?>">options</a></li>
 
 		</ul>
 
