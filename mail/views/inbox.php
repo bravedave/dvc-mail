@@ -9,6 +9,7 @@
 	*/
 
 	$keyLastFolders = sprintf('%s-lastfolders', $this->route);
+	$unseen = '<span class="pull-left font-weight-bold" style="margin-left: -.5em; font-size: 1.5em; line-height: .8; color: #c2c7cb;" unseen>&bull;</span>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -505,6 +506,16 @@ $(document).on( 'mail-messages', function( e, folder) {
 			if ( row.length > 0) {
 				row.data('seen', true);
 				// console.log('found : '+msg.messageid);
+				if ( 'no' == msg.seen) {
+					$('[from]', row).append( '<?= $unseen ?>');
+
+				}
+				else {
+					$('[unseen]', row).remove();
+
+				}
+
+
 				return;
 
 			}
@@ -516,8 +527,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 			if ( msg.folder == defaultFolders.Sent) email = msg.to;
 			let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
 			if ( 'no' == msg.seen) {
-				$('<span class="pull-left font-weight-bold" style="margin-left: -.5em; font-size: 1.5em; line-height: .8; color: #c2c7cb;" unseen>&bull;</span>').prependTo( from);
-				// $('<i class="pull-left fa fa-square" style="margin-left: -.4em;" unseen />').prependTo( from);
+				$('<?= $unseen ?>').prependTo( from);
 
 			}
 
