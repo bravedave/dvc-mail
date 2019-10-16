@@ -13,7 +13,7 @@ use dvc\mail\credentials;
 
 class home extends dvc\mail\controller {
 	const allowedOptions = [
-		'email_autoloadnext',
+		'email-autoloadnext',
 
 	];
 

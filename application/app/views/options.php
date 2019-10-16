@@ -13,9 +13,9 @@
     <div class="offset-md-3 col">
         <div class="form-check">
 			<input type="checkbox" class="form-check-input" id="-email-autoloadnext-"
-                data-option="email_autoloadnext"
+                data-option="email-autoloadnext"
                 value="yes"
-				<?php if ( currentUser::option('email_autoloadnext') == 'yes') print 'checked' ?> />
+				<?php if ( currentUser::option('email-autoloadnext') == 'yes') print 'checked' ?> />
 
 			<label class="form-check-label" for="-email-autoloadnext-">
 				Autoload Next Email

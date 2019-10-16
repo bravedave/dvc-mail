@@ -1206,7 +1206,7 @@ $(document).ready( function() {
 	$(document)
 	.data('default_folders', <?= json_encode( $this->data->default_folders) ?>)
 	.data('route', '<?= $this->route ?>')
-	.data('autoloadnext', '<?= ( currentUser::option('email_autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
+	.data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
 
 	let i = $('body > nav').height() + $('body > footer').height();
 	$('div[data-role="main-content-wrapper"]').css({
