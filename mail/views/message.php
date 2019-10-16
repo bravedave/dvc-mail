@@ -62,8 +62,8 @@ $colStyle = 'width: 5rem; font-size: small;';
                             $_tos[] = htmlentities( $to);
 
                         }
-                        printf( '<span style="display: none;" id="%s">&nbsp;%s</a>', $uid, implode( ',', $_tos));
 
+                        printf( '<span style="display: none;" id="%s">, %s</a>', $uid, implode( ', ', $_tos));
 
                     }
                     else {
@@ -77,7 +77,40 @@ $colStyle = 'width: 5rem; font-size: small;';
 
         </tr>
 
-<?php   }   // if ( $this->data->default_folders['Sent'] == $msg->Folder)   ?>
+<?php   }   // if ( $this->data->default_folders['Sent'] == $msg->Folder)
+
+        if ( $msg->CC) {    ?>
+        <tr>
+            <td>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <small>cc&nbsp;</small>
+                    <?php
+                    $ccs = explode( ',', $msg->CC);
+                    if ( ( $icc = count( $ccs)) > 1) {
+                        $uid = strings::rand();
+                        print htmlentities( $ccs[0]);
+                        printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $icc-1);
+                        array_shift( $ccs);
+                        $_ccs = [];
+                        foreach( $ccs as $cc) {
+                            $_ccs[] = htmlentities( $cc);
+
+                        }
+                        printf( '<span style="display: none;" id="%s">, %s</a>', $uid, implode( ', ', $_ccs));
+
+                    }
+                    else {
+                        print htmlentities( $msg->CC);
+
+                    } ?>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+<?php   }   // if ( $msg->CC)   ?>
 
         <tr>
             <td>

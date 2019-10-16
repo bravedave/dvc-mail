@@ -15,7 +15,7 @@ use dvc\mail\attachment;
 use sys;
 
 class RawMessage {
-	var $charset = '',
+	public $charset = '',
 		$messageType = '',
 		$message = '',
 		$messageHTML = '',

@@ -252,7 +252,7 @@ class controller extends \Controller {
 			// return;
 
 			if ( $msg->hasMso()) {
-		        pages\minimal::$docType = Response::mso_docType();
+				pages\minimal::$docType = Response::mso_docType();
 
 			}
 
