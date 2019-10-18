@@ -9,7 +9,9 @@
 	*/
 
 	$keyLastFolders = sprintf('%s-lastfolders', $this->route);
-	$unseen = '<span class="pull-left font-weight-bold" style="margin-left: -.5em; font-size: 1.5em; line-height: .8; color: #c2c7cb;" unseen>&bull;</span>';
+	$activeMessage = 'open-message';
+	$unseen = '<span class="pull-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
+	// $unseen = '<i class="fa fa-circle text-primary" style="margin-left: -14px;" unseen></i>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -20,6 +22,7 @@
 </form>
 
 <style>
+.open-message { color: #004085; background-color: #cce5ff; }
 .<?= $uidCSS_dropHere = strings::rand(); ?> { border: 2px solid #ddd; background-color: #eee }
 </style>
 
@@ -46,11 +49,11 @@ $(document).on( 'mail-clear-reloader', function( e) {
 	(function( i) {
 		if ( !!i) {
 			window.clearTimeout( i);
-			$(document).removeData( 'mail-reloader');
+			$(document).removeData( 'mail-messages-reloader');
 
 		}
 
-	})( $(document).data( 'mail-reloader'));
+	})( $(document).data( 'mail-messages-reloader'));
 
 });
 
@@ -313,7 +316,6 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 	let key = '<?= $this->route ?>' + folder + '-lastmessages-';
 	sessionStorage.removeItem( key);
 
-	// console.log('mail-messages-reload', folder);
 	$(document).trigger( 'mail-messages', folder);
 
 });
@@ -507,7 +509,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 				row.data('seen', true);
 				// console.log('found : '+msg.messageid);
 				if ( 'no' == msg.seen) {
-					$('[from]', row).append( '<?= $unseen ?>');
+					let _unseen = $('[unseen]', row);
+					if ( _unseen.length == 0 ) {
+						$('[from]', row).append( '<?= $unseen ?>');
+
+					}
 
 				}
 				else {
@@ -564,24 +570,23 @@ $(document).on( 'mail-messages', function( e, folder) {
 				let _data = _me.data();
 				let msg = _data.message;
 
-				if ( 'yes' == $(document).data('autoloadnext')) {
-					let _next = _me.next();
-					if ( _next.length > 0) {
-						// console.table({
-						// 	me : _me.attr('id'),
-						// 	next : _next.attr('id'),
-						// 	type : typeof _next
+				let _next = _me.next();
+				if ( _next.length > 0) {
+					$('#<?= $uidViewer ?>').data('next', _next.attr('id'))
 
-						// });
+				}
+				else {
+					$('#<?= $uidViewer ?>').removeData('next');
 
-						$('#<?= $uidViewer ?>').data('next', _next.attr('id'))
+				}
 
-					}
-					else {
-						// console.log( 'last');
-						$('#<?= $uidViewer ?>').removeData('next');
+				let _prev = _me.prev();
+				if ( _prev.length > 0) {
+					$('#<?= $uidViewer ?>').data('prev', _prev.attr('id'))
 
-					}
+				}
+				else {
+					$('#<?= $uidViewer ?>').removeData('prev');
 
 				}
 
@@ -620,7 +625,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 						$('[msgid="'+id+'"]').trigger('mark-seen');
 
-					}, 4000);
+					}, 3000);
 
 
 					/* build a toolbar */
@@ -848,11 +853,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 				.html('').append( frame);
 
 				$('> .row', _me.parent()).each( function() {
-					$(this).removeClass( 'bg-light');
+					$(this).removeClass( '<?= $activeMessage ?>');
 
 				});
 
-				_me.addClass('bg-light');
+				_me.addClass('<?= $activeMessage ?>');
 
 			})
 			.on( 'click', function( e) {
@@ -955,7 +960,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					}
 
-					$(document).trigger('mail-messages-reload', _data.folder);
+					$(document).trigger('mail-messages-loader', _data.folder);
 
 				});
 
@@ -1000,6 +1005,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
+		$(document).trigger('mail-message-list-complete');
+
 	}
 
 	let key = '<?= $this->route ?>' + data.folder + '-lastmessages-';
@@ -1015,9 +1022,12 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 	}
 
-	let msgLoader = function() {
+	$(document)
+	.off('mail-messages-loader')
+	.on('mail-messages-loader', function() {
 
 		$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+		$(document).trigger( 'mail-clear-reloader');
 
 		_brayworth_.post({
 			url : _brayworth_.url('<?= $this->route ?>'),
@@ -1033,22 +1043,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 						$('i.fa-spinner', '#<?= $uidMsgs ?>').addClass('fa-refresh').removeClass('fa-spinner fa-spin');
 
 						if ( 0 == data.page) {
-							(function( i) {
-								if ( !!i) {
-									window.clearTimeout( i);
-									$(document).removeData( 'mail-reloader');
-
-								}
-
-							})( $(document).data( 'mail-reloader'));
-
-							$(document).data( 'mail-reloader', window.setTimeout(() => {
+							$(document).trigger( 'mail-clear-reloader');
+							$(document).data( 'mail-messages-reloader', window.setTimeout(() => {
 								let key = '<?= $this->route ?>' + folder + '-lastmessages-';
 								sessionStorage.removeItem( key);
-
-								msgLoader();
-								// $(document).trigger( 'mail-messages-reload', folder);
-								// console.log( 'trigger : mail-messages-reload', folder);
+								$(document).trigger('mail-messages-loader');
 
 							}, 20000));
 
@@ -1069,9 +1068,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-	}
-
-	msgLoader();
+	})
+	.trigger('mail-messages-loader');
 
 });
 
@@ -1166,30 +1164,14 @@ $(document).on( 'mail-view-message', function( e) {
 
 });
 
-$('#<?= $uidViewer ?>').on('clear', function( e) {
-	$(this)
-	.html('')
-	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
-
-	if ( 'yes' == $(document).data('autoloadnext')) {
-					// let _next = _me.next();
-					// if ( _next.length > 0) {
-					// 	// console.table({
-						// 	me : _me.attr('id'),
-						// 	next : _next.attr('id'),
-						// 	type : typeof _next
-
-						// });
-
-		let nid = $('#<?= $uidViewer ?>').data('next');
-		if ( 'undefined' != typeof nid) {
-			$('#<?= $uidViewer ?>').removeData('next');
-			// console.log( 'nid', nid);
-			let _row = $('#' + nid);
-			if ( _row.length > 0) {
-				_row.trigger('view');
-
-			}
+$(document).on( 'mail-message-load-next', function() {
+	let nid = $('#<?= $uidViewer ?>').data('next');
+	if ( 'undefined' != typeof nid) {
+		$('#<?= $uidViewer ?>').removeData('prev').removeData('next');
+		// console.log( 'nid', nid);
+		let _row = $('#' + nid);
+		if ( _row.length > 0) {
+			_row.trigger('view');
 
 		}
 
@@ -1197,10 +1179,71 @@ $('#<?= $uidViewer ?>').on('clear', function( e) {
 
 });
 
+$(document).on( 'mail-message-load-prev', function() {
+	let nid = $('#<?= $uidViewer ?>').data('prev');
+	if ( 'undefined' != typeof nid) {
+		$('#<?= $uidViewer ?>').removeData('prev').removeData('next');
+		// console.log( 'nid', nid);
+		let _row = $('#' + nid);
+		if ( _row.length > 0) {
+			_row.trigger('view');
+
+		}
+
+	}
+
+});
+
+$('#<?= $uidViewer ?>').on('clear', function( e) {
+	$(this)
+	.html('')
+	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
+
+	if ( !_brayworth_.browser.isMobileDevice && 'yes' == $(document).data('autoloadnext')) {
+		$(document).trigger( 'mail-message-load-next');
+
+	}
+
+});
+
+if ( !_brayworth_.browser.isMobileDevice) {
+	$(document).on('keydown', function( e) {
+		/**
+		*	arrow keys are only triggered by onkeydown, not onkeypress
+		*
+		*	keycodes are:
+		*		left = 37
+		*		up = 38
+		*		right = 39
+		*		down = 40
+		*/
+
+		console.log( e);
+
+		if ( 38 == e.keyCode) {
+			e.stopPropagation();
+			$(document).trigger( 'mail-message-load-prev');
+
+		}
+		else if ( 40 == e.keyCode) {
+			e.stopPropagation();
+			$(document).trigger( 'mail-message-load-next');
+
+		}
+		else if (39 == e.keyCode) {
+			e.stopPropagation();
+			$('iframe', '#<?= $uidViewer ?>').focus();
+
+		}
+
+	});
+
+}
+
 $(document).on('mail-clear-viewer', function( e) {
 	$('#<?= $uidViewer ?>').trigger('clear');
 
-})
+});
 
 $(document).ready( function() {
 	$(document)
@@ -1228,6 +1271,11 @@ $(document).ready( function() {
 	// console.log('init-3');
 
 	$(document).trigger('mail-clear-viewer');
+
+	if ( !_brayworth_.browser.isMobileDevice) {
+		$('#<?= $uidMsgs ?>').focus();
+
+	}
 
 	$(document).trigger('mail-load-complete');
 
