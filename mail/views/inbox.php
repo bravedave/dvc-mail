@@ -545,7 +545,17 @@ $(document).on( 'mail-messages', function( e, folder) {
 			// console.log( time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD'), stime);
 			received.html( stime);
 
-			row = $('<div class="row border-bottom border-light py-2" id="uid_' + String( seed) + '_' + String(seed * i) + '" />');
+			let rowID = 'uid_' + String( seed) + '_' + String(seed * i);
+			row = $('<div class="row border-bottom border-light py-2" />');
+			row.attr('id', rowID);
+			row.data('seen', true);
+			row.attr('msgid', msg.messageid);
+
+			if ( 'undefined' == typeof $('#<?= $uidViewer ?>').data('first')) {
+				$('#<?= $uidViewer ?>').data('first', rowID);
+
+			}
+
 			if ( firstMsg.length > 0) {
 				row.insertBefore( firstMsg[0]);
 
@@ -554,8 +564,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 				row.appendTo( '#<?= $uidMsgs ?>');
 
 			}
-			row.data('seen', true);
-			row.attr('msgid', msg.messageid);
+
 			let cell = $('<div class="col" />').appendTo( row);
 
 			$('<div class="row" />').append( from).appendTo( cell);
@@ -1164,10 +1173,27 @@ $(document).on( 'mail-view-message', function( e) {
 
 });
 
+$(document).on( 'mail-message-load-first', function() {
+	let nid = $('#<?= $uidViewer ?>').data('first');
+	if ( 'undefined' != typeof nid) {
+		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
+		// console.log( 'nid', nid);
+		let _row = $('#' + nid);
+		if ( _row.length > 0) {
+			_row.trigger('view');
+
+		}
+
+	}
+
+	$(document).off( 'mail-message-load-first');
+
+});
+
 $(document).on( 'mail-message-load-next', function() {
 	let nid = $('#<?= $uidViewer ?>').data('next');
 	if ( 'undefined' != typeof nid) {
-		$('#<?= $uidViewer ?>').removeData('prev').removeData('next');
+		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
 		// console.log( 'nid', nid);
 		let _row = $('#' + nid);
 		if ( _row.length > 0) {
@@ -1182,7 +1208,7 @@ $(document).on( 'mail-message-load-next', function() {
 $(document).on( 'mail-message-load-prev', function() {
 	let nid = $('#<?= $uidViewer ?>').data('prev');
 	if ( 'undefined' != typeof nid) {
-		$('#<?= $uidViewer ?>').removeData('prev').removeData('next');
+		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
 		// console.log( 'nid', nid);
 		let _row = $('#' + nid);
 		if ( _row.length > 0) {
@@ -1228,6 +1254,7 @@ if ( !_brayworth_.browser.isMobileDevice) {
 		else if ( 40 == e.keyCode) {
 			e.stopPropagation();
 			$(document).trigger( 'mail-message-load-next');
+			console.log( e.keyCode, 'mail-message-load-next');
 
 		}
 		else if (39 == e.keyCode) {
