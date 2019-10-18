@@ -1019,7 +1019,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-		if ( !!cacheData) $(document).trigger('mail-message-list-complete');
+		if ( !cacheData) $(document).trigger('mail-message-list-complete');
 
 	}
 
