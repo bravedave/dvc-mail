@@ -313,7 +313,12 @@ $(document).on( 'mail-folderlist', function( e) {
 });
 
 $(document).on( 'mail-messages-reload', function( e, folder) {
-	let key = '<?= $this->route ?>' + folder + '-lastmessages-';
+	let key = '<?= $this->route ?>-lastmessages-';
+	if ( 'undefined' != typeof folder) {
+		key += folder + '-';
+
+	}
+
 	sessionStorage.removeItem( key);
 
 	$(document).trigger( 'mail-messages', folder);
@@ -495,7 +500,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 	});
 
-	let _list_messages = function( messages) {
+	let _list_messages = function( messages, cacheData) {
 		let seed = String( parseInt( Math.random() * 1000000));
 		$('[msgid]').each( function( i, el) {
 			$(el).data('seen', false);
@@ -1014,11 +1019,15 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-		$(document).trigger('mail-message-list-complete');
+		if ( !!cacheData) $(document).trigger('mail-message-list-complete');
 
 	}
 
-	let key = '<?= $this->route ?>' + data.folder + '-lastmessages-';
+	let key = '<?= $this->route ?>-lastmessages-';
+	if ( 'undefined' != typeof data.folder) {
+		key += data.folder + '-';
+
+	}
 	if ( page > 0) key += page;
 
 	let lastMessages = sessionStorage.getItem( key);
@@ -1026,7 +1035,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 	$('#<?= $uidMsgs ?>').data('folder', folder);
 	if ( !!lastMessages) {
 		// console.log( 'lastMessages - ' + data.folder);
-		_list_messages( JSON.parse( lastMessages));
+		_list_messages( JSON.parse( lastMessages), true);
 		sessionStorage.removeItem( key);
 
 	}
@@ -1054,7 +1063,12 @@ $(document).on( 'mail-messages', function( e, folder) {
 						if ( 0 == data.page) {
 							$(document).trigger( 'mail-clear-reloader');
 							$(document).data( 'mail-messages-reloader', window.setTimeout(() => {
-								let key = '<?= $this->route ?>' + folder + '-lastmessages-';
+								let key = '<?= $this->route ?>-lastmessages-';
+								if ( 'undefined' != typeof folder) {
+									key += folder + '-';
+
+								}
+
 								sessionStorage.removeItem( key);
 								$(document).trigger('mail-messages-loader');
 
