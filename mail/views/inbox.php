@@ -28,7 +28,7 @@
 
 <div class="row h-100">
 	<div class="d-none d-sm-block col-sm-3 col-md-2 h-100" id="<?= $uidFolders = strings::rand() ?>" data-role="mail-folder-list">folders ...</div>
-	<div class="col-sm-9 col-md-3 border border-light h-100" style="overflow-y: auto;" id="<?= $uidMsgs = strings::rand() ?>">messages ...</div>
+	<div class="col-sm-9 col-md-3 border border-light h-100" style="overflow-y: auto;" id="<?= $uidMsgs = strings::rand() ?>" data-role="mail-messages-list">messages ...</div>
 	<div class="d-none d-md-block col-md-7 h-100" id="<?= $uidViewer = strings::rand() ?>" data-role="mail-message-viewer"></div>
 
 </div>
@@ -1191,12 +1191,12 @@ $(document).on( 'mail-message-load-first', function() {
 	let nid = $('#<?= $uidViewer ?>').data('first');
 	if ( 'undefined' != typeof nid) {
 		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
-		// console.log( 'nid', nid);
-		let _row = $('#' + nid);
-		if ( _row.length > 0) {
-			_row.trigger('view');
+		console.log( 'nid', nid);
+		// let _row = $('#' + nid);
+		// if ( _row.length > 0) {
+		// 	_row.trigger('view');
 
-		}
+		// }
 
 	}
 
@@ -1258,7 +1258,7 @@ if ( !_brayworth_.browser.isMobileDevice) {
 		*		down = 40
 		*/
 
-		console.log( e);
+		// console.log( e);
 
 		if ( 38 == e.keyCode) {
 			e.stopPropagation();
@@ -1268,7 +1268,7 @@ if ( !_brayworth_.browser.isMobileDevice) {
 		else if ( 40 == e.keyCode) {
 			e.stopPropagation();
 			$(document).trigger( 'mail-message-load-next');
-			console.log( e.keyCode, 'mail-message-load-next');
+			// console.log( e.keyCode, 'mail-message-load-next');
 
 		}
 		else if (39 == e.keyCode) {
