@@ -898,11 +898,13 @@ $(document).on( 'mail-messages', function( e, folder) {
 					ctrl.on( 'click', function( e) {
 						e.stopPropagation();e.preventDefault();
 
-						_row.trigger('execute-action', {
-							action : 'move-message',
-							targetFolder : defaultFolders.Trash
+						_row.trigger('delete');
 
-						});
+						// _row.trigger('execute-action', {
+						// 	action : 'move-message',
+						// 	targetFolder : defaultFolders.Trash
+
+						// });
 
 						_context.close();
 
@@ -918,6 +920,21 @@ $(document).on( 'mail-messages', function( e, folder) {
 				});
 
 				_context.open( e);
+
+			})
+			.on( 'delete', function( e) {
+				let _row = $(this);
+				let _data = _row.data();
+				let defaultFolders = $(document).data( 'default_folders');
+
+				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
+					_row.trigger('execute-action', {
+						action : 'move-message',
+						targetFolder : defaultFolders.Trash
+
+					});
+
+				}
 
 			})
 			.attr('draggable', true)
@@ -1259,9 +1276,25 @@ if ( !_brayworth_.browser.isMobileDevice) {
 			// console.log( e.keyCode, 'mail-message-load-next');
 
 		}
-		else if (39 == e.keyCode) {
+		else if ( 39 == e.keyCode) {
 			e.stopPropagation();
 			$('iframe', '#<?= $uidViewer ?>').focus();
+
+		}
+		else if ( 46 == e.keyCode) {
+			e.stopPropagation();
+			( function( data) {
+				// _row.trigger('delete');
+				if ( 'undefined' != typeof data.message) {
+					let row = $('[msgid="'+data.message+'"]');
+					if ( row.length > 0) {
+						row.trigger('delete');
+
+					}
+
+				}
+
+			})( $('#<?= $uidViewer ?>').data());
 
 		}
 
