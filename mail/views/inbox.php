@@ -1188,19 +1188,7 @@ $(document).on( 'mail-view-message', function( e) {
 });
 
 $(document).on( 'mail-message-load-first', function() {
-	let nid = $('#<?= $uidViewer ?>').data('first');
-	if ( 'undefined' != typeof nid) {
-		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
-		console.log( 'nid', nid);
-		// let _row = $('#' + nid);
-		// if ( _row.length > 0) {
-		// 	_row.trigger('view');
-
-		// }
-
-	}
-
-	$(document).off( 'mail-message-load-first');
+	$('#<?= $uidMsgs ?> > div[msgid]').first().trigger('view');
 
 });
 
