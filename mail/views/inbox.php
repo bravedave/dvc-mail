@@ -1165,13 +1165,13 @@ $(document).on( 'mail-toggle-view', function() {
 	else {
 		view = sessionStorage.getItem( key);
 		if ( !view) view = 'wide';
-		if ( ['condensed','wide'].indexOf(view) > -1) view = 'wide';
+		if ( ['condensed','wide'].indexOf(view) < 0) view = 'wide';
 
 	}
+
+	// console.log( key, $(document).data('view'), view);
 	$(document).data('view', view);
 	$(document).trigger('mail-set-view');
-
-	// console.log( key, view);
 
 });
 
