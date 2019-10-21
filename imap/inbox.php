@@ -234,7 +234,6 @@ class inbox {
 	}
 
 	public function SaveToFile( $message, $msgStore) {
-		// TODO: make sure this works
 		$debug = false;
 		//~ $debug = true;
 
