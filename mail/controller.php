@@ -107,6 +107,19 @@ class controller extends \Controller {
 			} else { \Json::nak( sprintf('invalid message : %s', $action)); }
 
 		}
+		elseif ( 'search-messages' == $action) {
+			// todo: creds
+			$params = [
+				'creds' => $this->creds,
+				'folder' => $this->getPost('folder', 'default'),
+				'term' => $this->getPost('term'),
+
+			];
+
+			Json::ack( $action)
+				->add( 'messages', $this->_search( $params));
+
+		}
 		else {
 			parent::postHandler();
 
@@ -222,6 +235,28 @@ class controller extends \Controller {
 
 		$inbox = inbox::instance( $options['creds']);
 		$messages = (array)$inbox->finditems( $options);
+		// sys::dump( $messages);
+
+		$a = [];
+		foreach ( $messages as $message)
+			$a[] = $message->asArray();
+
+		return $a;
+		// return $messages;
+
+	}
+
+	protected function _search( array $params = []) : array {
+
+		$options = array_merge([
+			'creds' => $this->creds,
+			'folder' => 'default',
+			'term' => ''
+
+		], $params);
+
+		$inbox = inbox::instance( $options['creds']);
+		$messages = (array)$inbox->search( $options);
 		// sys::dump( $messages);
 
 		$a = [];

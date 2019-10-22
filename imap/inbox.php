@@ -316,4 +316,32 @@ class inbox {
 
 	}
 
+	public function search( $params) {
+		$options = array_merge([
+			'folder' => $this->defaults()->inbox,
+			'term' => ''
+
+		], $params);
+
+		// sys::dump( $options);
+
+		$ret = [];
+		if ( $options['term']) {
+			$terms = [];
+			$term = \str_replace( '"', '', $options['term']);
+			$terms[] = sprintf( 'SUBJECT "%s"', $term);
+			$options['criteria'] = implode( ' ', $terms);
+
+			if ( $this->_client->open( true, $options['folder'] )) {
+				$ret = $this->_client->search( $options);
+				$this->_client->close();
+
+			}
+
+		}
+
+		return ( $ret );
+
+	}
+
 }

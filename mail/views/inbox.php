@@ -997,9 +997,9 @@ $(document).on( 'mail-messages', function( e, folder) {
 		let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
 		// console.log( defaultFolders);
 
-		// TODO : Search Function
-		// .prependTo( primary)
+		// FIXME : Search Function
 		$('<button class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" title="search" /></button>')
+		.prependTo( primary)
 		.on('click', function(e) {
 			primary.addClass( 'd-none');
 			search.removeClass( 'd-none');
@@ -1057,21 +1057,69 @@ $(document).on( 'mail-messages', function( e, folder) {
 		let fldSearch = $('<input class="form-control" type="search" />')
 		.appendTo( search)
 		.attr('placeholder', 'search ' + location)
-		;
-		let iga = $('<div class="input-group-append" />').appendTo( search);
-		$('<button type="button" class="btn btn-outline-secondary px-1"><i class="fa fa-reply fa-flip-vertical" /></button>')
-		.on( 'click', function( e) {
+		.on( 'keyup', function( e) {
+			if ( 13 == e.keyCode) {
+				// console.log( 'enter');
+				e.stopPropagation();e.preventDefault();
+
+				let _me = $(this);
+				if ( '' != _me.val()) {
+					_me.trigger( 'search');
+
+				}
+
+			}
+
+		})
+		.on( 'search', function( e) {
 			let frm = $('#<?= $uidFrm ?>');
 			let data = frm.serializeFormJSON();
 
 			data.action = 'search-messages';
-			data.term = fldSearch.val();
+			data.term = String( fldSearch.val());
+			if ( '' == data.term.trim()) return;
+
+			$('button', search).html('').append('<i class="fa fa-spinner fa-spin" />').prop( 'disabled', true);
+			fldSearch.prop( 'disabled', true);
 
 			if ( !!folder) { data.folder = folder; }
 
-			console.log( data);
+			// DONE : Submit search
+			// console.log( data);
+			_brayworth_.post({
+				url : _brayworth_.url('<?= $this->route ?>'),
+				data : data,	// data from the form
+
+			}).then( function( d) {
+				// console.log( d);
+
+				if ( 'ack' == d.response) {
+					// DONE : Clear message list before loading search results
+					let heading = $('<div class="row bg-light text-muted" />');
+					let col = $('<div class="col" />').appendTo( heading);
+					let h = $('<h6 class="text-truncate pt-1" />')
+						.html( data.term)
+						.prepend('<i class="fa fa-search pull-right" />')
+						.appendTo( col);
+
+					$('#<?= $uidMsgs ?>').html('').append( heading);
+					_list_messages( d.messages);
+
+				}
+				else {
+					_brayworth_.growl( d);
+					// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+					$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
+
+				}
+
+			});
 
 		})
+		;
+		let iga = $('<div class="input-group-append" />').appendTo( search);
+		$('<button type="button" class="btn btn-outline-secondary px-1"><i class="fa fa-reply fa-flip-vertical" /></button>')
+		.on( 'click', function( e) { fldSearch.trigger( search); })
 		.appendTo( iga);
 
 	})( $('<div class="col" />').appendTo( heading));
