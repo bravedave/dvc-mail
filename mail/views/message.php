@@ -164,10 +164,10 @@ $colStyle = 'width: 5rem; font-size: small;';
                     href="%s"
                     target="_blank"
                     data-rel="attachment"
-                    data-name="%s"
+                    data-id="%s"
                     >%s</a></li>',
                     strings::url( $path),
-                    $attachment->Name,
+                    $attachment->ContentId,
                     $attachment->Name
                 );
 
