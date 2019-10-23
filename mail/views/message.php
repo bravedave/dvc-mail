@@ -160,9 +160,16 @@ $colStyle = 'width: 5rem; font-size: small;';
                         urlencode($msg->Folder),
                         urlencode($attachment->ContentId)
                     );
-                printf('<li><a href="%s" target="_blank">%s</a></li>',
+                printf('<li><a
+                    href="%s"
+                    target="_blank"
+                    data-rel="attachment"
+                    data-name="%s"
+                    >%s</a></li>',
                     strings::url( $path),
-                    $attachment->Name);
+                    $attachment->Name,
+                    $attachment->Name
+                );
 
             }
             else {
