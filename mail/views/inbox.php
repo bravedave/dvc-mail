@@ -782,10 +782,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					}
 
-					btns.forEach(element => {
-						element.appendTo( params.toolbar);
-
-					});
+					btns.forEach( element => { element.appendTo( params.toolbar); });
 
 					params.toolbar.prependTo( '#<?= $uidViewer ?>');
 					frame.css('height','calc(100% - ' + params.toolbar.height() + 'px)');
@@ -793,8 +790,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 					$(document)
 					.trigger( 'mail-message-toolbar', params)
 					.trigger( 'mail-message-loaded', {
+						form : $('#<?= $uidFrm ?>')[0],
 						message : _data.message,
 						window : _frame.contentDocument
+
 					});
 
 				});
