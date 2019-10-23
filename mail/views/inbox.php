@@ -441,12 +441,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 	let _list_messages = function( messages, cacheData) {
 		let seed = String( parseInt( Math.random() * 1000000));
-		$('[msgid]').each( function( i, el) {
+		$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
 			$(el).data('seen', false);
 
 		});
 
-		let firstMsg = $('[msgid]');
 		$.each( messages, function( i, msg) {
 			let row = $('[msgid="'+msg.messageid+'"]');
 			if ( row.length > 0) {
@@ -491,17 +490,37 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 			let rowID = 'uid_' + String( seed) + '_' + String(seed * i);
 			row = $('<div class="row border-bottom border-light py-2" />');
-			row.attr('id', rowID);
-			row.data('seen', true);
-			row.attr('msgid', msg.messageid);
+			row
+			.attr('id', rowID)
+			.attr('msgid', msg.messageid)
+			.data('seen', true)
+			.data('received', time.format( 'YYYYMMDDHHmmss'));
 
 			if ( 'undefined' == typeof $('#<?= $uidViewer ?>').data('first')) {
 				$('#<?= $uidViewer ?>').data('first', rowID);
 
 			}
 
-			if ( firstMsg.length > 0) {
-				row.insertBefore( firstMsg[0]);
+			/**
+			 *	find the next location to insert
+			 *	based on time
+			 */
+			let nextMsg = false;
+			$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+				// $(el).data('seen', false);
+				let _el = $(el);
+				let _data = _el.data();
+
+				if ( _data.received < time.format( 'YYYYMMDDHHmmss')) {
+					nextMsg = _el;
+					return false;
+
+				}
+
+			});
+
+			if ( !!nextMsg) {
+				row.insertBefore( nextMsg);
 
 			}
 			else {
@@ -965,7 +984,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-		$('[msgid]').each( function( i, el) {
+		$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
 			let _el = $(el);
 			if ( !_el.data('seen')) {
 				_el.remove();
