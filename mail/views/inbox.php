@@ -1045,7 +1045,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 		});
 
 		if ( page > 0) {
-			$('<span class="badge badge-pill badge-light pull-right mt-2 px-0" />').html('#' + (page+1)).prependTo( col);
+			$('<span class="badge badge-pill badge-light pull-right mt-2 px-0" />').html('#' + (page+1)).prependTo( primary);
 
 		}
 		$('<button class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
