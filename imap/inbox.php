@@ -319,7 +319,8 @@ class inbox {
 	public function search( $params) {
 		$options = array_merge([
 			'folder' => $this->defaults()->inbox,
-			'term' => ''
+			'term' => '',
+			'criteria' => [],
 
 		], $params);
 
@@ -329,8 +330,8 @@ class inbox {
 		if ( $options['term']) {
 			$terms = [];
 			$term = \str_replace( '"', '', $options['term']);
-			$terms[] = sprintf( 'SUBJECT "%s"', $term);
-			$options['criteria'] = implode( ' ', $terms);
+			$options['criteria'][] = sprintf( 'FROM "%s"', $term);
+			$options['criteria'][] = sprintf( 'SUBJECT "%s"', $term);
 
 			if ( $this->_client->open( true, $options['folder'] )) {
 				$ret = $this->_client->search( $options);

@@ -668,15 +668,29 @@ class client {
 
 	public function search( array $params) : array {
 		$options = array_merge([
-			'criteria' => '',
+			'criteria' => [],
 			'charset' => 'US-ASCII'
 
 		], $params);
 
 		$ret = [];
-		if ( $emails = imap_search( $this->_stream, $options['criteria'], SE_FREE, $options['charset'])) {
-			foreach( $emails as $email_number) {
-				$msg = $this->_overview( $email_number);
+		$results = [];
+		foreach ( $options['criteria'] as $criteria) {
+			if ( $emails = imap_search( $this->_stream, $criteria, SE_FREE, $options['charset'])) {
+				foreach( $emails as $email_number) {
+					if ( !in_array( $email_number, $results)) {
+						$results[] = $email_number;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		foreach( $results as $email_number) {
+			if ($msg = $this->_overview( $email_number)) {
 				$msg->Folder = $this->_folder;
 				$ret[] = $msg;
 
