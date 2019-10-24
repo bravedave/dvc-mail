@@ -54,12 +54,12 @@ $colStyle = 'width: 5rem; font-size: small;';
                     $tos = explode( ',', $msg->To);
                     if ( ( $ito = count( $tos)) > 1) {
                         $uid = strings::rand();
-                        printf( '<div data-role="email-address" data-address=%s></div>', htmlentities( $tos[0]), json_encode( $tos[0]));
+                        print htmlentities( $tos[0]);
                         printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito-1);
                         array_shift( $tos);
                         $_tos = [];
                         foreach( $tos as $to) {
-                            $_tos[] = sprintf( '<div data-role="email-address" data-address=%s></div>', htmlentities( $tos[0]), json_encode( $to));
+                            $_tos[] = htmlentities( $to);
 
                         }
 
