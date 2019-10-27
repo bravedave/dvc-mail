@@ -19,7 +19,7 @@ ews.calendar.fullcalendar = function( params) {
 	var options = {
 		host : 'body',
 		scrollTime : '07:00:00',
-		timezone : 'local',
+		timezone : ews.timezone,
 		displayEventTime : true,
 		contentHeight : $(window).height() - 110,
 		defaultView: 'listWeek',

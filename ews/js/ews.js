@@ -11,6 +11,7 @@ ews = {
 	inbox : {
 		contextItems : {}
 
-	}
+	},
+	timezone : 'local'
 
 };
