@@ -59,7 +59,14 @@ ews.calendar.fullcalendar = function( params) {
 
 		},
 		loading: function(bool) {
-			bool ? hourglass.on() : hourglass.off();
+			if (bool) {
+				hourglass.on();
+
+			}
+			else {
+				hourglass.off();
+
+			}
 
 		},
 
@@ -77,4 +84,4 @@ ews.calendar.fullcalendar = function( params) {
 
 	$(options.host).fullCalendar( options);
 
-}
+};
