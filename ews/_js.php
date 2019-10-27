@@ -25,6 +25,8 @@ class _js {
 
 		]);
 
+		printf( ';ews.timezone = "%s";', config::$TIMEZONE);
+
 	}
 
 }

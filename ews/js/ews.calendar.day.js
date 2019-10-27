@@ -1,24 +1,25 @@
-/*
-	David Bray
-	BrayWorth Pty Ltd
-	e. david@brayworth.com.au
-
-	This work is licensed under a Creative Commons Attribution 4.0 International Public License.
-		http://creativecommons.org/licenses/by/4.0/
-
-	load library (if not loaded):
-		$.getScript('/ews/js');
-
-	test:
-		ews.calendar.day({ host : 'body' });
-
-	*/
+/**
+ * David Bray
+ * BrayWorth Pty Ltd
+ * e. david@brayworth.com.au
+ *
+ * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
+ *      http://creativecommons.org/licenses/by/4.0/
+ *
+ * load library (if not loaded):
+ *	$.getScript('/ews/js');
+ *
+ * test:
+ * 	ews.calendar.day({ host : 'body' });
+ *
+* */
+/*jshint esversion: 6 */
 ews.calendar.day = function( params) {
 
-	var options = {
+	let options = {
 		host : 'body',
 
-	}
+	};
 
 	$.extend( options, params);
 
@@ -45,8 +46,8 @@ ews.calendar.day = function( params) {
 		var t = templation.template('table').appendTo( plannerbox);
 			t.get().addClass('table table-striped table-header-fixed dayplanner').css('margin','auto');
 
-		var r = templation.template('tr').appendTo( t.get('thead'));
-			r.append( $('<td class="text-center" colspan="2" />').html( seed.format('dddd MMM D')))
+		let r = templation.template('tr').appendTo( t.get('thead'));
+			r.append( $('<td class="text-center" colspan="2" />').html( seed.format('dddd MMM D')));
 
 		seed.second( 0);
 		for ( var h = 0; h < 24; h++) {
@@ -55,20 +56,20 @@ ews.calendar.day = function( params) {
 				seed.minute( m);
 				var sEnd = seed.clone();
 					sEnd.add( interval, 'minutes');
-				var r = templation.template('tr').appendTo( t.get('tbody'));
+				let r = templation.template('tr').appendTo( t.get('tbody'));
 					if ( h < 7)
 						r.get().addClass( 'early');
 					else if ( h > 19)
 						r.get().addClass( 'late');
-					r.data( 'time_start', seed.format())
-					r.data( 'time_end', sEnd.format())
+					r.data( 'time_start', seed.format());
+					r.data( 'time_end', sEnd.format());
 					//~ console.log( seed.format());
 				if ( m == 0)
 					r.append( $('<td class="text-center small" />').html( seed.format('h:mma').replace( /m$/, '')));
 				else
 					r.append( '<td>&nbsp;</td>');
 
-				r.append( '<td today />')
+				r.append( '<td today />');
 
 				if ( h == 7 && m == 0)
 					viewStartElement = r.get();
@@ -95,7 +96,7 @@ ews.calendar.day = function( params) {
 
 	});
 
-}
+};
 
 ews.calendar.day.populate = function( params) {
 	var options = {
@@ -108,7 +109,7 @@ ews.calendar.day.populate = function( params) {
 		color : 'black',
 		backgroundColor : '#90caf9',
 
-	}
+	};
 
 	$.extend( options, params);
 
@@ -136,7 +137,7 @@ ews.calendar.day.populate = function( params) {
 				//~ console.log( time, evt.start);
 				if ( evtStart >= time_start && time_end > evtStart) {
 					var c = $('<div style="position: relative; width: 100%;" />');
-					$('td[today]', row).append(c)
+					$('td[today]', row).append(c);
 
 					var content = $('<div class="planner-cell" planner-label />')
 						.data('user', options.user)
@@ -180,13 +181,13 @@ ews.calendar.day.populate = function( params) {
 
 		});
 
-	})
+	});
 
-}
+};
 
 
 ews.calendar.day.test = function() {
 	//~ $(document).off('contextmenu');
 	ews.calendar.day({ host : 'body' });
 
-}
+};
