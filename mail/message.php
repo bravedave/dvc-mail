@@ -66,6 +66,7 @@ class message {
 			'from' => $this->From,
 			'fromEmail' => $this->fromEmail,
 			'subject' => $this->Subject,
+			'answered' => $this->answered,
 			'seen' => $this->seen,
 			'folder' => $this->Folder,
 			'uid' => $this->Uid,
@@ -362,6 +363,14 @@ class message {
 			$f = sprintf('%s/temp-late.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $_html);
+
+		}
+
+		if ( $this->hasMso()) {
+			// experimental empty <p></p>
+			$_html = preg_replace( '@<p></p>@', '', $_html);
+			// sys::logger( sprintf('%s : %s', 'remove empty <p /> tags', __METHOD__));
+
 
 		}
 
