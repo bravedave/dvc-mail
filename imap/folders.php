@@ -17,6 +17,8 @@ class folders {
 
 	static $delimiter = '.';
 
+	static $type = 'linux';
+
 	static $default_folders = [
 		'Inbox' => client::INBOX,
 
@@ -64,17 +66,29 @@ class folders {
 						$fn = preg_replace( $aR, '', imap_utf7_decode($val));
 						// sys::logger( sprintf('=> %s : %s', $fn, __METHOD__));
 						// sys::logger( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
-						// sys::logger( sprintf('%s : %s', $fn, __METHOD__));
-						if ( $fldr && preg_match( sprintf( '@^%s(\.|/)@', $fldr), $fn )) {
+						sys::logger( sprintf('%s : %s', $fn, __METHOD__));
+						if ( self::$delimiter == '/' && $fldr && preg_match( sprintf( '@^%s/@', $fldr), $fn )) {
+							/**
+							 * exchange type server
+							 */
+							$sub = trim( preg_replace( sprintf( '@^%s/@', $fldr), '', $fn ), '/ ');
+							$a['subfolders'][] = $sub;
+							sys::logger( sprintf('%s => %s : %s', $fn, $sub, __METHOD__));
 
-							$sub = trim( preg_replace( '@^'.$fldr.'(\.|/)@', '', $fn ), '/ ');
+						}
+						elseif ( self::$delimiter == '.' &&  $fldr && preg_match( sprintf( '@^%s\.@', $fldr), $fn )) {
+							/**
+							 * linux type server
+							 */
+
+							$sub = trim( preg_replace( sprintf( '@^%s\.@', $fldr), '', $fn ), '/ ');
 							$a['subfolders'][] = $sub;
 							// sys::logger( sprintf('%s => %s : %s', $fn, $sub, __METHOD__));
 
 						}
 						else {
 							if ( $append ) {
-								if ( preg_match( "@inbox@i", $a["name"] )) {
+								if ( preg_match( "@^inbox@i", $a["name"] )) {
 									array_unshift( $ret, $a );
 
 								}
@@ -101,6 +115,8 @@ class folders {
 					$append = false;
 
 				}
+
+				// sys::dump( $ret);
 
 			}
 			else {
@@ -176,7 +192,7 @@ class folders {
 		}
 
 		$a[] = $folder;
-		$fldr = implode( '.', $a);
+		$fldr = implode( self::$delimiter, $a);
 
 		if ( $this->_client->open( false)) {
 			if ( $this->_client->createmailbox( $fldr)) {
@@ -185,7 +201,10 @@ class folders {
 
 			}
 			else {
-				$this->errors[] = sprintf( 'create mailbox failed : %s : %s', imap_last_error(), __METHOD__);
+				$errors = sprintf( 'create mailbox failed : %s', imap_last_error());
+				sys::logger( sprintf('%s : %s', $error, __METHOD__));
+
+				$this->errors[] = $error;
 
 			}
 
@@ -201,13 +220,15 @@ class folders {
 		$ret = false;
 
 		if ( $this->_client->open( false)) {
-			if ( $this->_client->deletemailbox( trim( \str_replace( '/', self::$delimiter, $folder), '. /'))) {
+			$fldr = trim( \str_replace( '/', self::$delimiter, $folder), '. /');
+			if ( $this->_client->deletemailbox( $fldr)) {
 				$ret = true;
 
 			}
 			else {
-				$this->errors[] = sprintf( 'delete mailbox failed : %s : %s', imap_last_error(), __METHOD__);
-				sys::logger( sprintf( 'delete mailbox %s failed : %s : %s', $folder, imap_last_error(), __METHOD__));
+				$error = sprintf( 'delete mailbox failed : %s', imap_last_error());
+				$this->errors[] = $error;
+				sys::logger( sprintf( '%s : %s => %s : %s', $error, $folder, $fldr, __METHOD__));
 
 			}
 
