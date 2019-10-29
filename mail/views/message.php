@@ -139,7 +139,8 @@ $colStyle = 'width: 5rem; font-size: small;';
 
     }
     elseif ( $msg->hasMso()) {
-        printf( '<div message style="max-width: 100%%">%s %s</div>',
+        printf( '<div message style="max-width: 100%%">%s %s %s</div>',
+            '<style>p { margin: 0; }</style>',
             $msg->getMso(),
             $msg->safehtml());
 
