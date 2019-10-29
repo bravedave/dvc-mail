@@ -64,13 +64,15 @@ class folders {
 						$fn = preg_replace( $aR, '', imap_utf7_decode($val));
 						// sys::logger( sprintf('=> %s : %s', $fn, __METHOD__));
 						// sys::logger( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
-						if ( $fldr && preg_match( sprintf( '@^%s(.|/)@', $fldr), $fn )) {
-							//~ error_log( "==>".$fn );
-							$a['subfolders'][] = preg_replace( '@^'.$fldr.'(.|/)@', '', $fn );
+						// sys::logger( sprintf('%s : %s', $fn, __METHOD__));
+						if ( $fldr && preg_match( sprintf( '@^%s(\.|/)@', $fldr), $fn )) {
+
+							$sub = trim( preg_replace( '@^'.$fldr.'(\.|/)@', '', $fn ), '/ ');
+							$a['subfolders'][] = $sub;
+							// sys::logger( sprintf('%s => %s : %s', $fn, $sub, __METHOD__));
 
 						}
 						else {
-							//~ error_log( $fldr . ":" . $fn );
 							if ( $append ) {
 								if ( preg_match( "@inbox@i", $a["name"] )) {
 									array_unshift( $ret, $a );

@@ -29,7 +29,7 @@
 </style>
 
 <div class="row h-100">
-	<div class="d-none" id="<?= $uidFolders = strings::rand() ?>" data-role="mail-folder-list">folders ...</div>
+	<div class="d-none" id="<?= $uidFolders = strings::rand() ?>" style="overflow: auto;" data-role="mail-folder-list">folders ...</div>
 	<div class="d-none" id="<?= $uidMsgs = strings::rand() ?>" style="overflow-y: auto;" data-role="mail-messages-list">messages ...</div>
 	<div class="d-none" id="<?= $uidViewer = strings::rand() ?>" data-role="mail-message-viewer"></div>
 
@@ -76,6 +76,7 @@ $(document).on( 'mail-folderlist', function( e) {
 		// console.log( folders);
 
 		let ul = $('<ul class="list-unstyled" />');
+		let keys = {};
 
 		let map = '';
 		let _list_subfolders = function( i, fldr) {
@@ -83,6 +84,65 @@ $(document).on( 'mail-folderlist', function( e) {
 
 			let ctrl = $('<div class="text-truncate" />').html( fldr.name);
 			let li = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo(ul).append( ctrl);
+			keys[fldr.fullname] = li;
+
+			let idx = fldr.fullname.lastIndexOf(fldr.delimiter);
+			if ( idx > 0) {
+				let realPath = fldr.fullname.substring(0, idx).trim();
+				if ( keys.hasOwnProperty(realPath)) {
+					let realName = fldr.fullname.substring(idx + 1).trim();
+					// console.log( realPath, ':', realName);
+					ctrl.html( realName);
+					// console.log( realPath, keys[realPath][0]);
+					let _ul = $('> ul', keys[realPath]);
+					if ( _ul.length == 0) {
+						let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right" />');
+						caret.on( 'click', function( e) {
+							e.stopPropagation();
+							// console.log( 'ckic');
+
+							let _me = $(this);
+							let sublist = _me.siblings('ul');
+							if ( sublist.length > 0) {
+								// console.log( sublist);
+								if ( _me.hasClass('fa-caret-left')) {
+									_me.removeClass('fa-caret-left').addClass( 'fa-caret-down');
+									sublist.removeClass( 'd-none');
+									folderState[fldr.fullname] = true;
+
+								}
+								else {
+									_me.removeClass('fa-caret-down').addClass( 'fa-caret-left');
+									sublist.addClass( 'd-none');
+									folderState[fldr.fullname] = false;
+
+								}
+
+								localStorage.setItem('mailFolderState', JSON.stringify(folderState));
+
+							}
+
+						});
+
+						caret.prependTo( keys[realPath]);
+
+						_ul = $('<ul class="list-unstyled pl-2" />').appendTo( keys[realPath]);
+						if ( !!folderState[fldr.fullname]) {
+							caret.removeClass('fa-caret-left').addClass( 'fa-caret-down');
+
+						}
+						else {
+							_ul.addClass('d-none');
+
+						}
+
+					}
+					li.appendTo( _ul);
+
+				} else { li.appendTo( ul); }
+
+			} else { li.appendTo( ul); }
+
 
 			ctrl
 			.attr('title', fldr.name)
@@ -227,51 +287,7 @@ $(document).on( 'mail-folderlist', function( e) {
 
 			});
 
-			if ( !!fldr.subFolders) {
-				let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right" />');
-				caret.on( 'click', function( e) {
-					e.stopPropagation();
-
-					let _me = $(this);
-					let sublist = _me.siblings('ul');
-					if ( sublist.length > 0) {
-						// console.log( sublist);
-						if ( _me.hasClass('fa-caret-left')) {
-							_me.removeClass('fa-caret-left').addClass( 'fa-caret-down');
-							sublist.removeClass( 'd-none');
-							folderState[fldr.fullname] = true;
-
-						}
-						else {
-							_me.removeClass('fa-caret-down').addClass( 'fa-caret-left');
-							sublist.addClass( 'd-none');
-							folderState[fldr.fullname] = false;
-
-						}
-
-						localStorage.setItem('mailFolderState', JSON.stringify(folderState));
-
-					}
-
-				});
-
-				li.prepend( caret);
-
-				let saveUL = ul;
-				ul = $('<ul class="list-unstyled small pl-2" />').appendTo( li);
-				if ( !!folderState[fldr.fullname]) {
-					caret.removeClass('fa-caret-left').addClass( 'fa-caret-down');
-
-				}
-				else {
-					ul.addClass('d-none');
-
-				}
-
-				$.each( fldr.subFolders, _list_subfolders);
-				ul = saveUL;
-
-			}
+			if ( !!fldr.subFolders) { $.each( fldr.subFolders, _list_subfolders); }
 
 		};
 
