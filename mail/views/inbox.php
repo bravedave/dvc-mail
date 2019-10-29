@@ -13,6 +13,8 @@
 	$unseen = '<span class="pull-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
 	// $unseen = '<i class="fa fa-circle text-primary" style="margin-left: -14px;" unseen></i>';
 
+	$answered = '<i class="fa fa-reply pull-right text-muted" title="you have replied to this message" answered />';
+
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
 	<input type="hidden" name="user_id" value="<?= $this->data->user_id ?>" />
@@ -226,7 +228,7 @@ $(document).on( 'mail-folderlist', function( e) {
 			});
 
 			if ( !!fldr.subFolders) {
-				let caret = $('<i class="fa fa-caret-left fa-fw mt-1 pointer pull-right" />')
+				let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right" />');
 				caret.on( 'click', function( e) {
 					e.stopPropagation();
 
@@ -454,7 +456,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 				if ( 'no' == msg.seen) {
 					let _unseen = $('[unseen]', row);
 					if ( _unseen.length == 0 ) {
-						$('[from]', row).append( '<?= $unseen ?>');
+						$('[from]', row).prepend( '<?= $unseen ?>');
 
 					}
 
@@ -464,6 +466,14 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 				}
 
+				if ( 'yes' == msg.answered) {
+					let _answered = $('[answered]', row);
+					if ( _answered.length == 0 ) {
+						$('[from]', row).prepend( '<?= $answered ?>');
+
+					}
+
+				}
 
 				return;
 
@@ -475,6 +485,11 @@ $(document).on( 'mail-messages', function( e, folder) {
 			let email = msg.from;
 			if ( msg.folder == defaultFolders.Sent) email = msg.to;
 			let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
+			if ( 'yes' == msg.answered) {
+				$('<?= $answered ?>').prependTo( from);
+
+			}
+
 			if ( 'no' == msg.seen) {
 				$('<?= $unseen ?>').prependTo( from);
 
@@ -760,6 +775,26 @@ $(document).on( 'mail-messages', function( e, folder) {
 							btns.push( btn);
 
 						}
+
+					})();
+
+					(function() {
+						let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
+
+						btn
+						.attr('title', 'pop out')
+						.data('url', url)
+						.addClass( params.btnClass)
+						.on( 'click', function( e) {
+							let _me = $(this);
+							let _data = _me.data();
+
+							window.open( _data.url, '_blank', 'toolbar=yes,menubar=no');
+							$('#<?= $uidViewer ?>').trigger('clear');
+
+						});
+
+						btns.push( btn);
 
 					})();
 
@@ -1371,22 +1406,34 @@ if ( !_brayworth_.browser.isMobileDevice) {
 		// console.log( e);
 
 		if ( 38 == e.keyCode) {
+
+			if ( $( 'body').hasClass('.modal-open')) return;
+
 			e.stopPropagation();
 			$(document).trigger( 'mail-message-load-prev');
 
 		}
 		else if ( 40 == e.keyCode) {
+
+			if ( $( 'body').hasClass('.modal-open')) return;
+
 			e.stopPropagation();
 			$(document).trigger( 'mail-message-load-next');
 			// console.log( e.keyCode, 'mail-message-load-next');
 
 		}
 		else if ( 39 == e.keyCode) {
+
+			if ( $( 'body').hasClass('.modal-open')) return;
+
 			e.stopPropagation();
 			$('iframe', '#<?= $uidViewer ?>').focus();
 
 		}
 		else if ( 46 == e.keyCode) {
+
+			if ( $( 'body').hasClass('.modal-open')) return;
+
 			e.stopPropagation();
 			( function( data) {
 				// _row.trigger('delete');

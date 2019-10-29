@@ -240,6 +240,7 @@ class client {
 		$ret->MSGNo = $_headerInfo->Msgno;
 		$ret->Uid = imap_uid( $this->_stream, $_headerInfo->Msgno);
 		$ret->CharSet = $mess->charset;
+		$ret->answered = $_headerInfo->Answered == "A" ? 'yes' : 'no';
 		$ret->seen = $_headerInfo->Unseen == "U" ? 'no' : 'yes';
 		$ret->references = '';
 		if ( $mess->messageHTML) {
@@ -302,6 +303,7 @@ class client {
 				foreach ( $overview as $msg) {
 					if ( isset( $msg->message_id )) {
 						if ( "{$msg->message_id}" == "{$id}" ) {
+							// \sys::dump( $msg);
 							return ( $msg);
 
 						}
@@ -346,6 +348,7 @@ class client {
 			$msg = $overview[0];
 			// sys::dump( $msg);
 			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
+			if ( isset( $msg->answered)) $ret->answered = ( $msg->answered ? 'yes' : 'no' );
 
 			if ( isset( $msg->to)) $ret->To = self::decodeMimeStr((string)$msg->to);
 
