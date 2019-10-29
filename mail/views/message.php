@@ -151,35 +151,40 @@ $colStyle = 'width: 5rem; font-size: small;';
     }
 
     // unset( $msg->src);
-    if ( count( $msg->attachments)) {
-        print '<ul>';
-        foreach ( $msg->attachments as $key => $attachment) {
-            if ( 'object' == gettype( $attachment)) {
-                $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
-                        $this->route,
-                        $msg->Uid,
-                        urlencode($msg->Folder),
-                        urlencode($attachment->ContentId)
-                    );
-                printf('<li><a
-                    href="%s"
-                    target="_blank"
-                    data-rel="attachment"
-                    data-id="%s"
-                    >%s</a></li>',
-                    strings::url( $path),
-                    $attachment->ContentId,
-                    $attachment->Name
+    if ( count( $msg->attachments)) {   ?>
+<table style="width: 100%; font-family: sans-serif; border-top: 1px solid silver;" cellpadding="2">
+    <tbody>
+    <?php
+    foreach ( $msg->attachments as $key => $attachment) {
+        if ( 'object' == gettype( $attachment)) {
+            $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
+                    $this->route,
+                    $msg->Uid,
+                    urlencode($msg->Folder),
+                    urlencode($attachment->ContentId)
                 );
+            printf('<tr><td><a
+                href="%s"
+                target="_blank"
+                data-rel="attachment"
+                data-id="%s"
+                >%s</a></td></tr>',
+                strings::url( $path),
+                $attachment->ContentId,
+                $attachment->Name
+            );
 
-            }
-            else {
-                printf('<li>%s</li>', $attachment);
-
-            }
+        }
+        else {
+            printf('<tr><td>%s</td></tr>', $attachment);
 
         }
 
-        print '</ul>';
+    } ?>
+    </tbody>
 
+</table>
+
+
+    <?php
     }
