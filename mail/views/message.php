@@ -152,7 +152,7 @@ $colStyle = 'width: 5rem; font-size: small;';
 
     // unset( $msg->src);
     if ( count( $msg->attachments)) {   ?>
-<table style="width: 100%; font-family: sans-serif; border-top: 1px solid silver;" cellpadding="2">
+<table style="width: 100%; font-family: sans-serif; border-top: 1px solid silver; margin-top: 1rem;" cellpadding="2">
     <tbody>
     <?php
     foreach ( $msg->attachments as $key => $attachment) {
