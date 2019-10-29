@@ -33,9 +33,9 @@ $colStyle = 'width: 5rem; font-size: small;';
                 }
                 else {
                     if ( $msg->From && $msg->From != $msg->fromEmail) {
-                        printf( '<strong data-role="from" data-email=%s>%s <%s></strong>',
-                            json_encode( sprintf( '%s <%s>', htmlentities( $msg->From), $msg->fromEmail)),
-                            htmlentities( $msg->From), $msg->fromEmail
+                        printf( '<strong data-role="from" data-email=%s>%s</strong>',
+                            json_encode( $msg->From),
+                            htmlentities( $msg->From)
                         );
 
                     }
