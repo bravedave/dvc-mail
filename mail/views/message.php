@@ -25,16 +25,25 @@ $colStyle = 'width: 5rem; font-size: small;';
                 <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
                 <?php
                 if ( $this->data->default_folders['Sent'] == $msg->Folder) {
-                    printf( '<small>to&nbsp;</small><strong data-role="from">%s</strong>', $msg->To);
+                    printf( '<small>to&nbsp;</small><strong data-role="from" data-email=%s>%s</strong>',
+                        json_encode( $msg->To),
+                        htmlentities( $msg->To)
+                    );
 
                 }
                 else {
                     if ( $msg->From && $msg->From != $msg->fromEmail) {
-                        printf( '<strong data-role="from">%s <%s></strong>', htmlentities( $msg->From), $msg->fromEmail);
+                        printf( '<strong data-role="from" data-email=%s>%s <%s></strong>',
+                            json_encode( sprintf( '%s <%s>', htmlentities( $msg->From), $msg->fromEmail)),
+                            htmlentities( $msg->From), $msg->fromEmail
+                        );
 
                     }
                     else {
-                        print $msg->fromEmail;
+                        printf( '<strong data-role="from" data-email=%s>%s</strong>',
+                            json_encode( $msg->fromEmail),
+                            $msg->fromEmail
+                        );
 
                     }
 
