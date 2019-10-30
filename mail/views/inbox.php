@@ -59,19 +59,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 });
 
-$(document).on( 'mail-folderlist', function( e) {
-	let frm = $('#<?= $uidFrm ?>');
-	let data = frm.serializeFormJSON();
-	let folderState = localStorage.getItem('mailFolderState');
-	if ( !!folderState) {
-		folderState = JSON.parse( folderState);
-
-	}
-	else {
-		folderState = {}
-
-	}
-
+(function() {
 	let _list = function( folders, cacheData) {
 		// console.log( folders);
 
@@ -96,6 +84,11 @@ $(document).on( 'mail-folderlist', function( e) {
 					// console.log( realPath, keys[realPath][0]);
 					let _ul = $('> ul', keys[realPath]);
 					if ( _ul.length == 0) {
+
+						let folderState = localStorage.getItem('mailFolderState');
+						folderState = !!folderState ? JSON.parse( folderState) : {};
+
+
 						let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right" />');
 						caret.on( 'click', function( e) {
 							e.stopPropagation();
@@ -202,13 +195,15 @@ $(document).on( 'mail-folderlist', function( e) {
 						// return;
 
 						// console.log( frmData);	// data from the form
+						$('#<?= $uidFolders ?>').trigger('spin');
+
 						_brayworth_.post({
 							url : _brayworth_.url('<?= $this->route ?>'),
 							data : frmData,
 
 						}).then( function( d) {
 							_brayworth_.growl( d);
-							$(document).trigger('mail-folderlist');
+							$(document).trigger('mail-folderlist-reload');
 
 						});
 
@@ -227,13 +222,15 @@ $(document).on( 'mail-folderlist', function( e) {
 					frmData.action = 'delete-folder';
 					frmData.folder = _data.folder;
 
+					$('#<?= $uidFolders ?>').trigger('spin');
+
 					_brayworth_.post({
 						url : _brayworth_.url('<?= $this->route ?>'),
 						data : frmData,
 
 					}).then( function( d) {
 						_brayworth_.growl( d);
-						$(document).trigger('mail-folderlist');
+						$(document).trigger('mail-folderlist-reload');
 						if ( 'nak' == d.response) {
 							console.log( d);
 
@@ -292,6 +289,19 @@ $(document).on( 'mail-folderlist', function( e) {
 		};
 
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6 class="pt-1">folders</h6></div></div>');
+		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-refresh" /></button>')
+		.on('click', function( e) {
+			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+			$(document).trigger( 'mail-folderlist-reload');
+
+		})
+		.prependTo( '#<?= $uidFolders ?> > div > div.col');
+
+		$('#<?= $uidFolders ?>').on( 'spin', function( e) {
+			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+
+		});
+
 		$.each( folders, _list_subfolders);
 		$('#<?= $uidFolders ?>').append( ul);
 		//~ console.log( folders);
@@ -300,35 +310,48 @@ $(document).on( 'mail-folderlist', function( e) {
 
 	}
 
-	let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
-	// console.log( key, lastFolders);
-	if ( !!lastFolders) {
-		_list( JSON.parse( lastFolders), true);
-		sessionStorage.removeItem( '<?= $keyLastFolders ?>');
-
-	}
-
-	data.action = 'get-folders';
-	// console.log( data);	// data from the form
-	_brayworth_.post({
-		url : _brayworth_.url('<?= $this->route ?>'),
-		data : data,
-
-	}).then( function( d) {
-		if ( 'ack' == d.response) {
-			sessionStorage.setItem( '<?= $keyLastFolders ?>', JSON.stringify( d.folders));
-			_list( d.folders, false);
+	$(document).on( 'mail-folderlist', function( e) {
+		let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
+		// console.log( key, lastFolders);
+		if ( !!lastFolders) {
+			_list( JSON.parse( lastFolders), true);
+			sessionStorage.removeItem( '<?= $keyLastFolders ?>');
 
 		}
-		else {
-			console.log( d);
-			_brayworth_.growl( d);
 
-		}
+		$(document).trigger( 'mail-folderlist-reload');
 
 	});
 
-});
+	$(document).on( 'mail-folderlist-reload', function( e) {
+		let frm = $('#<?= $uidFrm ?>');
+		let data = frm.serializeFormJSON();
+		data.action = 'get-folders';
+		// console.log( data);	// data from the form
+
+		$('#<?= $uidFolders ?>').trigger('spin');
+
+		_brayworth_.post({
+			url : _brayworth_.url('<?= $this->route ?>'),
+			data : data,
+
+		}).then( function( d) {
+			if ( 'ack' == d.response) {
+				sessionStorage.setItem( '<?= $keyLastFolders ?>', JSON.stringify( d.folders));
+				_list( d.folders, false);
+
+			}
+			else {
+				console.log( d);
+				_brayworth_.growl( d);
+
+			}
+
+		});
+
+	});
+
+})();
 
 $(document).on( 'mail-messages-reload', function( e, folder) {
 	let key = '<?= $this->route ?>-lastmessages-';
@@ -1067,7 +1090,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 		// console.log( defaultFolders);
 
 		// FIXME : Search Function
-		$('<button class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" title="search" /></button>')
+		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" title="search" /></button>')
 		.prependTo( primary)
 		.on('click', function(e) {
 			primary.addClass( 'd-none');
@@ -1078,7 +1101,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-		$('<button class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
+		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
 		.prependTo( primary)
 		.on('click', function(e) {
 			let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
@@ -1099,7 +1122,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 			$('<span class="badge badge-pill badge-light pull-right mt-2 px-0" />').html('#' + (page+1)).prependTo( primary);
 
 		}
-		$('<button class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
+		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
 		.prependTo( primary)
 		.on('click', function(e) {
 			let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
@@ -1113,7 +1136,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		});
 
-		$('<button class="btn btn-sm pull-right"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
+		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
 		.prependTo( primary)
 		.on('click', function(e) {
 			if ( !!folder)

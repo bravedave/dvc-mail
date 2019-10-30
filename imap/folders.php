@@ -66,7 +66,7 @@ class folders {
 						$fn = preg_replace( $aR, '', imap_utf7_decode($val));
 						// sys::logger( sprintf('=> %s : %s', $fn, __METHOD__));
 						// sys::logger( "=>".$fn . " => @^" . $fldr . "(.|/)@" );
-						sys::logger( sprintf('%s : %s', $fn, __METHOD__));
+						// sys::logger( sprintf('%s : %s', $fn, __METHOD__));
 						if ( self::$delimiter == '/' && $fldr && preg_match( sprintf( '@^%s/@', $fldr), $fn )) {
 							/**
 							 * exchange type server
@@ -187,7 +187,14 @@ class folders {
 
 		$a = [];
 		if ( $parent) {
-			$a[] = trim( \str_replace( '/', '.', $parent), '. /');
+			if ( '.' == self::$delimiter) {
+				$a[] = trim( \str_replace( '/', '.', $parent), '. /');
+
+			}
+			elseif ( '/' == self::$delimiter) {
+				$a[] = trim( \str_replace( '.', '/', $parent), '. /');
+
+			}
 
 		}
 
