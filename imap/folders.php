@@ -73,7 +73,7 @@ class folders {
 							 */
 							$sub = trim( preg_replace( sprintf( '@^%s/@', $fldr), '', $fn ), '/ ');
 							$a['subfolders'][] = $sub;
-							sys::logger( sprintf('%s => %s : %s', $fn, $sub, __METHOD__));
+							// sys::logger( sprintf('%s => %s : %s', $fn, $sub, __METHOD__));
 
 						}
 						elseif ( self::$delimiter == '.' &&  $fldr && preg_match( sprintf( '@^%s\.@', $fldr), $fn )) {
