@@ -46,7 +46,7 @@ class RawMessage {
 
 	protected function getpart( $mbox, $mid, $p, $partno ) {
 		$debug = false;
-		// $debug = true;
+		$debug = true;
 		$debugPart = $debug;
 		// $debugPart = true;
 
@@ -81,6 +81,10 @@ class RawMessage {
 		elseif ( $p->encoding == 1) {
 			if ( $debug) sys::logger( sprintf('imap_8bit : %s', __METHOD__));
 			$data = imap_8bit( $data);
+			// sys::dump( $data);
+			$data = quoted_printable_decode( $data);
+			// sys::dump( $data);
+			// sys::dump( $p);
 
 		}
 		elseif ( isset( $p->subtype) && 'plain' == strtolower( $p->subtype)) {
