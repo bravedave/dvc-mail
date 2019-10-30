@@ -17,6 +17,9 @@ $msg = $this->data->message;
 // sys::dump( $this->data->default_folders);
 $colStyle = 'width: 5rem; font-size: small;';
 ?>
+<style>
+html, body { font-family: sans-serif; }
+</style>
 <table style="width: 100%; font-family: sans-serif; border-bottom: 1px solid silver;" cellpadding="2">
     <tbody>
         <tr>
