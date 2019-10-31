@@ -251,10 +251,12 @@ html, body { font-family: sans-serif; }
                     target="_blank"
                     data-rel="appointment"
                     data-summary=%s
+                    data-description=%s
                     data-start=%s
                     data-end=%s
                     >%s : %s - %s</div></td></tr>%s',
                     json_encode( (string)$vcalendar->VEVENT->SUMMARY),
+                    json_encode( (string)$vcalendar->VEVENT->DESCRIPTION, JSON_UNESCAPED_SLASHES),
                     json_encode( (string)$vcalendar->VEVENT->DTSTART, JSON_UNESCAPED_SLASHES),
                     json_encode( (string)$vcalendar->VEVENT->DTEND, JSON_UNESCAPED_SLASHES),
                     htmlentities( $vcalendar->VEVENT->SUMMARY),
