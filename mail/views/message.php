@@ -170,19 +170,25 @@ html, body { font-family: sans-serif; }
     foreach ( $msg->attachments as $key => $attachment) {
         if ( 'object' == gettype( $attachment)) {
             $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
-                    $this->route,
-                    $msg->Uid,
-                    urlencode($msg->Folder),
-                    urlencode($attachment->ContentId)
-                );
+                $this->route,
+                $msg->Uid,
+                urlencode($msg->Folder),
+                urlencode($attachment->ContentId)
+            );
+
+            $finfo = new \finfo(FILEINFO_MIME);
+            $mimetype = $finfo->buffer( $attachment->Content);
+
             printf('<tr><td><a
                 href="%s"
                 target="_blank"
                 data-rel="attachment"
                 data-id="%s"
+                data-mimetype="%s"
                 >%s</a></td></tr>',
                 strings::url( $path),
                 $attachment->ContentId,
+                $mimetype,
                 $attachment->Name
             );
 
