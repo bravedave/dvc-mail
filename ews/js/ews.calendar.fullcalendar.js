@@ -60,11 +60,11 @@ ews.calendar.fullcalendar = function( params) {
 		},
 		loading: function(bool) {
 			if (bool) {
-				hourglass.on();
+				_brayworth_.hourglass.on();
 
 			}
 			else {
-				hourglass.off();
+				_brayworth_.hourglass.off();
 
 			}
 
