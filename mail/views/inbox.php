@@ -1019,6 +1019,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) {
 						$('#<?= $uidViewer ?>').trigger('clear');
+						$(document).trigger('mail-view-message-list');
 
 					}
 
