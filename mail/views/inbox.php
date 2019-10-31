@@ -1434,6 +1434,7 @@ $(document).on( 'mail-message-load-prev', function() {
 $('#<?= $uidViewer ?>').on('clear', function( e) {
 	$(this)
 	.html('')
+	.removeData('message')
 	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
 
 	if ( !_brayworth_.browser.isMobileDevice && 'yes' == $(document).data('autoloadnext')) {
