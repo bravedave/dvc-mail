@@ -178,14 +178,35 @@ class controller extends \Controller {
 					// printf( '%s<br />', $options['item']);
 					$finfo = new \finfo(FILEINFO_MIME);
 					foreach ( $msg->attachments as $attachment) {
-						// printf( '%s<br />', $attachment->ContentId);
-						if ( $options['item'] == $attachment->ContentId) {
-							header( sprintf( 'Content-type: %s', $finfo->buffer( $attachment->Content)));
-							header( sprintf( 'Content-Disposition: inline; filename="%s"', $attachment->Name));
-							print $attachment->Content;
-							return;
+						if ( 'object' == gettype( $attachment)) {
+							// printf( '%s<br />', $attachment->ContentId);
+							if ( $options['item'] == $attachment->ContentId) {
+								header( sprintf( 'Content-type: %s', $finfo->buffer( $attachment->Content)));
+								header( sprintf( 'Content-Disposition: inline; filename="%s"', $attachment->Name));
+								print $attachment->Content;
+								return;
 
-							// printf( 'found %s', $finfo->buffer( $attachment->Content));
+								// printf( 'found %s', $finfo->buffer( $attachment->Content));
+
+							}
+
+						}
+						elseif ( 'string' == gettype( $attachment)) {
+							if ( preg_match( '@^BEGIN:VCALENDAR@', $attachment)) {
+								header( 'Content-type: text/calendar');
+								header( 'Content-Disposition: inline; filename="invite.ics"');
+								print $attachment;
+
+							}
+							else {
+								print $attachment;
+
+							}
+
+						}
+						else {
+							print gettype( $attachment);
+							return;
 
 						}
 

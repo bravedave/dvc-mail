@@ -19,7 +19,8 @@
 	],
 	"require": {
 		"php-ews/php-ews": "^1.0",
-		"bravedave/dvc": "dev-master"
+		"bravedave/dvc": "dev-master",
+		"sabre/vobject": "^4.2"
 	},
 	"autoload": {
 		"psr-4": {

@@ -188,7 +188,79 @@ html, body { font-family: sans-serif; }
 
         }
         else {
-            printf('<tr><td>%s</td></tr>', $attachment);
+            if ( preg_match( '@^BEGIN:VCALENDAR@', $attachment)) {
+                $vcalendar = Sabre\VObject\Reader::read($attachment);
+                /**
+                 * BEGIN:VCALENDAR
+                 * PRODID:-//Google Inc//Google Calendar 70.9054//EN
+                 * VERSION:2.0
+                 * CALSCALE:GREGORIAN
+                 * METHOD:REQUEST
+                 * BEGIN:VEVENT
+                 * DTSTART:20191031T060000Z
+                 * DTEND:20191031T070000Z
+                 * DTSTAMP:20191030T072504Z
+                 * ORGANIZER;CNڶid Bray:mailto:david@brayworth.com.au
+                 * UID:4giii922352nqurabqeutmj0li@google.com
+                 * ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT¬CEPTED;RSVP=TRUE
+                 *  ;CNڶid Bray;X-NUM-GUESTS=0:mailto:david@brayworth.com.au
+                 * ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP TRUE;CNڶidb@darcy.com.au;X-NUM-GUESTS=0:mailto:davidb@darcy.com.au
+                 * X-MICROSOFT-CDO-OWNERAPPTID:618106913
+                 * CREATED:20191030T072501Z
+                 * DESCRIPTION:-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~
+                 *  :~:~:~:~:~:~:~:~::~:~::-\nPlease do not edit this section of the descriptio
+                 *  n.\n\nThis event has a video call.\nJoin: https://meet.google.com/moe-azdx-
+                 *  how\n+61 2 9051 6857 PIN: 993870766#\nView more phone numbers: https://tel.
+                 *  meet/moe-azdx-how?pin`56668846446&hs=7\n\nView your event at https://www.
+                 *  google.com/calendar/event?action=VIEW&eid=NGdpaWk5MjIzNTJucXVyYWJxZXV0bWowb
+                 *  GkgZGF2aWRiQGRhcmN5LmNvbS5hdQ&tok=MjIjZGF2aWRAYnJheXdvcnRoLmNvbS5hdTczMzAxN
+                 *  GVjZjBiZTRlYzg4MzIwZTQzMGE5NDY2ZGM1NTVjMTk1N2Q&ctz=Australia%2FBrisbane&hl en&es=1.\n-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~
+                 *  :~:~:~:~:~:~:~::~:~::-
+                 * LAST-MODIFIED:20191030T072501Z
+                 * LOCATION:
+                 * SEQUENCE:0
+                 * STATUS:CONFIRMED
+                 * SUMMARY:Meeting
+                 * TRANSP:OPAQUE
+                 * END:VEVENT
+                 * END:VCALENDAR
+                 * BEGIN:VCALENDAR
+                 */
+
+                $start = strtotime( $vcalendar->VEVENT->DTSTART);
+                $end = strtotime( $vcalendar->VEVENT->DTEND);
+
+                if ( date('Y-m-d') == date( 'Y-m-d')) {
+                    $end = preg_replace( '/m$/','',date( \config::$TIME_FORMAT, $end));
+
+                }
+                else {
+                    $end = preg_replace( '/m$/','',date( \config::$DATETIME_FORMAT, $end));
+
+                }
+
+                $start = preg_replace( '/m$/','',date( \config::$DATETIME_FORMAT, $start));
+
+                printf('<tr><td><div
+                    target="_blank"
+                    data-rel="appointment"
+                    data-summary=%s
+                    data-start=%s
+                    data-end=%s
+                    >%s : %s - %s</div></td></tr>%s',
+                    json_encode( (string)$vcalendar->VEVENT->SUMMARY),
+                    json_encode( (string)$vcalendar->VEVENT->DTSTART, JSON_UNESCAPED_SLASHES),
+                    json_encode( (string)$vcalendar->VEVENT->DTEND, JSON_UNESCAPED_SLASHES),
+                    htmlentities( $vcalendar->VEVENT->SUMMARY),
+                    $start, $end,
+                    PHP_EOL
+                );
+
+            }
+            else {
+                printf('<tr><td>%s</td></tr>', $attachment);
+
+            }
 
         }
 

@@ -46,7 +46,7 @@ class RawMessage {
 
 	protected function getpart( $mbox, $mid, $p, $partno ) {
 		$debug = false;
-		$debug = true;
+		// $debug = true;
 		$debugPart = $debug;
 		// $debugPart = true;
 

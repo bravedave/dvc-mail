@@ -8,7 +8,7 @@
 		http://creativecommons.org/licenses/by/4.0/
 
 	*/
-abstract class config extends dvc\_config {
+abstract class config extends dvc\config {
 
 	static $DATE_FORMAT = 'd/m/Y';
 	static $DATETIME_FORMAT = 'd/m/Y g:ia';
