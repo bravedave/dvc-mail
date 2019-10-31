@@ -19,6 +19,18 @@ $colStyle = 'width: 5rem; font-size: small;';
 ?>
 <style>
 html, body { font-family: sans-serif; }
+::-webkit-scrollbar {
+    width: .5em;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: darkgrey;
+	outline: 1px solid slategrey;
+}
 </style>
 <table style="width: 100%; font-family: sans-serif; border-bottom: 1px solid silver;" cellpadding="2">
     <tbody>
