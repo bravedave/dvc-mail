@@ -18,6 +18,7 @@
 		}
 	],
 	"require": {
+		"ext-mailparse": "*",
 		"php-ews/php-ews": "^1.0",
 		"bravedave/dvc": "dev-master",
 		"sabre/vobject": "^4.2"

@@ -269,25 +269,23 @@ class RawMessage {
 			 */
 			if ( $debugPart) sys::logger( sprintf( 'part type 2/RFC822(%s) : %s', strlen( $data), __METHOD__ ));
 
-			$emailParser = new EmailParser($data);
+			$msg = new MimeMessage( $data);
+			if ( 'html' == $this->messageType) {
+				$this->messageHTML .= sprintf( '<pre>%s</pre>', $msg->getHeaders());	// . "<br /><br />";
+				$this->messageHTML .= $msg->getMessage();	// . "<br /><br />";
 
-			// You can use some predefined methods to retrieve headers...
-			// $emailTo = $emailParser->getTo();
-			$emailSubject = (string)$emailParser->getSubject();
-			if ( !$emailSubject) $emailSubject = 'message';
-			if ( $debugPart) sys::logger( sprintf( 'part type 2 => %s : %s', $emailSubject, __METHOD__ ));
-			// $emailCc = $emailParser->getCc();
-			// ... or you can use the 'general purpose' method getHeader()
-			// $emailDeliveredToHeader = $emailParser->getHeader('Delivered-To');
-			$id = $emailParser->getHeader('Message-ID');
+			}
+			else {
+				$this->message .= $msg->getMessage()."\n\n";
 
-			// $emailBody = $emailParser->getPlainBody();
-			// sys::dump( [$p, $data]);
-			$attach = new attachment;
-			$attach->Name = sprintf( '%s.txt', $emailSubject);
-			$attach->ContentId = $id;
-			$attach->Content = $data;
-			$this->attachments[] = $attach;
+			}
+			if ( $debugPart) sys::logger( sprintf( 'part type 2 : %s', __METHOD__ ));
+
+			// $attach = new attachment;
+			// $attach->Name = sprintf( '%s.txt', $emailSubject);
+			// $attach->ContentId = $id;
+			// $attach->Content = $data;
+			// $this->attachments[] = $attach;
 
 		}
 		else {
