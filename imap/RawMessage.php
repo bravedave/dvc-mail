@@ -272,7 +272,7 @@ class RawMessage {
 			$msg = new MimeMessage( $data);
 			if ( 'html' == $this->messageType) {
 				$this->messageHTML .= sprintf( '<pre>%s</pre>', $msg->getHeaders());	// . "<br /><br />";
-				$this->messageHTML .= $msg->getMessage();	// . "<br /><br />";
+				$this->messageHTML .= sprintf( '<pre>%s</pre>', $msg->getMessage());	// . "<br /><br />";
 
 			}
 			else {

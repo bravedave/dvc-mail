@@ -24,50 +24,32 @@ class MimeMessage {
 
     }
 
+    protected function _getMessage( $msg) {
+        /**
+         * Return the body as a string (the MAILPARSE_EXTRACT parameter
+         * acts just as it does in extract_headers method.
+         */
+        $body = $msg->extract_body( MAILPARSE_EXTRACT_RETURN);
+        return htmlentities( $body);
+
+    }
+
     function getMessage() {
         $n = $this->msg->get_child_count();
 
         if ($n == 0) {
-            /**
-             * Return the body as a string (the MAILPARSE_EXTRACT parameter
-             * acts just as it does in extract_headers method.
-             */
-            $body = $this->msg->extract_body( MAILPARSE_EXTRACT_RETURN);
-            return htmlentities( $body);
-
-            /**
-             * This function tells you about any uuencoded attachments
-             * that are present in this part.
-             */
-            $uue = $this->msg->enum_uue();
-            if ($uue !== false) {
-                // var_dump($uue);
-                foreach($uue as $index => $data) {
-                    /**
-                     * $data => array("filename" => "original filename",
-                     *                "filesize" => "size of extracted file",
-                     *                );
-                     */
-
-                    printf("UUE[%d] %s (%d bytes)\n",
-                        $index, $data["filename"],
-                        $data["filesize"]);
-
-                    /* Display the extracted part to the output. */
-                    $this->msg->extract_uue($index, MAILPARSE_EXTRACT_OUTPUT);
-
-                }
-
-            }
+            return $this->_getMessage( $this->msg);
 
         }
         else {
             // Recurse and show children of that part
+            $parts = '';
             for ($i = 0; $i < $n; $i++) {
-                $part = $this->msg->get_child($i);
-                $this->display_part_info("child $i", $part);
+                $parts .= "child $i\n" . $this->_getMessage( $this->msg->get_child($i));
 
             }
+
+            return $parts;
 
         }
 
