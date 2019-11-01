@@ -284,7 +284,7 @@ class RawMessage {
 			// $emailBody = $emailParser->getPlainBody();
 			// sys::dump( [$p, $data]);
 			$attach = new attachment;
-			$attach->Name = sprintf( '%s.msg', $emailSubject);
+			$attach->Name = sprintf( '%s.txt', $emailSubject);
 			$attach->ContentId = $id;
 			$attach->Content = $data;
 			$this->attachments[] = $attach;
