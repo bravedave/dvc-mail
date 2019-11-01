@@ -1314,13 +1314,13 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-1');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-1');
 
 		}
 
@@ -1330,13 +1330,13 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-1');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
 
 		}
 
