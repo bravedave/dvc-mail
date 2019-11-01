@@ -64,7 +64,7 @@ class MimeMessage {
         else {
             // Recurse and show children of that part
             for ($i = 0; $i < $n; $i++) {
-                $part =& $this->msg->get_child($i);
+                $part = $this->msg->get_child($i);
                 $this->display_part_info("$caption child $i", $part);
 
             }
