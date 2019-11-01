@@ -244,16 +244,17 @@ class client {
 		$ret->seen = $_headerInfo->Unseen == "U" ? 'no' : 'yes';
 		$ret->references = '';
 		if ( $mess->messageHTML) {
-			// sys::logger('has messageHTML');
+			// sys::logger( sprintf('has messageHTML(%s) : %s', strlen( $mess->messageHTML), __METHOD__));
 			// $ret->Body = utf8_decode( $mess->messageHTML);
+			// die( \htmlentities( $mess->messageHTML));
 			$ret->Body = $mess->messageHTML;
 			// die( $ret->Body);
 
 		}
-		else {
-			sys::logger('no messageHTML');
+		// else {
+		// 	sys::logger('no messageHTML');
 
-		}
+		// }
 
 		if ( $ret->Body) {
 			$ret->BodyType = 'HTML';

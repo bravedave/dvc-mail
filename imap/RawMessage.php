@@ -38,7 +38,11 @@ class RawMessage {
 
 			}
 
-			// sys::logger( sprintf('get parts :e: %s', __METHOD__));
+			if ( $debug) {
+				sys::logger( sprintf('get parts :e: %s', __METHOD__));
+				sys::trace( sprintf('exit : %s', __METHOD__));
+
+			}
 
 		}
 
@@ -106,9 +110,14 @@ class RawMessage {
 
 		// PARAMETERS : get all parameters, like charset, filenames of attachments, etc.
 		$params = [];
-		if ($p->parameters)
-			foreach ($p->parameters as $x)
+		if ($p->parameters) {
+			foreach ($p->parameters as $x) {
 				$params[strtolower($x->attribute)] = $x->value;
+				// if ( $debug) \sys::logger( sprintf('parameter %s => %s : %s', $x->attribute, $x->value, __METHOD__));
+
+			}
+
+		}
 
 		if ( isset( $p->dparameters )) {
 			if ($p->dparameters) {
@@ -207,17 +216,23 @@ class RawMessage {
 		}
 
 		// TEXT
-		if ($p->type==0 && $data) {
-			// Messages may be split in different parts because of inline attachments,
-			// so append parts together with blank row.
+		if ($p->type == 0 && $data) {
+			/**
+			 * Messages may be split in different parts because
+			 * of inline attachments, so append parts together
+			 * with blank row.
+			 *  */
 
-			//~ if ( $debug) sys::logger( sprintf( 'encoding : %s : %s',  $p->encoding, $data));
+			// if ( $debug) sys::logger( sprintf( 'encoding : %s : %s',  $p->encoding, $data));
 			//~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
 			if ( strtolower($p->subtype)=='plain') {
 				$this->messageType = 'text';
-				$this->message .= quoted_printable_decode( trim( $data)) . "\n\n";
-				if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s', mb_detect_encoding( $data), __METHOD__ ));
+				$tplus = quoted_printable_decode( trim( $data));
+				$this->message .= $tplus . "\n\n";
+				if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s',
+					mb_detect_encoding( $data),
+					\strlen(  $tplus), __METHOD__ ));
 				// die( $data);
 
 			}
@@ -232,7 +247,7 @@ class RawMessage {
 			else {
 				$this->messageType = 'html';
 				$this->messageHTML .= $data;	// . "<br /><br />";
-				if ( $debugPart) sys::logger( sprintf( 'html : %s', __METHOD__ ));
+				if ( $debugPart) sys::logger( sprintf( 'html(%s) : %s', strlen( $data), __METHOD__ ));
 
 			}
 
@@ -248,23 +263,61 @@ class RawMessage {
 		// but AOL uses type 1 (multipart), which is not handled here.
 		// There are no PHP functions to parse embedded messages,
 		// so this just appends the raw source to the main message.
-		elseif ($p->type==2 && $data) {
-			$this->message .= $data."\n\n";
-			if ( $debugPart) sys::logger( sprintf( 'part type 2 : %s', __METHOD__ ));
+		elseif ($p->type==2 && $p->subtype == 'RFC822' && $data) {
+			/**
+			 * embedded message "send as attachment"
+			 */
+			if ( $debugPart) sys::logger( sprintf( 'part type 2/RFC822(%s) : %s', strlen( $data), __METHOD__ ));
+
+			$emailParser = new EmailParser($data);
+
+			// You can use some predefined methods to retrieve headers...
+			// $emailTo = $emailParser->getTo();
+			$emailSubject = (string)$emailParser->getSubject();
+			if ( !$emailSubject) $emailSubject = 'message';
+			if ( $debugPart) sys::logger( sprintf( 'part type 2 => %s : %s', $emailSubject, __METHOD__ ));
+			// $emailCc = $emailParser->getCc();
+			// ... or you can use the 'general purpose' method getHeader()
+			// $emailDeliveredToHeader = $emailParser->getHeader('Delivered-To');
+			$id = $emailParser->getHeader('Message-ID');
+
+			// $emailBody = $emailParser->getPlainBody();
+			// sys::dump( [$p, $data]);
+			$attach = new attachment;
+			$attach->Name = sprintf( '%s.msg', $emailSubject);
+			$attach->ContentId = $id;
+			$attach->Content = $data;
+			$this->attachments[] = $attach;
 
 		}
+		else {
+			if ($p->type==2 && $data) {
+				// sys::dump( $params);
+				// sys::dump( [$p, $data]);
+				$this->message .= $data."\n\n";
+				if ( $debugPart) sys::logger( sprintf( 'part type 2(%s) : %s', strlen( $data), __METHOD__ ));
 
-		// SUBPART RECURSION
-		if ( isset( $p->parts )) {
-			if ( $p->parts ) {
-				foreach ($p->parts as $partno0=>$p2)
-					$this->getpart( $mbox, $mid, $p2, $partno.'.'.($partno0+1));  // 1.2, 1.2.1, etc.
+			}
+
+			// SUBPART RECURSION
+			if ( isset( $p->parts )) {
+				if ( $p->parts ) {
+					foreach ($p->parts as $partno0=>$p2) {
+						$this->getpart( $mbox, $mid, $p2, $partno.'.'.($partno0+1));  // 1.2, 1.2.1, etc.
+
+					}
+
+				}
 
 			}
 
 		}
 
-		if ( $debug) sys::logger( sprintf('exit : %s', __METHOD__));
+		if ( $debug) {
+			sys::logger( sprintf('messagetype : %s :: %s', $this->messageType, __METHOD__));
+			sys::logger( sprintf('exit : %s', __METHOD__));
+
+		}
 
 	}
 
