@@ -95,7 +95,7 @@ $account = $this->data->account;
 
 					}
 
-				})
+				});
 
 			});
 			</script>

@@ -404,11 +404,17 @@ class client {
 
 	}
 
-	protected function __construct( $server, $account, $password) {
+	protected function __construct( string $server, string $account, string $password) {
+		if ( preg_match('@^ssl://@', $server)) {
+			$this->_port = '993';
+			$this->_secure = 'ssl';
+			$server = preg_replace( '@^ssl://@', '', $server);
+
+		}
+
 		$this->_server = $server;
 		$this->_account = $account;
 		$this->_password = $password;
-
 
 	}
 
