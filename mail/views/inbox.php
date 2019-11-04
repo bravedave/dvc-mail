@@ -431,17 +431,42 @@ $(document).on( 'mail-messages', function( e, folder) {
 		// console.log( _data);
 		// console.log( _data.message);
 		// console.log( this);
-		if ( /^reply/.test( $(this).data('role')) && _to != undefined) {
-			j.to = _to;
+		let role = $(this).data('role');
+		console.log( role);
+		if ( /^reply(-all)?/.test( role)) {
 			j.in_reply_to = _data.message.messageid;
 			j.in_reply_to_msg = _data.message.uid;
 			j.in_reply_to_folder = _data.message.folder;
 
-			// console.log( j);
-			//~ console.log( 'reply', j.in_reply_to_msg = container.data('uid'));
+			if ( _to != undefined) {
+				j.to = _to;
+
+			}
+
+			if ( 'reply-all' == role && _to != undefined) {
+				let _ccs = [];
+				$('[data-role="cc"]', _document).each( function( i, el) {
+					let _el = $(el);
+					let _data = _el.data();
+
+					console.log( _data);
+					_ccs.push( _data.email);
+
+
+				});
+				// var e, a = [];
+				// e = container.data('to');
+				// if ( e != undefined) a.push(e);
+
+				// e = container.data('cc');
+				// if ( e != undefined) a.push(e);
+
+				if ( _ccs.length > 0) j.cc = _ccs.join(',');
+
+			}
 
 		}
-		else if ( /^forward/.test( $(this).data('role'))) {
+		else if ( 'forward' == role) {
 			j.forward_msg = _data.message.uid;
 			j.forward_folder = _data.message.folder;
 			//~ console.log( 'forward', j.forward_msg = container.data('uid'));
@@ -459,6 +484,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 		}
 		else {
+			console.table( j);
 			_brayworth_.modal({
 				title:'alert',
 				text:'no email program to run ..'
@@ -477,18 +503,6 @@ $(document).on( 'mail-messages', function( e, folder) {
 		$('[data-role="attachment-control"],  [data-role="tag-control"]', _wrap).each(function() {
 			$(this).remove();
 		});
-
-		if ( $(this).data('role') == 'reply-all-button') {
-			var e, a = [];
-			e = container.data('to');
-			if ( e != undefined) a.push(e);
-
-			e = container.data('cc');
-			if ( e != undefined) a.push(e);
-
-			if ( a.length) j.cc = a.join(',');
-
-		}
 
 	}
 
@@ -665,7 +679,6 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					}, 3000);
 
-
 					/* build a toolbar */
 					let btns = [];
 					( function() {
@@ -700,6 +713,16 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					( function() {
 						let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', () => { reply.call( btn, _data)});
+
+						btns.push( btn);
+
+					})();
+
+					( function() {
+						let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
 						btn
 						.addClass( params.btnClass)
 						.on('click', () => { reply.call( btn, _data)});

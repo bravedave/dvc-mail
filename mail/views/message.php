@@ -112,19 +112,28 @@ html, body { font-family: sans-serif; }
                     $ccs = explode( ',', $msg->CC);
                     if ( ( $icc = count( $ccs)) > 1) {
                         $uid = strings::rand();
-                        print htmlentities( $ccs[0]);
+                        printf( '<strong data-role="cc" data-email=%s>%s</strong>',
+                            json_encode( $ccs[0]),
+                            htmlentities( $ccs[0])
+                        );
                         printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $icc-1);
                         array_shift( $ccs);
                         $_ccs = [];
                         foreach( $ccs as $cc) {
-                            $_ccs[] = htmlentities( $cc);
+                            $_ccs[] = sprintf( '<strong data-role="cc" data-email=%s>%s</strong>',
+                                json_encode( $cc),
+                                htmlentities( $cc)
+                            );
 
                         }
                         printf( '<span style="display: none;" id="%s">, %s</a>', $uid, implode( ', ', $_ccs));
 
                     }
                     else {
-                        print htmlentities( $msg->CC);
+                        printf( '<strong data-role="cc" data-email=%s>%s</strong>',
+                            json_encode( $msg->CC),
+                            htmlentities( $msg->CC)
+                        );
 
                     } ?>
 
