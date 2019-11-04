@@ -590,7 +590,7 @@ class client {
 	}
 
 	public function open( $full = true, &$folder = 'default' ) {
-		$debug = false;
+		$debug = self::$debug;
 		// $debug = true;
 
 		if ( $this->_server) {
@@ -621,7 +621,7 @@ class client {
 			 * In postieIMAP.php edit the imap_open command to include the following.
 			 *
 			 */
-			$nogssapi = array("DISABLE_AUTHENTICATOR" => "GSSAPI");
+			$nogssapi = ['DISABLE_AUTHENTICATOR' => 'GSSAPI'];
 
 			if ( $full ) {
 				if ( $debug) sys::logger( sprintf( 'imap_open( %s, %s, %s)',
