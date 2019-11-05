@@ -95,7 +95,7 @@ class home extends dvc\mail\controller {
 			if ( $itemID = $this->getPost('id')) {
 				if ( $folder = $this->getPost('folder')) {
 					$inbox = dvc\mail\inbox::instance( $this->creds);
-					if ( $msg = $inbox->GetItemByMessageID( $itemID)) {
+					if ( $msg = $inbox->GetItemByMessageID( $itemID, true, $folder)) {
 						$inbox->SaveToFile( $msg, \config::MESSAGE_STORE() . trim( $msg->MessageID, ' ><'));
 						Json::ack( $action);
 
@@ -188,6 +188,14 @@ class home extends dvc\mail\controller {
 			false
 
 		);
+
+	}
+
+	public function fileload() {
+		// $msgID = 'CANptC-Wn6zZWLSc63b13g7FLWXiNviJrZeZ9if6yTQkYOzY7RQ@mail.gmail.com';
+		$msgID = 'CANptC-U-5mc8qXfSzj2E9xpr6GNG=TCyor2Bf6S_ae9grXcbqA@mail.gmail.com';
+		$inbox = dvc\mail\inbox::instance( $this->creds);
+		sys::dump( $inbox->ReadFromFile( \config::MESSAGE_STORE() . $msgID));
 
 	}
 

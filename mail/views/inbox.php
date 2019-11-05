@@ -449,7 +449,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 					let _el = $(el);
 					let _data = _el.data();
 
-					console.log( _data);
+					// console.log( _data);
 					_ccs.push( _data.email);
 
 
