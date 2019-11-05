@@ -318,11 +318,14 @@ class controller extends \Controller {
 
 			];
 
+			// sys::dump( $msg);
+
 			$this->render([
 				'title' => $this->title = $msg->Subject,
 				'template' => 'dvc\mail\pages\minimal',
 				'content' => 'message',
-				'navbar' => []
+				'navbar' => [],
+				'charset' => $msg->CharSet,
 
 			]);
 
@@ -381,6 +384,21 @@ class controller extends \Controller {
 			]);
 
 		}
+
+	}
+
+	protected function page( $params) {
+		$p = parent::page( $params);
+		if (  isset( $params['charset'])) {
+			if (  $params['charset']) {
+				$p->charset = $params['charset'];
+				sys::logger( sprintf('%s : %s', $params['charset'], __METHOD__));
+
+			}
+
+		}
+
+		return ( $p);
 
 	}
 

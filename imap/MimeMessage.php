@@ -10,11 +10,14 @@
 */
 
 namespace dvc\imap;
+use sys;
 
 class MimeMessage {
     protected $msg;
+    protected $original;
 
     function __construct( string $var) {
+        $this->original = $var;
         $this->msg = new \MimeMessage( "var", $var);
 
     }
@@ -29,8 +32,16 @@ class MimeMessage {
          * Return the body as a string (the MAILPARSE_EXTRACT parameter
          * acts just as it does in extract_headers method.
          */
-        $body = $msg->extract_body( MAILPARSE_EXTRACT_RETURN);
-        return htmlentities( $body);
+        try {
+            $body = $msg->extract_body( MAILPARSE_EXTRACT_RETURN);
+            return htmlentities( $body);
+
+        }
+        catch ( \Exception $e) {
+            // sys::dump( $this->original);
+            return $this->original;
+
+        }
 
     }
 

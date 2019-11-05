@@ -12,6 +12,7 @@
 namespace dvc\imap;
 
 use dvc\mail\attachment;
+use strings;
 use sys;
 
 class RawMessage {
@@ -52,7 +53,7 @@ class RawMessage {
 		$debug = false;
 		// $debug = true;
 		$debugPart = $debug;
-		// $debugPart = true;
+		$debugPart = true;
 
 		// if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
 
@@ -229,11 +230,15 @@ class RawMessage {
 			if ( strtolower($p->subtype)=='plain') {
 				$this->messageType = 'text';
 				$tplus = quoted_printable_decode( trim( $data));
+				// $tplus = \str_replace( chr(146), "'", $tplus);
+				// \file_put_contents( \config::dataPath() . 'output.txt', $data);
+				// $tplus = trim( $data);
+				// $this->message .= strings::replaceWordCharacters( $tplus) . "\n\n";
 				$this->message .= $tplus . "\n\n";
 				if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s',
 					mb_detect_encoding( $data),
 					\strlen(  $tplus), __METHOD__ ));
-				// die( $data);
+				// die( $tplus);
 
 			}
 			elseif ( strtolower($p->subtype)=='rfc822-headers')
@@ -243,16 +248,17 @@ class RawMessage {
 				$this->attachments[ 'calendar.ics'] = $data;  // this is a problem if two files have same name
 
 			}
-
 			else {
 				$this->messageType = 'html';
-				$this->messageHTML .= $data;	// . "<br /><br />";
+				$this->messageHTML .= \str_replace( chr(146), "'", $data);	// . "<br /><br />";
 				if ( $debugPart) sys::logger( sprintf( 'html(%s) : %s', strlen( $data), __METHOD__ ));
+				// die( $this->messageHTML);
 
 			}
 
 			if ( isset( $params['charset'])) {
 				$this->charset = $params['charset'];  // assume all parts are same charset
+				if ( $debugPart) sys::logger( sprintf( 'charset : %s : %s', $this->charset, __METHOD__ ));
 
 			}
 
