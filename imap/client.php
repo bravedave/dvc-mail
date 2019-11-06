@@ -326,26 +326,21 @@ class client {
 			return ( false );
 
 		/* get information for this specific email */
-		$overview = imap_fetch_overview( $this->_stream, $email_number, 0);
 		//~ $message = imap_fetchbody($stream,$email_number,1);
-		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
-		// sys::dump( $headers);
-		//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
-		// $ret = array(
-		// 	'seen' => '',
-		// 	'Subject' => '',
-		// 	'From' => '',
-		// 	'To' => '',
-		// 	'MessageID' => '',
-		// 	'xmessage_id' => '',
-		// 	'Recieved' => '',
-		// 	'in_reply_to' => '',
-		// 	'references' => '',
-		// 	'X-CMS-Draft' => '' );
 
 		$ret = new \dvc\mail\message;
 
-		if ( isset( $overview[0])) {
+		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
+		if ( $headers) {
+			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
+			// sys::dump($headers);
+			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
+			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
+
+		}
+
+		if ( $overview = imap_fetch_overview( $this->_stream, $email_number, 0)) {
+
 			$msg = $overview[0];
 			// sys::dump( $msg);
 			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
@@ -361,8 +356,6 @@ class client {
 				$ret->fromEmail = $ea->email;
 
 			}
-
-			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
 
 			if ( isset( $msg->message_id)) $ret->xmessage_id = $msg->message_id;
 
@@ -391,14 +384,11 @@ class client {
 		}
 		// sys::dump( imap_fetchheader( $this->_stream, $email_number));
 		// sys::dump($ret);
-		// sys::dump($headers);
 		// sys::dump($overview);
 
 		// /* output the email body */
 		// $message = imap_fetchbody($inbox,$email_number,1);
 		// $output.= '<div class="body"><pre>'.$message.'</pre></div>';
-
-		$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
 
 		return ( $ret );
 

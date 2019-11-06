@@ -53,7 +53,7 @@ class RawMessage {
 		$debug = false;
 		// $debug = true;
 		$debugPart = $debug;
-		$debugPart = true;
+		// $debugPart = true;
 
 		// if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
 
