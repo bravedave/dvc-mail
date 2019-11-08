@@ -160,36 +160,10 @@ html, body { font-family: sans-serif; }
 
         </tr>
 
-    </tbody>
-
-</table>
 <?php
     // unset( $msg->src);
-    // foreach ( $msg->attachments as $attachment) {
-    //     unset( $attachment->Content);
-
-    // }
-    // sys::dump( $msg);
-    // sys::dump( $msg->attachments);
-    if ( 'text' == strtolower( $msg->BodyType)) {
-        printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
-
-    }
-    elseif ( $msg->hasMso()) {
-        printf( '<div message style="max-width: 100%%; overflow-x: auto;">%s %s %s</div>',
-            '<style>p { margin: 0; }</style>',
-            $msg->getMso(),
-            $msg->safehtml());
-
-    }
-    else {
-        printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
-
-    }
-
-    // unset( $msg->src);
     if ( count( $msg->attachments)) {   ?>
-<table style="width: 100%; font-family: sans-serif; border-top: 1px solid silver; margin-top: 1rem;" cellpadding="2">
+<tr><td style="padding: 0;"><table style="width: 100%;" cellpadding="2">
     <tbody>
     <?php
     foreach ( $msg->attachments as $key => $attachment) {
@@ -302,8 +276,37 @@ html, body { font-family: sans-serif; }
     } ?>
     </tbody>
 
+</table></td></tr>
+
+    </tbody>
+
 </table>
 
 
     <?php
     }
+
+    // unset( $msg->src);
+    // foreach ( $msg->attachments as $attachment) {
+    //     unset( $attachment->Content);
+
+    // }
+    // sys::dump( $msg);
+    // sys::dump( $msg->attachments);
+    if ( 'text' == strtolower( $msg->BodyType)) {
+        printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
+
+    }
+    elseif ( $msg->hasMso()) {
+        printf( '<div message style="max-width: 100%%; overflow-x: auto;">%s %s %s</div>',
+            '<style>p { margin: 0; }</style>',
+            $msg->getMso(),
+            $msg->safehtml());
+
+    }
+    else {
+        printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
+
+    }
+
+

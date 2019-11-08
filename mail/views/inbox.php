@@ -665,8 +665,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 					let _frame = this;
 					let params = {
 						message : _data.message,
-						toolbar : $( '<div class="btn-group btn-group-sm" />'),
-						btnClass : 'btn btn-outline-secondary px-3'
+						toolbar : $( '<div class="btn-group flex-grow-1 btn-group-sm" />'),
+						btnClass : 'btn btn-secondary px-3'
 
 					};
 
