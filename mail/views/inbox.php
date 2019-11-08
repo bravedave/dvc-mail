@@ -930,6 +930,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 					let els = $('[message] [style]', _frame.contentDocument).each( function( i, el) {
 						let _el = $(el);
 						let width = String( _el.css('width')).replace(/px$/,'');
+						console.log( width);
 
 						if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.width)) {
 							_el.css({
