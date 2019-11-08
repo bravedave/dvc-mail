@@ -321,6 +321,13 @@ class controller extends \Controller {
 			// sys::dump( $msg);
 
 			$this->render([
+				'css' => [
+					sprintf('<link type="text/css" rel="stylesheet" media="all" href="%s" />',
+						strings::url( $this->route . '/normalizecss')
+
+					)
+
+				],
 				'title' => $this->title = $msg->Subject,
 				'template' => 'dvc\mail\pages\minimal',
 				'content' => 'message',
@@ -449,6 +456,17 @@ class controller extends \Controller {
 
 	public function localjs() {
 		print '/* placeholder for local scripts */';
+
+	}
+
+	public function normalizecss() {
+		\cssmin::viewcss([
+			'debug' => false,
+			'libName' => 'mail/normalise',
+			'cssFiles' => [__DIR__ . '/normalize.css'],
+			'libFile' => \config::tempdir()  . '_mail_normalize.css'
+
+		]);
 
 	}
 
