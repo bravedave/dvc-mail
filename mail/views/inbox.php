@@ -696,56 +696,10 @@ $(document).on( 'mail-messages', function( e, folder) {
 					})();
 
 					( function() {
-						if ( _brayworth_.browser.isMobileDevice) return;
-
-						let btn = $('<button type="button"><i class="fa fa-print" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', function( e) {
-							_frame.focus();
-							_frame.contentWindow.print();
-
-						});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
-						let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', () => { reply.call( btn, _data)});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
-						let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', () => { reply.call( btn, _data)});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
-						let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', () => { reply.call( btn, _data)});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
 						let defaultFolders = $(document).data( 'default_folders');
 
 						if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
-							let btn = $('<button type="button"><i class="fa fa-trash" /></button>');
+							let btn = $('<button type="button" data-role="trash"><i class="fa fa-trash" /></button>');
 							btn
 							.attr('title', 'move to '+defaultFolders.Trash)
 							.addClass( params.btnClass)
@@ -777,7 +731,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 						let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
 						// console.log( key, lastFolders);
 						if ( !!lastFolders) {
-							let btn = $('<button type="button"><i class="fa fa-flip-horizontal fa-share-square-o" /></button>');
+							let btn = $('<button type="button" data-role="move"><i class="fa fa-flip-horizontal fa-share-square-o" /></button>');
 							btn
 							.attr('title', 'move ')
 							.addClass( params.btnClass)
@@ -852,6 +806,36 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					})();
 
+					( function() {
+						let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', () => { reply.call( btn, _data)});
+
+						btns.push( btn);
+
+					})();
+
+					( function() {
+						let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', () => { reply.call( btn, _data)});
+
+						btns.push( btn);
+
+					})();
+
+					( function() {
+						let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', () => { reply.call( btn, _data)});
+
+						btns.push( btn);
+
+					})();
+
 					(function() {
 						let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
 
@@ -865,6 +849,22 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 							window.open( _data.url, '_blank', 'toolbar=yes,menubar=no');
 							$('#<?= $uidViewer ?>').trigger('clear');
+
+						});
+
+						btns.push( btn);
+
+					})();
+
+					( function() {
+						if ( _brayworth_.browser.isMobileDevice) return;
+
+						let btn = $('<button type="button"><i class="fa fa-print" /></button>');
+						btn
+						.addClass( params.btnClass)
+						.on('click', function( e) {
+							_frame.focus();
+							_frame.contentWindow.print();
 
 						});
 
