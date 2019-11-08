@@ -665,8 +665,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 					let _frame = this;
 					let params = {
 						message : _data.message,
-						toolbar : $( '<div class="btn-toolbar" />'),
-						btnClass : 'btn btn-sm btn-light px-3'
+						toolbar : $( '<div class="btn-group btn-group-sm" />'),
+						btnClass : 'btn btn-outline-secondary px-3'
 
 					};
 
@@ -699,7 +699,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 						let defaultFolders = $(document).data( 'default_folders');
 
 						if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
-							let btn = $('<button type="button" data-role="trash"><i class="fa fa-trash" /></button>');
+							let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="fa fa-trash" /></button>');
 							btn
 							.attr('title', 'move to '+defaultFolders.Trash)
 							.addClass( params.btnClass)
@@ -837,7 +837,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 					})();
 
 					(function() {
-						let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
+						let btn = $('<button type="button flex-shrink-1"><i class="fa fa-external-link" /></button>');
 
 						btn
 						.attr('title', 'pop out')
@@ -912,7 +912,8 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					btns.forEach( element => { element.appendTo( params.toolbar); });
 
-					params.toolbar.prependTo( '#<?= $uidViewer ?>');
+					$('<div class="btn-toolbar" />').append( params.toolbar).prependTo( '#<?= $uidViewer ?>');
+
 					frame.css('height','calc(100% - ' + params.toolbar.height() + 'px)');
 
 					if ( !_brayworth_.browser.isMobileDevice) {
@@ -1348,13 +1349,13 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-0 px-sm-1');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-0 px-sm-1');
 
 		}
 
@@ -1364,13 +1365,13 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-0 px-sm-1');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0 px-sm-1');
 
 		}
 
