@@ -39,8 +39,10 @@ html, body { font-family: sans-serif; }
                 <span style="float: right;"><?= strings::asLocalDate( $msg->Recieved, $time = true) ?></span>
                 <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
                 <?php
+                $_style = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
                 if ( $this->data->default_folders['Sent'] == $msg->Folder) {
-                    printf( '<small>to&nbsp;</small><strong data-role="from" data-email=%s>%s</strong>',
+                    printf( '<div style="%s"><small>to&nbsp;</small><strong data-role="from" data-email=%s>%s</strong></div>',
+                        $_style,
                         json_encode( $msg->To),
                         htmlentities( $msg->To)
                     );
@@ -48,14 +50,16 @@ html, body { font-family: sans-serif; }
                 }
                 else {
                     if ( $msg->From && $msg->From != $msg->fromEmail) {
-                        printf( '<strong data-role="from" data-email=%s>%s</strong>',
+                        printf( '<div style="%s"><strong data-role="from" data-email=%s>%s</strong></div>',
+                            $_style,
                             json_encode( $msg->From),
                             htmlentities( $msg->From)
                         );
 
                     }
                     else {
-                        printf( '<strong data-role="from" data-email=%s>%s</strong>',
+                        printf( '<div style="%s"><strong data-role="from" data-email=%s>%s</strong></div>',
+                            $_style,
                             json_encode( $msg->fromEmail),
                             $msg->fromEmail
                         );
@@ -168,18 +172,18 @@ html, body { font-family: sans-serif; }
     // sys::dump( $msg);
     // sys::dump( $msg->attachments);
     if ( 'text' == strtolower( $msg->BodyType)) {
-        printf( '<div message><pre>%s</pre></div>', $msg->Body);
+        printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
 
     }
     elseif ( $msg->hasMso()) {
-        printf( '<div message style="max-width: 100%%">%s %s %s</div>',
+        printf( '<div message style="max-width: 100%%; overflow-x: auto;">%s %s %s</div>',
             '<style>p { margin: 0; }</style>',
             $msg->getMso(),
             $msg->safehtml());
 
     }
     else {
-        printf( '<div message style="max-width: 100%%">%s</div>', $msg->safehtml());
+        printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
 
     }
 
