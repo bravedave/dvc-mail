@@ -915,6 +915,17 @@ $(document).on( 'mail-messages', function( e, folder) {
 					params.toolbar.prependTo( '#<?= $uidViewer ?>');
 					frame.css('height','calc(100% - ' + params.toolbar.height() + 'px)');
 
+					if ( !_brayworth_.browser.isMobileDevice) {
+						$(_frame.contentDocument).on('keydown', function( e) {
+							if ( 27 == e.keyCode) {
+								window.focus();
+
+							}
+
+						});
+
+					}
+
 					$(document)
 					.trigger( 'mail-message-toolbar', params)
 					.trigger( 'mail-message-loaded', {
