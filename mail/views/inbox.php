@@ -932,7 +932,7 @@ $(document).on( 'mail-messages', function( e, folder) {
 						let width = String( _el.css('width')).replace(/px$/,'');
 						console.log( width);
 
-						if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.width)) {
+						if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.innerWidth) {
 							_el.css({
 								'width':'',
 								'max-width':'100%'
