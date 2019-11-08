@@ -927,6 +927,23 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					}
 
+					let els = $('[message] [style]', _frame.contentDocument).each( function( i, el) {
+						let _el = $(el);
+						let width = String( _el.css('width')).replace(/px$/,'');
+
+						if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.width)) {
+							_el.css({
+								'width':'',
+								'max-width':'100%'
+
+							});
+
+						}
+						// console.log( width);
+
+					});
+					// console.log( els)
+
 					$(document)
 					.trigger( 'mail-message-toolbar', params)
 					.trigger( 'mail-message-loaded', {
