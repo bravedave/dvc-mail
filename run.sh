@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# this script is for linux, perhaps MAC ? environments
+
 # this script will make the environment available on
 # port 8080 - you can make it availabled o port 80
 # running as root
