@@ -124,11 +124,6 @@ class home extends dvc\mail\controller {
 
 	}
 
-	public function folders() {
-		sys::dump( $this->_folders());
-
-	}
-
 	public function localjs() {
 		printf( '
 		$(document).on( \'mail-messages-context\', function( e, params) {
@@ -180,17 +175,6 @@ class home extends dvc\mail\controller {
 
 	}
 
-	public function inbox() {
-		sys::dump( $this->_messages([
-			'folder' => 'Inbox'
-			]),
-			sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
-			false
-
-		);
-
-	}
-
 	public function fileload() {
 		// $msgID = 'CANptC-Wn6zZWLSc63b13g7FLWXiNviJrZeZ9if6yTQkYOzY7RQ@mail.gmail.com';
 		// $msgID = 'CANptC-U-5mc8qXfSzj2E9xpr6GNG=TCyor2Bf6S_ae9grXcbqA@mail.gmail.com';
@@ -226,6 +210,32 @@ class home extends dvc\mail\controller {
 			'secondary' => ['index']
 
 		]);
+
+	}
+
+	public function tests( $test = null) {
+
+		if ( 'folders' == $test) {
+			sys::dump( $this->_folders());
+			
+		}
+		elseif ( 'messages' == $test) {
+			sys::dump( $this->_messages([
+				'folder' => 'Inbox'
+				]),
+				sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
+				false
+	
+			);
+
+		}
+		elseif ( 'searchall' == $test) {
+			sys::dump( $this->_searchall([
+				'term' => 'error',
+
+			]));
+
+		}
 
 	}
 

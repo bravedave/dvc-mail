@@ -289,6 +289,60 @@ class controller extends \Controller {
 
 	}
 
+	protected function _searchAllDeep( $fldr, &$options, &$messages) {
+		$msgs = $this->_search([
+			'creds' => $options['creds'],
+			'folder' => $fldr->fullname,
+			'term' => $options['term'],
+
+		]);
+
+		foreach ( $msgs as $msg) {
+			$messages[] = $msg;
+
+		}
+
+		if ( isset( $fldr->subFolders)) {
+			foreach( $fldr->subFolders as $folder) {
+				$this->_searchAllDeep( $folder, $options, $messages);
+
+			}
+
+		}
+
+	}
+
+	protected function _searchall( array $params = []) : array {
+
+		$options = array_merge([
+			'creds' => $this->creds,
+			'term' => ''
+
+		], $params);
+
+
+		$folders = $this->_folders( 'json');
+		// sys::dump( $folders);
+
+		$messages = [];
+
+		foreach( $folders as $folder) {
+			$this->_searchAllDeep( $folder, $options, $messages);
+
+		}
+
+		// return $folders;
+		return $messages;
+
+		$a = [];
+		foreach ( $messages as $message)
+			$a[] = $message->asArray();
+
+		return $a;
+		// return $messages;
+
+	}
+
 	protected function _view( array $params = []) {
 		$options = array_merge([
 			'creds' => $this->creds,
