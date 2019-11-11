@@ -713,7 +713,7 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 			}
 
 			let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
-			let frame = $('<iframe class="w-100 border-0" style="height: 100%;" />')
+			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="height: 100%;" />');
 			frame.on( 'load', function( e) {
 				// console.log( this, e);
 				let _frame = this;
@@ -966,7 +966,11 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 				$('<div class="btn-toolbar" />').append( params.toolbar).prependTo( '#<?= $uidViewer ?>');
 
-				frame.css('height','calc(100% - ' + params.toolbar.height() + 'px)');
+				// let h = params.toolbar.height();
+				// let f = $('body>footer');
+				// if ( f.length > 0) h += f.height();
+
+				frame.css('height','calc(100% - 3rem)');
 
 				if ( !_brayworth_.browser.isMobileDevice) {
 					$(_frame.contentDocument).on('keydown', function( e) {
@@ -1010,9 +1014,12 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 			frame.attr('src', url);
 
+			// let frameWrap = $('<div class="pl-sm-1 h-100" />').append( frame);
+
 			$('#<?= $uidViewer ?>')
 			.data('message', _data.message.messageid)
-			.html('').append( frame);
+			.html('')
+			.append( frame);
 
 			$('> .row', _me.parent()).each( function() {
 				$(this).removeClass( '<?= $activeMessage ?>');
@@ -1608,39 +1615,41 @@ $(document).on( 'mail-set-view', function() {
 		$('#<?= $uidMsgs ?>').attr( 'class', 'd-none h-100');
 
 		$('#<?= $uidSearchAll ?>').attr( 'class', 'col-md-5 h-100');
-		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0 px-sm-1');
+		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0');
 
 		$('input[type="search"]', '#<?= $uidSearchAll ?>').focus();
 
 	}
 	else if ( 'condensed' == view) {
+		$('#<?= $uidSearchAll ?>').attr( 'class', 'd-none');
 		$('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-0 px-sm-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-0');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-0 px-sm-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-0');
 
 		}
 
 	}
 	else if ( 'wide' == view) {
+		$('#<?= $uidSearchAll ?>').attr( 'class', 'd-none');
 		$('#<?= $uidFolders ?>').attr('class', 'd-none d-sm-block col-sm-3 col-md-2 h-100');
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-0 px-sm-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-0');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0 px-sm-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0');
 
 		}
 
