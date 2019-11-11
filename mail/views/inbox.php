@@ -41,6 +41,93 @@
 </style>
 
 <div class="row h-100">
+	<div class="d-none" id="<?= $uidSearchAll = strings::rand() ?>" style="overflow: auto;" data-role="mail-search-all">
+		<form id="<?= $uidSearchAll ?>_form">
+			<input type="hidden" name="action" value="search-all-messages" />
+			<h6>Search All Folders</h6>
+
+			<div class="form-group row">
+				<div class="col">
+					<input
+						type="search"
+						class="form-control"
+						name="term"
+						placeholder="term"
+						required />
+
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+				<div class="col-md-6">
+					<label for="<?= $uid = strings::rand() ?>">from</label>
+					<input type="date" class="form-control" name="from" id="<?= $uid ?>" />
+
+				</div>
+
+				<div class="col-md-6 pb-md-0 pb-1">
+					<label for="<?= $uid = strings::rand() ?>">to</label>
+					<input type="date" class="form-control" name="to" id="<?= $uid ?>" />
+
+				</div>
+
+			</div>
+
+			<div class="row">
+				<div class="col text-right">
+					<button class="btn btn-outline-primary">search</button>
+
+				</div>
+
+			</div>
+
+		</form>
+
+		<div class="row" id="<?= $uidSearchAll ?>_buttons">
+			<div class="col">
+				[<a href="#" id="<?= $uid = strings::rand() ?>set">set all</a>]
+				[<a href="#" id="<?= $uid ?>unset">unset all</a>]
+
+			</div>
+
+		</div>
+
+		<script>
+		$(document).ready( function() {
+			$('#<?= $uid ?>set').on( 'click', function( e) {
+				e.stopPropagation();e.preventDefault();
+
+				$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( function( i, el) {
+					let _el = $(el);
+					_el.prop('checked', true);
+
+				});
+
+			});
+
+			$('#<?= $uid ?>unset').on( 'click', function( e) {
+				e.stopPropagation();e.preventDefault();
+
+				$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( function( i, el) {
+					let _el = $(el);
+					_el.prop('checked', false);
+
+				});
+
+			});
+
+		});
+
+		</script>
+
+		<div class="form-group row">
+			<div id="<?= $uidSearchAll ?>_folders" class="col"></div>
+
+		</div>
+
+	</div>
+
 	<div class="d-none" id="<?= $uidFolders = strings::rand() ?>" style="overflow: auto;" data-role="mail-folder-list">folders ...</div>
 	<div class="d-none" id="<?= $uidMsgs = strings::rand() ?>" style="overflow-y: auto;" data-role="mail-messages-list">messages ...</div>
 	<div class="d-none" id="<?= $uidViewer = strings::rand() ?>" data-role="mail-message-viewer"></div>
@@ -76,21 +163,37 @@ $(document).on( 'mail-clear-reloader', function( e) {
 		// console.log( folders);
 
 		let ul = $('<ul class="list-unstyled" />');
+		let searchUL = $('<ul class="list-unstyled" />');
+
 		let keys = {};
+		let searchKeys = {};
 
 		let map = '';
+		let uidx = 0;
 		let _list_subfolders = function( i, fldr) {
 			// console.log( fldr);
 
 			let ctrl = $('<div class="text-truncate" />').html( fldr.name);
-			let li = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo(ul).append( ctrl);
-			keys[fldr.fullname] = li;
+			let searchCtrl = $('<div class="form-check" />');
+			let chkId = '<?= $uidSearchAll ?>_chk_' + String( ++uidx);
+			searchCtrl.append( $('<input type="checkbox" class="form-check-input" name="path" checked />')
+				.attr( 'id', chkId)
+				.data( 'folder', fldr.fullname));
+			searchCtrl.append( $('<label class="form-check-label" />').attr( 'for', chkId));
 
-			let idx = fldr.fullname.lastIndexOf(fldr.delimiter);
+			$('label', searchCtrl).html( fldr.name);
+
+			let li = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo( ul).append( ctrl);
+			let searchLI = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo( searchUL).append( searchCtrl);
+
+			keys[ fldr.fullname] = li;
+			searchKeys[ fldr.fullname] = searchLI;
+
+			let idx = fldr.fullname.lastIndexOf( fldr.delimiter);
 			if ( idx > 0) {
 				let realPath = fldr.fullname.substring(0, idx).trim();
-				if ( keys.hasOwnProperty(realPath)) {
-					let realName = fldr.fullname.substring(idx + 1).trim();
+				if ( keys.hasOwnProperty( realPath)) {
+					let realName = fldr.fullname.substring( idx + 1).trim();
 					// console.log( realPath, ':', realName);
 					ctrl.html( realName);
 					// console.log( realPath, keys[realPath][0]);
@@ -99,7 +202,6 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 						let folderState = localStorage.getItem('mailFolderState');
 						folderState = !!folderState ? JSON.parse( folderState) : {};
-
 
 						let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right" />');
 						caret.on( 'click', function( e) {
@@ -144,9 +246,38 @@ $(document).on( 'mail-clear-reloader', function( e) {
 					}
 					li.appendTo( _ul);
 
-				} else { li.appendTo( ul); }
+				}
+				else {
+					li.appendTo( ul);
 
-			} else { li.appendTo( ul); }
+				}
+
+				if ( searchKeys.hasOwnProperty( realPath)) {
+					let realName = fldr.fullname.substring( idx + 1).trim();
+					// console.log( realPath, ':', realName);
+					$('label', searchCtrl).html( realName);
+
+					let _searchUL = $('> ul', searchKeys[realPath]);
+					if ( _searchUL.length == 0) {
+						_searchUL = $('<ul class="list-unstyled pl-2" />').appendTo( searchKeys[realPath]);
+
+					}
+
+					searchLI.appendTo( _searchUL);
+
+				}
+				else {
+					searchLI.appendTo( searchUL);
+
+				}
+
+			}
+			else {
+				li.appendTo( ul);
+				searchLI.appendTo( searchUL);
+
+			}
+			/** [ recon flag ] */
 
 
 			ctrl
@@ -316,6 +447,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 		$.each( folders, _list_subfolders);
 		$('#<?= $uidFolders ?>').append( ul);
+		$('#<?= $uidSearchAll ?>_folders').html('').append( searchUL);
 		//~ console.log( folders);
 
 		if ( !cacheData) $(document).trigger('mail-folderlist-complete');
@@ -378,9 +510,10 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 });
 
-$(document).on( 'mail-messages', function( e, folder) {
-
-	$(document).trigger( 'mail-clear-reloader');
+(function() {
+	let defaultFolders = <?= json_encode( $this->data->default_folders) ?>;
+	let seed = String( parseInt( Math.random() * 1000000));
+	let seedI = 0;
 
 	let reply = function( _data) {
 		let frame = $('iframe', '#<?= $uidViewer ?>');
@@ -504,404 +637,217 @@ $(document).on( 'mail-messages', function( e, folder) {
 			$(this).remove();
 		});
 
-	}
+	};
 
-	let _list_messages = function( messages, cacheData) {
-		let seed = String( parseInt( Math.random() * 1000000));
-		$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
-			$(el).data('seen', false);
+	let _list_message_row = function( msg) {
+		let email = msg.from;
+		if ( msg.folder == defaultFolders.Sent) email = msg.to;
+		let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
+		if ( 'yes' == msg.answered) $('<?= $answered ?>').prependTo( from);
+		if ( 'no' == msg.seen) $('<?= $unseen ?>').prependTo( from);
 
-		});
+		let received = $('<div class="col-3 pl-0 text-right text-truncate small" />');
+		let subject = $('<div class="col-9 text-truncate" subject />').html( msg.subject).attr( 'title', msg.subject);
 
-		$.each( messages, function( i, msg) {
-			let row = $('[msgid="'+msg.messageid+'"]');
-			if ( row.length > 0) {
-				row.data('seen', true);
-				// console.log('found : '+msg.messageid);
-				if ( 'no' == msg.seen) {
-					let _unseen = $('[unseen]', row);
-					if ( _unseen.length == 0 ) {
-						$('[from]', row).prepend( '<?= $unseen ?>');
+		let time = _brayworth_.moment( msg.received);
+		let stime = time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD') ? time.format('LT') : time.format('l')
+		// console.log( time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD'), stime);
+		received.html( stime);
 
-					}
+		let rowID = 'uid_' + String( seed) + '_' + String(seed * seedI++);
+		row = $('<div class="row border-bottom border-light py-2" />');
+		row
+		.attr('id', rowID)
+		.attr('msgid', msg.messageid)
+		.data('seen', true)
+		.data('received', time.format( 'YYYYMMDDHHmmss'));
 
-				}
-				else {
-					$('[unseen]', row).remove();
+		let cell = $('<div class="col" />').appendTo( row);
 
-				}
+		$('<div class="row" />').append( from).appendTo( cell);
+		$('<div class="row" />').append( subject).append( received).appendTo( cell);
 
-				if ( 'yes' == msg.answered) {
-					let _answered = $('[answered]', row);
-					if ( _answered.length == 0 ) {
-						$('[from]', row).prepend( '<?= $answered ?>');
+		row
+		.data( 'folder', msg.folder)
+		.data( 'message', msg)
+		.addClass( 'pointer')
+		.on( 'view', function( e) {
+			let _me = $(this);
+			let _data = _me.data();
+			let msg = _data.message;
 
-					}
-
-				}
-
-				return;
-
-			}
-			// console.log('build : [msgid="'+msg.messageid+'"]');
-
-			// console.log( msg);
-			// msg.folder ==
-			let email = msg.from;
-			if ( msg.folder == defaultFolders.Sent) email = msg.to;
-			let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
-			if ( 'yes' == msg.answered) {
-				$('<?= $answered ?>').prependTo( from);
-
-			}
-
-			if ( 'no' == msg.seen) {
-				$('<?= $unseen ?>').prependTo( from);
-
-			}
-
-			let received = $('<div class="col-3 pl-0 text-right text-truncate small" />');
-			let subject = $('<div class="col-9 text-truncate" subject />').html( msg.subject).attr( 'title', msg.subject);
-
-			let time = _brayworth_.moment( msg.received);
-			let stime = time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD') ? time.format('LT') : time.format('l')
-			// console.log( time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD'), stime);
-			received.html( stime);
-
-			let rowID = 'uid_' + String( seed) + '_' + String(seed * i);
-			row = $('<div class="row border-bottom border-light py-2" />');
-			row
-			.attr('id', rowID)
-			.attr('msgid', msg.messageid)
-			.data('seen', true)
-			.data('received', time.format( 'YYYYMMDDHHmmss'));
-
-			if ( 'undefined' == typeof $('#<?= $uidViewer ?>').data('first')) {
-				$('#<?= $uidViewer ?>').data('first', rowID);
-
-			}
-
-			/**
-			 *	find the next location to insert
-			 *	based on time
-			 */
-			let nextMsg = false;
-			$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
-				// $(el).data('seen', false);
-				let _el = $(el);
-				let _data = _el.data();
-
-				if ( _data.received < time.format( 'YYYYMMDDHHmmss')) {
-					nextMsg = _el;
-					return false;
-
-				}
-
-			});
-
-			if ( !!nextMsg) {
-				row.insertBefore( nextMsg);
+			let _next = _me.next();
+			if ( _next.length > 0) {
+				$('#<?= $uidViewer ?>').data('next', _next.attr('id'))
 
 			}
 			else {
-				row.appendTo( '#<?= $uidMsgs ?>');
+				$('#<?= $uidViewer ?>').removeData('next');
 
 			}
 
-			let cell = $('<div class="col" />').appendTo( row);
+			let _prev = _me.prev();
+			if ( _prev.length > 0) {
+				$('#<?= $uidViewer ?>').data('prev', _prev.attr('id'))
 
-			$('<div class="row" />').append( from).appendTo( cell);
-			$('<div class="row" />').append( subject).append( received).appendTo( cell);
+			}
+			else {
+				$('#<?= $uidViewer ?>').removeData('prev');
 
-			row
-			.data( 'folder', msg.folder)
-			.data( 'message', msg)
-			.addClass( 'pointer')
-			.on( 'view', function( e) {
-				let _me = $(this);
-				let _data = _me.data();
-				let msg = _data.message;
+			}
 
-				let _next = _me.next();
-				if ( _next.length > 0) {
-					$('#<?= $uidViewer ?>').data('next', _next.attr('id'))
+			// console.log( msg);
+			$(document).trigger('mail-view-message');
+			if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) return;
 
-				}
-				else {
-					$('#<?= $uidViewer ?>').removeData('next');
+			let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
+			let params = [
+				'msg=' + encodeURIComponent( _data.message.messageid),
+				'folder=' + encodeURIComponent( _data.folder)
 
-				}
+			];
 
-				let _prev = _me.prev();
-				if ( _prev.length > 0) {
-					$('#<?= $uidViewer ?>').data('prev', _prev.attr('id'))
+			if ( Number( user_id) > 0) {
+				params.push('user_id=' + user_id);
 
-				}
-				else {
-					$('#<?= $uidViewer ?>').removeData('prev');
+			}
 
-				}
+			let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
+			let frame = $('<iframe class="w-100 border-0" style="height: 100%;" />')
+			frame.on( 'load', function( e) {
+				// console.log( this, e);
+				let _frame = this;
+				let params = {
+					message : _data.message,
+					toolbar : $( '<div class="btn-group flex-grow-1 btn-group-sm" />'),
+					btnClass : 'btn btn-secondary px-3'
 
-				// console.log( msg);
-				$(document).trigger('mail-view-message');
-				if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) return;
+				};
 
-				let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
-				let params = [
-					'msg=' + encodeURIComponent( _data.message.messageid),
-					'folder=' + encodeURIComponent( _data.folder)
+				frame[0].contentWindow.setTimeout( () => {
+					let id = params.message.messageid;
+							// console.log( id);
+							// console.log( $('[msgid="'+id+'"]'));
 
-				];
+					$('[msgid="'+id+'"]').trigger('mark-seen');
 
-				if ( Number( user_id) > 0) {
-					params.push('user_id=' + user_id);
+				}, 3000);
 
-				}
+				/* build a toolbar */
+				let btns = [];
+				( function() {
+					let btn = $('<button type="button" class="d-md-none"><i class="fa fa-angle-left" /></button>');
+					btn
+					.addClass( params.btnClass)
+					.on('click', function( e) {
+						$('#<?= $uidViewer ?>').removeData('next');
+						$(document).trigger('mail-view-message-list');
 
-				let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
-				let frame = $('<iframe class="w-100 border-0" style="height: 100%;" />')
-				frame.on( 'load', function( e) {
-					// console.log( this, e);
-					let _frame = this;
-					let params = {
-						message : _data.message,
-						toolbar : $( '<div class="btn-group flex-grow-1 btn-group-sm" />'),
-						btnClass : 'btn btn-secondary px-3'
+					});
 
-					};
+					btns.push( btn);
 
-					frame[0].contentWindow.setTimeout( () => {
-						let id = params.message.messageid;
-								// console.log( id);
-								// console.log( $('[msgid="'+id+'"]'));
+				})();
 
-						$('[msgid="'+id+'"]').trigger('mark-seen');
-
-					}, 3000);
-
-					/* build a toolbar */
-					let btns = [];
-					( function() {
-						let btn = $('<button type="button" class="d-md-none"><i class="fa fa-angle-left" /></button>');
+				( function() {
+					if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
+						let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="fa fa-trash" /></button>');
 						btn
-						.addClass( params.btnClass)
-						.on('click', function( e) {
-							$('#<?= $uidViewer ?>').removeData('next');
-							$(document).trigger('mail-view-message-list');
-
-						});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
-						let defaultFolders = $(document).data( 'default_folders');
-
-						if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
-							let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="fa fa-trash" /></button>');
-							btn
-							.attr('title', 'move to '+defaultFolders.Trash)
-							.addClass( params.btnClass)
-							.on( 'click', function( e) {
-								// _me is the active row
-								// console.log( _me[0]);
-								// return;
-								let id = params.message.messageid;
-								// console.log( id);
-								// console.log( $('[msgid="'+id+'"]'));
-
-								$('[msgid="'+id+'"]').trigger('execute-action', {
-									action : 'move-message',
-									targetFolder : defaultFolders.Trash
-
-								});
-
-								$('#<?= $uidViewer ?>').trigger('clear');
-
-							});
-
-							btns.push( btn);
-
-						}
-
-					})();
-
-					( function() {
-						let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
-						// console.log( key, lastFolders);
-						if ( !!lastFolders) {
-							let btn = $('<button type="button" data-role="move"><i class="fa fa-flip-horizontal fa-share-square-o" /></button>');
-							btn
-							.attr('title', 'move ')
-							.addClass( params.btnClass)
-							.on( 'click', function( e) {
-								let select = $('<select class="form-control" />');
-
-								let level = 0;
-								/**
-								 * you can set this:
-								 *
-								 * $(document).data('mail-archive-location', 'Archives/2019')
-								 */
-								let archiveFolder = String( $(document).data('mail-archive-location'));
-
-								let _list_subfolders = function( i, fldr) {
-
-									let opt = $('<option />')
-									.html( '&nbsp;'.repeat(level) + fldr.name)
-									.val(fldr.fullname);
-
-									if ( archiveFolder == fldr.fullname) {
-										opt.prop( 'selected', true);
-
-									}
-
-									opt.appendTo( select);
-
-									if ( !!fldr.subFolders) {
-										level ++;
-										$.each( fldr.subFolders, _list_subfolders);
-										level --;
-
-									}
-
-								};
-
-								$.each( JSON.parse( lastFolders), _list_subfolders);
-
-								let ig = $('<div class="input-group input-group-sm" />');
-								select.appendTo( ig);
-
-								let btn = $('<button type="button" class="btn btn-primary">move</button>');
-								$('<div class="input-group-prepend" />').append( btn).prependTo( ig);
-
-								// console.log( _data.message);
-
-								// $('<input type="hidden" name="folder" />').val( _data.message.folder).appendTo( frm);
-
-								btn
-								.on( 'click', function(e) {
-
-									let target = select.val();
-									// console.log( target);
-
-									let id = params.message.messageid;
-									$('[msgid="'+id+'"]').trigger('execute-action', {
-										action : 'move-message',
-										targetFolder : target
-
-									});
-
-								})
-
-								ig.insertAfter( this);
-								$(this).remove();
-
-							});
-
-							btns.push( btn);
-
-						}
-
-					})();
-
-					( function() {
-						let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', () => { reply.call( btn, _data)});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
-						let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', () => { reply.call( btn, _data)});
-
-						btns.push( btn);
-
-					})();
-
-					( function() {
-						let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', () => { reply.call( btn, _data)});
-
-						btns.push( btn);
-
-					})();
-
-					(function() {
-						let btn = $('<button type="button flex-shrink-1"><i class="fa fa-external-link" /></button>');
-
-						btn
-						.attr('title', 'pop out')
-						.data('url', url)
+						.attr('title', 'move to '+defaultFolders.Trash)
 						.addClass( params.btnClass)
 						.on( 'click', function( e) {
-							let _me = $(this);
-							let _data = _me.data();
+							// _me is the active row
+							// console.log( _me[0]);
+							// return;
+							let id = params.message.messageid;
+							// console.log( id);
+							// console.log( $('[msgid="'+id+'"]'));
 
-							window.open( _data.url, '_blank', 'toolbar=yes,menubar=no');
+							$('[msgid="'+id+'"]').trigger('execute-action', {
+								action : 'move-message',
+								targetFolder : defaultFolders.Trash
+
+							});
+
 							$('#<?= $uidViewer ?>').trigger('clear');
 
 						});
 
 						btns.push( btn);
 
-					})();
+					}
 
-					( function() {
-						if ( _brayworth_.browser.isMobileDevice) return;
+				})();
 
-						let btn = $('<button type="button"><i class="fa fa-print" /></button>');
+				( function() {
+					let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
+					// console.log( key, lastFolders);
+					if ( !!lastFolders) {
+						let btn = $('<button type="button" data-role="move"><i class="fa fa-flip-horizontal fa-share-square-o" /></button>');
 						btn
+						.attr('title', 'move ')
 						.addClass( params.btnClass)
-						.on('click', function( e) {
-							_frame.focus();
-							_frame.contentWindow.print();
+						.on( 'click', function( e) {
+							let select = $('<select class="form-control" />');
 
-						});
+							let level = 0;
+							/**
+								* you can set this:
+								*
+								* $(document).data('mail-archive-location', 'Archives/2019')
+								*/
+							let archiveFolder = String( $(document).data('mail-archive-location'));
 
-						btns.push( btn);
+							let _list_subfolders = function( i, fldr) {
 
-					})();
+								let opt = $('<option />')
+								.html( '&nbsp;'.repeat(level) + fldr.name)
+								.val(fldr.fullname);
 
-					$('a[data-role="extra-recipients"]', _frame.contentDocument).each( function( i, el) {
-						$(el).on( 'click', function( e) {
-							e.stopPropagation();e.preventDefault();
+								if ( archiveFolder == fldr.fullname) {
+									opt.prop( 'selected', true);
 
-							let _me = $(this);
-							let _data = _me.data();
-							let target = _data.target;
-							$('#' + target, _frame.contentDocument).css('display','');
-							// console.log( target, $('#' + target, _frame.contentDocument)[0]);
-							_me.remove();	// ciao ..
+								}
 
-						});;
+								opt.appendTo( select);
 
-					});
+								if ( !!fldr.subFolders) {
+									level ++;
+									$.each( fldr.subFolders, _list_subfolders);
+									level --;
 
-					let imgs = $('img[data-safe-src]', _frame.contentDocument);
-					if ( imgs.length > 0) {
-						let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');
-						btn
-						.addClass( params.btnClass)
-						.on('click', function( e) {
-							$('img[data-safe-src]', _frame.contentDocument).each( function( i, img) {
-								let _img = $(img);
+								}
 
-								_img.attr( 'src', _img.attr( 'data-safe-src'));
-								_img.removeAttr( 'data-safe-src');
+							};
 
-							});
+							$.each( JSON.parse( lastFolders), _list_subfolders);
 
-							_frame.focus();
+							let ig = $('<div class="input-group input-group-sm" />');
+							select.appendTo( ig);
+
+							let btn = $('<button type="button" class="btn btn-primary">move</button>');
+							$('<div class="input-group-prepend" />').append( btn).prependTo( ig);
+
+							// console.log( _data.message);
+
+							// $('<input type="hidden" name="folder" />').val( _data.message.folder).appendTo( frm);
+
+							btn
+							.on( 'click', function(e) {
+
+								let target = select.val();
+								// console.log( target);
+
+								let id = params.message.messageid;
+								$('[msgid="'+id+'"]').trigger('execute-action', {
+									action : 'move-message',
+									targetFolder : target
+
+								});
+
+							})
+
+							ig.insertAfter( this);
 							$(this).remove();
 
 						});
@@ -910,269 +856,488 @@ $(document).on( 'mail-messages', function( e, folder) {
 
 					}
 
-					btns.forEach( element => { element.appendTo( params.toolbar); });
+				})();
 
-					$('<div class="btn-toolbar" />').append( params.toolbar).prependTo( '#<?= $uidViewer ?>');
+				( function() {
+					let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
+					btn
+					.addClass( params.btnClass)
+					.on('click', () => { reply.call( btn, _data)});
 
-					frame.css('height','calc(100% - ' + params.toolbar.height() + 'px)');
+					btns.push( btn);
 
-					if ( !_brayworth_.browser.isMobileDevice) {
-						$(_frame.contentDocument).on('keydown', function( e) {
-							if ( 27 == e.keyCode) {
-								window.focus();
+				})();
 
-							}
+				( function() {
+					let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
+					btn
+					.addClass( params.btnClass)
+					.on('click', () => { reply.call( btn, _data)});
+
+					btns.push( btn);
+
+				})();
+
+				( function() {
+					let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward" /></button>');
+					btn
+					.addClass( params.btnClass)
+					.on('click', () => { reply.call( btn, _data)});
+
+					btns.push( btn);
+
+				})();
+
+				(function() {
+					let btn = $('<button type="button flex-shrink-1"><i class="fa fa-external-link" /></button>');
+
+					btn
+					.attr('title', 'pop out')
+					.data('url', url)
+					.addClass( params.btnClass)
+					.on( 'click', function( e) {
+						let _me = $(this);
+						let _data = _me.data();
+
+						window.open( _data.url, '_blank', 'toolbar=yes,menubar=no');
+						$('#<?= $uidViewer ?>').trigger('clear');
+
+					});
+
+					btns.push( btn);
+
+				})();
+
+				( function() {
+					if ( _brayworth_.browser.isMobileDevice) return;
+
+					let btn = $('<button type="button"><i class="fa fa-print" /></button>');
+					btn
+					.addClass( params.btnClass)
+					.on('click', function( e) {
+						_frame.focus();
+						_frame.contentWindow.print();
+
+					});
+
+					btns.push( btn);
+
+				})();
+
+				$('a[data-role="extra-recipients"]', _frame.contentDocument).each( function( i, el) {
+					$(el).on( 'click', function( e) {
+						e.stopPropagation();e.preventDefault();
+
+						let _me = $(this);
+						let _data = _me.data();
+						let target = _data.target;
+						$('#' + target, _frame.contentDocument).css('display','');
+						// console.log( target, $('#' + target, _frame.contentDocument)[0]);
+						_me.remove();	// ciao ..
+
+					});;
+
+				});
+
+				let imgs = $('img[data-safe-src]', _frame.contentDocument);
+				if ( imgs.length > 0) {
+					let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');
+					btn
+					.addClass( params.btnClass)
+					.on('click', function( e) {
+						$('img[data-safe-src]', _frame.contentDocument).each( function( i, img) {
+							let _img = $(img);
+
+							_img.attr( 'src', _img.attr( 'data-safe-src'));
+							_img.removeAttr( 'data-safe-src');
 
 						});
 
-					}
-
-					// let els = $('[message] [style]', _frame.contentDocument).each( function( i, el) {
-					// 	let _el = $(el);
-					// 	let width = String( _el.css('width')).replace(/px$/,'');
-					// 	console.log( width);
-
-					// 	if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.innerWidth)) {
-					// 		_el.css({
-					// 			'width':'',
-					// 			'max-width':'100%'
-
-					// 		});
-
-					// 	}
-					// 	// console.log( width);
-
-					// });
-					// // console.log( els)
-
-					$(document)
-					.trigger( 'mail-message-toolbar', params)
-					.trigger( 'mail-message-loaded', {
-						form : $('#<?= $uidFrm ?>')[0],
-						message : _data.message,
-						window : _frame.contentDocument
+						_frame.focus();
+						$(this).remove();
 
 					});
 
-				});
-
-				frame.attr('src', url);
-
-				$('#<?= $uidViewer ?>')
-				.data('message', _data.message.messageid)
-				.html('').append( frame);
-
-				$('> .row', _me.parent()).each( function() {
-					$(this).removeClass( '<?= $activeMessage ?>');
-
-				});
-
-				_me.addClass('<?= $activeMessage ?>');
-
-			})
-			.on( 'click', function( e) {
-				$(this).trigger('view');
-
-			})
-			.on( 'contextmenu', function( e) {
-				if ( e.shiftKey)
-					return;
-
-				e.stopPropagation();e.preventDefault();
-
-				_brayworth_.hideContexts();
-
-				let _row = $(this);
-				let _data = _row.data();
-				let _context = _brayworth_.context();
-				let defaultFolders = $(document).data( 'default_folders');
-
-				// console.log( _data);
-
-				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-					let ctrl= $('<a href="#"><i class="fa fa-trash" />move to '+defaultFolders.Trash+'</a>');
-					ctrl.on( 'click', function( e) {
-						e.stopPropagation();e.preventDefault();
-
-						_row.trigger('delete');
-
-						// _row.trigger('execute-action', {
-						// 	action : 'move-message',
-						// 	targetFolder : defaultFolders.Trash
-
-						// });
-
-						_context.close();
-
-					});
-					_context.append( ctrl);
+					btns.push( btn);
 
 				}
 
-				$(document).trigger( 'mail-messages-context', {
-					element : this,
-					context : _context
+				btns.forEach( element => { element.appendTo( params.toolbar); });
 
-				});
+				$('<div class="btn-toolbar" />').append( params.toolbar).prependTo( '#<?= $uidViewer ?>');
 
-				_context.open( e);
+				frame.css('height','calc(100% - ' + params.toolbar.height() + 'px)');
 
-			})
-			.on( 'delete', function( e) {
-				let _row = $(this);
-				let _data = _row.data();
-				let defaultFolders = $(document).data( 'default_folders');
+				if ( !_brayworth_.browser.isMobileDevice) {
+					$(_frame.contentDocument).on('keydown', function( e) {
+						if ( 27 == e.keyCode) {
+							window.focus();
 
-				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-					_row.trigger('execute-action', {
-						action : 'move-message',
-						targetFolder : defaultFolders.Trash
+						}
 
 					});
 
 				}
 
-			})
-			.attr('draggable', true)
-			.on( 'dragstart', function( e) {
-				// console.log( 'handle drag start');
-				e.originalEvent.dataTransfer.setData("text/plain", e.target.id);
-				e.originalEvent.dataTransfer.effectAllowed = "move";
-				//~ e.dataTransfer.setData("text", e.target.id);
-			})
-			.on( 'execute-action', function( e, params) {
-				let _me = $(this);
-				let _data = _me.data();
+				// let els = $('[message] [style]', _frame.contentDocument).each( function( i, el) {
+				// 	let _el = $(el);
+				// 	let width = String( _el.css('width')).replace(/px$/,'');
+				// 	console.log( width);
 
-				// console.log( params);
-				/**
-				 * All these action remove the item from this folder
-				 * and simultaneously:
-				 *  - we may be checking and adding new items,
-				 *  - so keep an index of items not to re-add
-				 */
+				// 	if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.innerWidth)) {
+				// 		_el.css({
+				// 			'width':'',
+				// 			'max-width':'100%'
 
-				// removed.push( String( uid));
-				// console.log( 'added message to removed ' + uid);
+				// 		});
 
-				let frm = $('#<?= $uidFrm ?>');
-				let data = frm.serializeFormJSON();
-				data.folder = _data.folder;
-				data.messageid = _data.message.messageid;
-				data.targetFolder = folder;
+				// 	}
+				// 	// console.log( width);
 
-				$.extend( data, params);
+				// });
+				// // console.log( els)
 
-				// console.log( _data);
-
-				let ctrl = $('<i class="fa fa-spin fa-spinner pull-right" />');
-				ctrl.appendTo( $('[from]', _me));
-
-				_me.addClass( 'font-italic');
-
-				// console.log( data);	// data from the form
-				_brayworth_.post({
-					url : _brayworth_.url('<?= $this->route ?>'),
-					data : data,	//
-
-				}).then( function( d) {
-					_brayworth_.growl( d);
-
-					ctrl.remove();	// unnecessary
-
-					_me.remove();
-
-					if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) {
-						$('#<?= $uidViewer ?>').trigger('clear');
-						$(document).trigger('mail-view-message-list');
-
-					}
-
-					$(document).trigger('mail-messages-loader', _data.folder);
-
-				});
-
-			})
-			.on('mark-seen', function( e) {
-				let _me = $(this);
-				let _data = _me.data();
-
-				let frm = $('#<?= $uidFrm ?>');
-				let data = frm.serializeFormJSON();
-				data.folder = _data.folder;
-				data.messageid = _data.message.messageid;
-				data.action = 'mark-seen';
-
-
-				_brayworth_.post({
-					url : _brayworth_.url('<?= $this->route ?>'),
-					data : data,
-
-				}).then( function( d) {
-					if ( 'ack' == d.response) {
-						$('[unseen]', _me).remove();
-
-					}
-					else {
-						_brayworth_.growl( d);
-
-					}
+				$(document)
+				.trigger( 'mail-message-toolbar', params)
+				.trigger( 'mail-message-loaded', {
+					form : $('#<?= $uidFrm ?>')[0],
+					message : _data.message,
+					window : _frame.contentDocument
 
 				});
 
 			});
 
-		});
+			frame.attr('src', url);
 
-		$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
-			let _el = $(el);
-			if ( !_el.data('seen')) {
-				_el.remove();
+			$('#<?= $uidViewer ?>')
+			.data('message', _data.message.messageid)
+			.html('').append( frame);
+
+			$('> .row', _me.parent()).each( function() {
+				$(this).removeClass( '<?= $activeMessage ?>');
+
+			});
+
+			_me.addClass('<?= $activeMessage ?>');
+
+		})
+		.on( 'click', function( e) {
+			$(this).trigger('view');
+
+		})
+
+		return row;
+
+	};
+
+	$(document).on( 'mail-messages', function( e, folder) {
+
+		$(document).trigger( 'mail-clear-reloader');
+
+		let _list_messages = function( messages, cacheData) {
+			$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+				$(el).data('seen', false);
+
+			});
+
+			$.each( messages, function( i, msg) {
+				let row = $('[msgid="'+msg.messageid+'"]');
+				if ( row.length > 0) {
+					row.data('seen', true);
+					// console.log('found : '+msg.messageid);
+					if ( 'no' == msg.seen) {
+						let _unseen = $('[unseen]', row);
+						if ( _unseen.length == 0 ) {
+							$('[from]', row).prepend( '<?= $unseen ?>');
+
+						}
+
+					}
+					else {
+						$('[unseen]', row).remove();
+
+					}
+
+					if ( 'yes' == msg.answered) {
+						let _answered = $('[answered]', row);
+						if ( _answered.length == 0 ) {
+							$('[from]', row).prepend( '<?= $answered ?>');
+
+						}
+
+					}
+
+					return;
+
+				}
+				// console.log('build : [msgid="'+msg.messageid+'"]');
+
+				// console.log( msg);
+				// msg.folder ==
+				row = _list_message_row( msg);
+				let rowID = row.attr( 'id');
+				if ( 'undefined' == typeof $('#<?= $uidViewer ?>').data('first')) {
+					$('#<?= $uidViewer ?>').data('first', rowID);
+
+				}
+
+				/**
+				*	find the next location to insert
+				*	based on time
+				*/
+				let time = _brayworth_.moment( msg.received);
+				let nextMsg = false;
+				$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+					// $(el).data('seen', false);
+					let _el = $(el);
+					let _data = _el.data();
+
+					if ( _data.received < time.format( 'YYYYMMDDHHmmss')) {
+						nextMsg = _el;
+						return false;
+
+					}
+
+				});
+
+				if ( !!nextMsg) {
+					row.insertBefore( nextMsg);
+
+				}
+				else {
+					row.appendTo( '#<?= $uidMsgs ?>');
+
+				}
+
+				row
+				.on( 'contextmenu', function( e) {
+					if ( e.shiftKey)
+						return;
+
+					e.stopPropagation();e.preventDefault();
+
+					_brayworth_.hideContexts();
+
+					let _row = $(this);
+					let _data = _row.data();
+					let _context = _brayworth_.context();
+
+					// console.log( _data);
+
+					if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
+						let ctrl= $('<a href="#"><i class="fa fa-trash" />move to '+defaultFolders.Trash+'</a>');
+						ctrl.on( 'click', function( e) {
+							e.stopPropagation();e.preventDefault();
+
+							_row.trigger('delete');
+
+							// _row.trigger('execute-action', {
+							// 	action : 'move-message',
+							// 	targetFolder : defaultFolders.Trash
+
+							// });
+
+							_context.close();
+
+						});
+						_context.append( ctrl);
+
+					}
+
+					$(document).trigger( 'mail-messages-context', {
+						element : this,
+						context : _context
+
+					});
+
+					_context.open( e);
+
+				})
+				.on( 'delete', function( e) {
+					let _row = $(this);
+					let _data = _row.data();
+
+					if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
+						_row.trigger('execute-action', {
+							action : 'move-message',
+							targetFolder : defaultFolders.Trash
+
+						});
+
+					}
+
+				})
+				.attr('draggable', true)
+				.on( 'dragstart', function( e) {
+					// console.log( 'handle drag start');
+					e.originalEvent.dataTransfer.setData("text/plain", e.target.id);
+					e.originalEvent.dataTransfer.effectAllowed = "move";
+					//~ e.dataTransfer.setData("text", e.target.id);
+				})
+				.on( 'execute-action', function( e, params) {
+					let _me = $(this);
+					let _data = _me.data();
+
+					// console.log( params);
+					/**
+					* All these action remove the item from this folder
+					* and simultaneously:
+					*  - we may be checking and adding new items,
+					*  - so keep an index of items not to re-add
+					*/
+
+					// removed.push( String( uid));
+					// console.log( 'added message to removed ' + uid);
+
+					let frm = $('#<?= $uidFrm ?>');
+					let data = frm.serializeFormJSON();
+					data.folder = _data.folder;
+					data.messageid = _data.message.messageid;
+					data.targetFolder = folder;
+
+					$.extend( data, params);
+
+					// console.log( _data);
+
+					let ctrl = $('<i class="fa fa-spin fa-spinner pull-right" />');
+					ctrl.appendTo( $('[from]', _me));
+
+					_me.addClass( 'font-italic');
+
+					// console.log( data);	// data from the form
+					_brayworth_.post({
+						url : _brayworth_.url('<?= $this->route ?>'),
+						data : data,	//
+
+					}).then( function( d) {
+						_brayworth_.growl( d);
+
+						ctrl.remove();	// unnecessary
+
+						_me.remove();
+
+						if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) {
+							$('#<?= $uidViewer ?>').trigger('clear');
+							$(document).trigger('mail-view-message-list');
+
+						}
+
+						$(document).trigger('mail-messages-loader', _data.folder);
+
+					});
+
+				})
+				.on('mark-seen', function( e) {
+					let _me = $(this);
+					let _data = _me.data();
+
+					let frm = $('#<?= $uidFrm ?>');
+					let data = frm.serializeFormJSON();
+					data.folder = _data.folder;
+					data.messageid = _data.message.messageid;
+					data.action = 'mark-seen';
+
+
+					_brayworth_.post({
+						url : _brayworth_.url('<?= $this->route ?>'),
+						data : data,
+
+					}).then( function( d) {
+						if ( 'ack' == d.response) {
+							$('[unseen]', _me).remove();
+
+						}
+						else {
+							_brayworth_.growl( d);
+
+						}
+
+					});
+
+				});
+
+			});
+
+			$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+				let _el = $(el);
+				if ( !_el.data('seen')) {
+					_el.remove();
+
+				}
+
+			});
+
+			if ( !cacheData) $(document).trigger('mail-message-list-complete');
+
+		}
+
+		let frm = $('#<?= $uidFrm ?>');
+		let data = frm.serializeFormJSON();
+
+		data.action = 'get-messages';
+		if ( !!folder) { data.folder = folder; }
+		// console.log( folder, data);
+
+		let page = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
+		let heading = $('<div class="row bg-light text-muted" />');
+		( function( col) {
+			let primary = $('<div />').appendTo( col);
+			let search = $('<div class="py-1 input-group d-none" />').appendTo( col);
+			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
+
+			let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
+			// console.log( defaultFolders);
+
+			$('<button type="button" class="btn btn-sm pull-right" title="ctrl+click for advanced search"><i class="fa fa-fw fa-search" title="search" /></button>')
+			.prependTo( primary)
+			.on('click', function(e) {
+				if ( e.ctrlKey) {
+
+					// console.log( 'ctrlKey');
+
+					$(document)
+					.data('view', 'search')
+					.trigger( 'mail-set-view');
+
+				}
+				else {
+					primary.addClass( 'd-none');
+					search.removeClass( 'd-none');
+
+					$(document).trigger( 'mail-clear-reloader');
+					$('input[type="search"]', search).focus();
+
+				}
+
+			});
+
+			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
+			.prependTo( primary)
+			.on('click', function(e) {
+				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
+				if ( v > 0) {
+					v --;
+					$('input[name="page"]','#<?= $uidFrm ?>').val( v);
+
+					if ( !!folder)
+						$(document).trigger('mail-messages', folder);
+					else
+						$(document).trigger('mail-messages');
+
+				}
+
+			});
+
+			if ( page > 0) {
+				$('<span class="badge badge-pill badge-light pull-right mt-2 px-0" />').html('#' + (page+1)).prependTo( primary);
 
 			}
-
-		});
-
-		if ( !cacheData) $(document).trigger('mail-message-list-complete');
-
-	}
-
-	let frm = $('#<?= $uidFrm ?>');
-	let data = frm.serializeFormJSON();
-
-	data.action = 'get-messages';
-	if ( !!folder) { data.folder = folder; }
-	// console.log( folder, data);
-
-	let page = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
-	let defaultFolders = $(document).data( 'default_folders');
-	let heading = $('<div class="row bg-light text-muted" />');
-	( function( col) {
-		let primary = $('<div />').appendTo( col);
-		let search = $('<div class="py-1 input-group d-none" />').appendTo( col);
-		let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
-
-		let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
-		// console.log( defaultFolders);
-
-		// FIXME : Search Function
-		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" title="search" /></button>')
-		.prependTo( primary)
-		.on('click', function(e) {
-			primary.addClass( 'd-none');
-			search.removeClass( 'd-none');
-
-			$(document).trigger( 'mail-clear-reloader');
-			$('input[type="search"]', search).focus();
-
-		});
-
-		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
-		.prependTo( primary)
-		.on('click', function(e) {
-			let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
-			if ( v > 0) {
-				v --;
+			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
+			.prependTo( primary)
+			.on('click', function(e) {
+				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
+				v ++;
 				$('input[name="page"]','#<?= $uidFrm ?>').val( v);
 
 				if ( !!folder)
@@ -1180,92 +1345,152 @@ $(document).on( 'mail-messages', function( e, folder) {
 				else
 					$(document).trigger('mail-messages');
 
-			}
+			});
 
-		});
+			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
+			.prependTo( primary)
+			.on('click', function(e) {
+				if ( !!folder)
+					$(document).trigger('mail-messages', folder);
+				else
+					$(document).trigger('mail-messages');
 
-		if ( page > 0) {
-			$('<span class="badge badge-pill badge-light pull-right mt-2 px-0" />').html('#' + (page+1)).prependTo( primary);
+			});
 
-		}
-		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
-		.prependTo( primary)
-		.on('click', function(e) {
-			let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
-			v ++;
-			$('input[name="page"]','#<?= $uidFrm ?>').val( v);
+			let fldSearch = $('<input class="form-control" type="search" />')
+			.appendTo( search)
+			.attr('placeholder', 'search ' + location)
+			.on( 'keyup', function( e) {
+				if ( 13 == e.keyCode) {
+					// console.log( 'enter');
+					e.stopPropagation();e.preventDefault();
 
-			if ( !!folder)
-				$(document).trigger('mail-messages', folder);
-			else
-				$(document).trigger('mail-messages');
+					let _me = $(this);
+					if ( '' != _me.val()) {
+						_me.trigger( 'search');
 
-		});
-
-		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
-		.prependTo( primary)
-		.on('click', function(e) {
-			if ( !!folder)
-				$(document).trigger('mail-messages', folder);
-			else
-				$(document).trigger('mail-messages');
-
-		});
-
-		let fldSearch = $('<input class="form-control" type="search" />')
-		.appendTo( search)
-		.attr('placeholder', 'search ' + location)
-		.on( 'keyup', function( e) {
-			if ( 13 == e.keyCode) {
-				// console.log( 'enter');
-				e.stopPropagation();e.preventDefault();
-
-				let _me = $(this);
-				if ( '' != _me.val()) {
-					_me.trigger( 'search');
+					}
 
 				}
 
-			}
+			})
+			.on( 'search', function( e) {
+				let frm = $('#<?= $uidFrm ?>');
+				let data = frm.serializeFormJSON();
 
-		})
-		.on( 'search', function( e) {
-			let frm = $('#<?= $uidFrm ?>');
-			let data = frm.serializeFormJSON();
+				data.action = 'search-messages';
+				data.term = String( fldSearch.val());
+				if ( '' == data.term.trim()) return;
 
-			data.action = 'search-messages';
-			data.term = String( fldSearch.val());
-			if ( '' == data.term.trim()) return;
+				$('button', search).html('').append('<i class="fa fa-spinner fa-spin" />').prop( 'disabled', true);
+				fldSearch.prop( 'disabled', true);
 
-			$('button', search).html('').append('<i class="fa fa-spinner fa-spin" />').prop( 'disabled', true);
-			fldSearch.prop( 'disabled', true);
+				if ( !!folder) { data.folder = folder; }
 
-			if ( !!folder) { data.folder = folder; }
+				// DONE : Submit search
+				// console.log( data);
+				_brayworth_.post({
+					url : _brayworth_.url('<?= $this->route ?>'),
+					data : data,	// data from the form
 
-			// DONE : Submit search
-			// console.log( data);
+				}).then( function( d) {
+					// console.log( d);
+
+					if ( 'ack' == d.response) {
+						// DONE : Clear message list before loading search results
+						let heading = $('<div class="row bg-light text-muted" />');
+						let col = $('<div class="col" />').appendTo( heading);
+						let h = $('<h6 class="text-truncate pt-1" />')
+							.html( data.term)
+							.prepend('<i class="fa fa-search pull-right" />')
+							.appendTo( col);
+
+						$('#<?= $uidMsgs ?>').html('').append( heading);
+						_list_messages( d.messages);
+
+					}
+					else {
+						_brayworth_.growl( d);
+						// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+						$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
+
+					}
+
+				});
+
+			})
+			;
+			let iga = $('<div class="input-group-append" />').appendTo( search);
+			$('<button type="button" class="btn btn-outline-secondary px-1"><i class="fa fa-reply fa-flip-vertical" /></button>')
+			.on( 'click', function( e) { fldSearch.trigger( search); })
+			.appendTo( iga);
+
+		})( $('<div class="col" />').appendTo( heading));
+
+		$('#<?= $uidMsgs ?>').html('').append( heading);
+
+		let key = '<?= $this->route ?>-lastmessages-';
+		if ( 'undefined' != typeof data.folder) {
+			key += data.folder + '-';
+
+		}
+
+		if ( page > 0) key += page;
+
+		let lastMessages = sessionStorage.getItem( key);
+		// console.log( key, lastMessages);
+		$('#<?= $uidMsgs ?>').data('folder', folder);
+		if ( !!lastMessages) {
+			// console.log( 'lastMessages - ' + data.folder);
+			_list_messages( JSON.parse( lastMessages), true);
+			sessionStorage.removeItem( key);
+
+		}
+
+		$(document)
+		.off('mail-messages-loader')
+		.on('mail-messages-loader', function() {
+
+			$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+			$(document).trigger( 'mail-clear-reloader');
+
 			_brayworth_.post({
 				url : _brayworth_.url('<?= $this->route ?>'),
 				data : data,	// data from the form
 
 			}).then( function( d) {
-				// console.log( d);
-
 				if ( 'ack' == d.response) {
-					// DONE : Clear message list before loading search results
-					let heading = $('<div class="row bg-light text-muted" />');
-					let col = $('<div class="col" />').appendTo( heading);
-					let h = $('<h6 class="text-truncate pt-1" />')
-						.html( data.term)
-						.prepend('<i class="fa fa-search pull-right" />')
-						.appendTo( col);
+					sessionStorage.setItem( key, JSON.stringify( d.messages));
+					// console.log( 'messages - ' + data.folder);
+					if ( folder == $('#<?= $uidMsgs ?>').data('folder')) {
+						if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
+							_list_messages( d.messages);
+							$('i.fa-spinner', '#<?= $uidMsgs ?>').addClass('fa-refresh').removeClass('fa-spinner fa-spin');
 
-					$('#<?= $uidMsgs ?>').html('').append( heading);
-					_list_messages( d.messages);
+							if ( 0 == data.page) {
+								$(document).trigger( 'mail-clear-reloader');
+								$(document).data( 'mail-messages-reloader', window.setTimeout(() => {
+									let key = '<?= $this->route ?>-lastmessages-';
+									if ( 'undefined' != typeof folder) {
+										key += folder + '-';
+
+									}
+
+									sessionStorage.removeItem( key);
+									$(document).trigger('mail-messages-loader');
+
+								}, 20000));
+
+							}
+
+						}
+
+					}
 
 				}
 				else {
 					_brayworth_.growl( d);
+					// console.log( d);
 					// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 					$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
 
@@ -1274,95 +1499,121 @@ $(document).on( 'mail-messages', function( e, folder) {
 			});
 
 		})
-		;
-		let iga = $('<div class="input-group-append" />').appendTo( search);
-		$('<button type="button" class="btn btn-outline-secondary px-1"><i class="fa fa-reply fa-flip-vertical" /></button>')
-		.on( 'click', function( e) { fldSearch.trigger( search); })
-		.appendTo( iga);
+		.trigger('mail-messages-loader');
 
-	})( $('<div class="col" />').appendTo( heading));
+	});
 
-	$('#<?= $uidMsgs ?>').html('').append( heading);
+	$('#<?= $uidSearchAll ?>_form').on( 'submit', function( e) {
+		let _form = $(this);
+		let _data = _form.serializeFormJSON();
 
-	let key = '<?= $this->route ?>-lastmessages-';
-	if ( 'undefined' != typeof data.folder) {
-		key += data.folder + '-';
+		if ( '' == String( _data.term).trim()) return;	// this won't happen, but it here anyway ...
 
-	}
+		// console.table( _data);
 
-	if ( page > 0) key += page;
+		/**--- ---[ search-all ]--- ---*/
+		let gForm = $('#<?= $uidFrm ?>');
+		let gData = gForm.serializeFormJSON();
 
-	let lastMessages = sessionStorage.getItem( key);
-	// console.log( key, lastMessages);
-	$('#<?= $uidMsgs ?>').data('folder', folder);
-	if ( !!lastMessages) {
-		// console.log( 'lastMessages - ' + data.folder);
-		_list_messages( JSON.parse( lastMessages), true);
-		sessionStorage.removeItem( key);
+		$.extend( gData, _data);
 
-	}
+		$('button', _form)
+		.html('')
+		.append('<i class="fa fa-spinner fa-spin" />')
+		.prop( 'disabled', true);
 
-	$(document)
-	.off('mail-messages-loader')
-	.on('mail-messages-loader', function() {
+		$( 'input[type="search"], input[type="data"]', _form).prop( 'disabled', true);
 
-		$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-refresh').addClass('fa-spinner fa-spin');
-		$(document).trigger( 'mail-clear-reloader');
+		let heading = $('<div class="row bg-light text-muted" />');
+		let col = $('<div class="col" />').appendTo( heading);
+		let h = $('<h6 class="text-truncate pt-1" />')
+			.html( _data.term)
+			.prepend('<i class="fa fa-search pull-right" />')
+			.insertBefore( '#<?= $uidSearchAll ?>_form');
 
-		_brayworth_.post({
-			url : _brayworth_.url('<?= $this->route ?>'),
-			data : data,	// data from the form
+		$('#<?= $uidSearchAll ?>_form').addClass( 'd-none');
+		$('#<?= $uidSearchAll ?>_buttons').addClass( 'd-none');
 
-		}).then( function( d) {
-			if ( 'ack' == d.response) {
-				sessionStorage.setItem( key, JSON.stringify( d.messages));
-				// console.log( 'messages - ' + data.folder);
-				if ( folder == $('#<?= $uidMsgs ?>').data('folder')) {
-					if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
-						_list_messages( d.messages);
-						$('i.fa-spinner', '#<?= $uidMsgs ?>').addClass('fa-refresh').removeClass('fa-spinner fa-spin');
+		$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( function( i, el) {
+			let _el = $(el);
+			if ( !_el.prop('checked')) {
+				_el.closest('div.form-check').remove();
+				return;
 
-						if ( 0 == data.page) {
-							$(document).trigger( 'mail-clear-reloader');
-							$(document).data( 'mail-messages-reloader', window.setTimeout(() => {
-								let key = '<?= $this->route ?>-lastmessages-';
-								if ( 'undefined' != typeof folder) {
-									key += folder + '-';
+			}
 
-								}
+			let data = $.extend( _el.data(), gData);
 
-								sessionStorage.removeItem( key);
-								$(document).trigger('mail-messages-loader');
+			let spinner = $('<i class="fa fa-fw fa-spinner fa-spin" />')
+			spinner.insertAfter( this);
+			_el.addClass( 'd-none');
 
-							}, 20000));
+			data.action = 'search-messages';
 
-						}
+			// console.table( data);
 
-					}
+			_brayworth_.post({
+				url : _brayworth_.url('<?= $this->route ?>'),
+				data : data,	// data from the form
+
+			}).then( function( d) {
+				// console.table( d);
+				// // console.log( d);
+
+				if ( 'ack' == d.response) {
+					// 	$('#<?= $uidMsgs ?>').html('').append( heading);
+					let fc = _el.closest('div.form-check');
+					let container = $('<div />');
+					container.insertAfter( fc);
+					$.each( d.messages, function( i, el ) {
+						let row = _list_message_row( el);
+						container.append( row);
+
+					});
+
+					spinner.remove();
+					let badge = $('<div class="badge badge-primary pull-right" />').html( d.messages.length);
+
+					fc
+					.removeClass('form-check')
+					.prepend( badge);
+
+				}
+				else {
+					_brayworth_.growl( d);
+					// 	// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
+					// 	$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
 
 				}
 
-			}
-			else {
-				_brayworth_.growl( d);
-				// console.log( d);
-				// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
-				$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
+			});
 
-			}
+			// return false;
 
 		});
 
-	})
-	.trigger('mail-messages-loader');
+		return false;
 
-});
+	});
+
+})();
 
 $(document).on( 'mail-set-view', function() {
 	let view = $(document).data('view');
 	let focus = $(document).data('focus');
 
-	if ( 'condensed' == view) {
+	if ( 'search' == view) {
+		// console.log( 'search view');
+		$('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
+		$('#<?= $uidMsgs ?>').attr( 'class', 'd-none h-100');
+
+		$('#<?= $uidSearchAll ?>').attr( 'class', 'col-md-5 h-100');
+		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0 px-sm-1');
+
+		$('input[type="search"]', '#<?= $uidSearchAll ?>').focus();
+
+	}
+	else if ( 'condensed' == view) {
 		$('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
 
 		if ('message-view' == focus) {
@@ -1567,7 +1818,6 @@ $(document).on('mail-clear-viewer', function( e) {
 
 $(document).ready( function() {
 	$(document)
-	.data('default_folders', <?= json_encode( $this->data->default_folders) ?>)
 	.data('route', '<?= $this->route ?>')
 	.data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
 

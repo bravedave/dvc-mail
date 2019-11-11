@@ -238,8 +238,27 @@ class inbox {
 		if ( $options['term']) {
 			$terms = [];
 			$term = \str_replace( '"', '', $options['term']);
-			$options['criteria'][] = sprintf( 'FROM "%s"', $term);
-			$options['criteria'][] = sprintf( 'SUBJECT "%s"', $term);
+			$from = sprintf( 'FROM "%s"', $term);
+			$subject = sprintf( 'SUBJECT "%s"', $term);
+			if ( isset($options['from']) && strtotime($options['from']) > 0) {
+				$since = strtotime($options['from']);
+				$from .= sprintf( ' SINCE "%s"', date( 'd-M-Y', $since));
+				$subject .= sprintf( ' SINCE "%s"', date( 'd-M-Y', $since));
+
+			}
+
+			if ( isset($options['to']) && strtotime($options['to']) > 0) {
+				$before = strtotime($options['to']);
+				$from .= sprintf( ' BEFORE "%s"', date( 'd-M-Y', $before));
+				$subject .= sprintf( ' BEFORE "%s"', date( 'd-M-Y', $before));
+
+			}
+
+			$options['criteria'][] = $from;
+			$options['criteria'][] = $subject;
+
+			// sys::logger( sprintf('%s : %s', $from, __METHOD__));
+
 
 			if ( $this->_client->open( true, $options['folder'] )) {
 				$ret = $this->_client->search( $options);

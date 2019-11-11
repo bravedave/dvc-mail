@@ -160,12 +160,14 @@ html, body { font-family: sans-serif; }
 
         </tr>
 
+<?php   if ( count( $msg->attachments)) {   ?>
+
+        <tr>
+            <td style="padding: 0;">
+                <table style="width: 100%;" cellpadding="2">
+                    <tbody>
+
 <?php
-    // unset( $msg->src);
-    if ( count( $msg->attachments)) {   ?>
-<tr><td style="padding: 0;"><table style="width: 100%;" cellpadding="2">
-    <tbody>
-    <?php
     foreach ( $msg->attachments as $key => $attachment) {
         if ( 'object' == gettype( $attachment)) {
             $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
@@ -273,19 +275,23 @@ html, body { font-family: sans-serif; }
 
         }
 
-    } ?>
-    </tbody>
+    }   // foreach ( $msg->attachments as $key => $attachment)  ?>
 
-</table></td></tr>
+                    </tbody>
+
+                </table>
+
+            </td>
+
+        </tr>
+
+<?php   }   // if ( count( $msg->attachments))  ?>
 
     </tbody>
 
 </table>
 
-
-    <?php
-    }
-
+<?php
     // unset( $msg->src);
     // foreach ( $msg->attachments as $attachment) {
     //     unset( $attachment->Content);
@@ -308,5 +314,3 @@ html, body { font-family: sans-serif; }
         printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
 
     }
-
-

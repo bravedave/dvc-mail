@@ -21,6 +21,8 @@ use sys;
 // use url;
 
 class controller extends \Controller {
+	protected $creds = null;	// credentials
+
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
@@ -107,12 +109,29 @@ class controller extends \Controller {
 			} else { \Json::nak( sprintf('invalid message : %s', $action)); }
 
 		}
+		elseif ( 'search-all-messages' == $action) {
+			// todo: creds
+			$params = [
+				'creds' => $this->creds,
+				'folder' => $this->getPost('folder', 'default'),
+				'term' => $this->getPost('term'),
+				'from' => $this->getPost('from'),
+				'to' => $this->getPost('to'),
+
+			];
+
+			Json::ack( $action)
+				->add( 'messages', $this->_search( $params));
+
+		}
 		elseif ( 'search-messages' == $action) {
 			// todo: creds
 			$params = [
 				'creds' => $this->creds,
 				'folder' => $this->getPost('folder', 'default'),
 				'term' => $this->getPost('term'),
+				'from' => $this->getPost('from'),
+				'to' => $this->getPost('to'),
 
 			];
 
@@ -268,55 +287,22 @@ class controller extends \Controller {
 	}
 
 	protected function _search( array $params = []) : array {
-
 		$options = array_merge([
-			'creds' => $this->creds,
 			'folder' => 'default',
 			'term' => ''
 
 		], $params);
 
-		$inbox = inbox::instance( $options['creds']);
-		$messages = (array)$inbox->search( $options);
-		// sys::dump( $messages);
-
-		$a = [];
-		foreach ( $messages as $message)
-			$a[] = $message->asArray();
-
-		return $a;
-		// return $messages;
-
-	}
-
-	protected function _searchAllDeep( $fldr, &$options, &$messages) {
-		$msgs = $this->_search([
-			'creds' => $options['creds'],
-			'folder' => $fldr->fullname,
-			'term' => $options['term'],
-
-		]);
-
-		foreach ( $msgs as $msg) {
-			$messages[] = $msg;
-
-		}
-
-		if ( isset( $fldr->subFolders)) {
-			foreach( $fldr->subFolders as $folder) {
-				$this->_searchAllDeep( $folder, $options, $messages);
-
-			}
-
-		}
+		$sb = new search( $this->creds, $options);
+		return $sb->search( $options);
 
 	}
 
 	protected function _searchall( array $params = []) : array {
 
 		$options = array_merge([
-			'creds' => $this->creds,
-			'term' => ''
+			'term' => '',
+			'max-results' => 10,
 
 		], $params);
 
@@ -324,22 +310,15 @@ class controller extends \Controller {
 		$folders = $this->_folders( 'json');
 		// sys::dump( $folders);
 
-		$messages = [];
-
+		$sb = new search( $this->creds, $options);
 		foreach( $folders as $folder) {
-			$this->_searchAllDeep( $folder, $options, $messages);
+			if ( count( $sb->messages()) >= $options['max-results']) break;
+			$sb->searchall( $folder);
 
 		}
 
 		// return $folders;
-		return $messages;
-
-		$a = [];
-		foreach ( $messages as $message)
-			$a[] = $message->asArray();
-
-		return $a;
-		// return $messages;
+		return $sb->messages();
 
 	}
 
