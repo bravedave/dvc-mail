@@ -41,6 +41,12 @@ use dvc\mail\config as mailconfig;
 
                 </label>
 
+                <div class="text-muted">
+                    note that EWS needs a lot of work to come up
+                    to IMAP functionality
+
+                </div>
+
             </div>
 
         </div>
@@ -49,7 +55,10 @@ use dvc\mail\config as mailconfig;
 
     <div class="row">
         <div class="col">
-            <button class="btn btn-primary">save</button>
+            <div class="form-check"><!-- to match the padding -->
+                <button class="btn btn-primary">save</button>
+
+            </div>
 
         </div>
 

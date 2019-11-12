@@ -924,10 +924,9 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 				})();
 
-				$('a[data-role="extra-recipients"]', _frame.contentDocument).each( function( i, el) {
-					$(el).on( 'click', function( e) {
-						e.stopPropagation();e.preventDefault();
-
+				( function() {
+					let f = function() {
+						/** called on the control which specifies the target to expose */
 						let _me = $(this);
 						let _data = _me.data();
 						let target = _data.target;
@@ -935,9 +934,27 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 						// console.log( target, $('#' + target, _frame.contentDocument)[0]);
 						_me.remove();	// ciao ..
 
-					});;
+					};
 
-				});
+					$('a[data-role="extra-recipients"]', _frame.contentDocument).each( function( i, el) {
+						<?php
+							if ( 'yes' == currentUser::option('email-expand-recipients')) {	?>
+							f.call( this);
+						<?php
+							}
+							else { /* unless this option is 'yes' then this is wrapped in a trigger (default) */ ?>
+						$(el).on( 'click', function( e) {
+							e.stopPropagation();e.preventDefault();
+							f.call( this);
+
+						});;
+
+						<?php
+							}	?>
+
+					});
+
+				})();
 
 				let imgs = $('img[data-safe-src]', _frame.contentDocument);
 				if ( imgs.length > 0) {
@@ -1296,7 +1313,8 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 			let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
 			// console.log( defaultFolders);
 
-			$('<button type="button" class="btn btn-sm pull-right" title="ctrl+click for advanced search"><i class="fa fa-fw fa-search" title="search" /></button>')
+			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" /></button>')
+			.attr( 'title', _brayworth_.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.prependTo( primary)
 			.on('click', function(e) {
 				if ( e.ctrlKey) {

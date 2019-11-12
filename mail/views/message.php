@@ -82,7 +82,7 @@ html, body { font-family: sans-serif; }
                     $tos = explode( ',', $msg->To);
                     if ( ( $ito = count( $tos)) > 1) {
                         $uid = strings::rand();
-                        print htmlentities( $tos[0]);
+                        printf( '<span style="font-size: small;">%s</span>', htmlentities( $tos[0]));
                         printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito-1);
                         array_shift( $tos);
                         $_tos = [];
@@ -91,7 +91,7 @@ html, body { font-family: sans-serif; }
 
                         }
 
-                        printf( '<span style="display: none;" id="%s">, %s</a>', $uid, implode( ', ', $_tos));
+                        printf( '<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode( ', ', $_tos));
 
                     }
                     else {
@@ -116,7 +116,7 @@ html, body { font-family: sans-serif; }
                     $ccs = explode( ',', $msg->CC);
                     if ( ( $icc = count( $ccs)) > 1) {
                         $uid = strings::rand();
-                        printf( '<strong data-role="cc" data-email=%s>%s</strong>',
+                        printf( '<span data-role="cc" style="font-size: small" data-email=%s>%s</span>',
                             json_encode( $ccs[0]),
                             htmlentities( $ccs[0])
                         );
@@ -124,17 +124,17 @@ html, body { font-family: sans-serif; }
                         array_shift( $ccs);
                         $_ccs = [];
                         foreach( $ccs as $cc) {
-                            $_ccs[] = sprintf( '<strong data-role="cc" data-email=%s>%s</strong>',
+                            $_ccs[] = sprintf( '<span data-role="cc" data-email=%s>%s</span>',
                                 json_encode( $cc),
                                 htmlentities( $cc)
                             );
 
                         }
-                        printf( '<span style="display: none;" id="%s">, %s</a>', $uid, implode( ', ', $_ccs));
+                        printf( '<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode( ', ', $_ccs));
 
                     }
                     else {
-                        printf( '<strong data-role="cc" data-email=%s>%s</strong>',
+                        printf( '<span data-role="cc" data-email=%s>%s</span>',
                             json_encode( $msg->CC),
                             htmlentities( $msg->CC)
                         );

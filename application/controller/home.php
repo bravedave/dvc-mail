@@ -14,6 +14,7 @@ use dvc\mail\credentials;
 class home extends dvc\mail\controller {
 	const allowedOptions = [
 		'email-autoloadnext',
+		'email-expand-recipients',
 
 	];
 
@@ -217,7 +218,7 @@ class home extends dvc\mail\controller {
 
 		if ( 'folders' == $test) {
 			sys::dump( $this->_folders());
-			
+
 		}
 		elseif ( 'messages' == $test) {
 			sys::dump( $this->_messages([
@@ -225,7 +226,7 @@ class home extends dvc\mail\controller {
 				]),
 				sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
 				false
-	
+
 			);
 
 		}

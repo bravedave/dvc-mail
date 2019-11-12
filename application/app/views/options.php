@@ -10,7 +10,7 @@
 ** */   ?>
 
 <div class="row">
-    <div class="offset-md-3 col">
+    <div class="col">
         <div class="form-check">
 			<input type="checkbox" class="form-check-input" id="-email-autoloadnext-"
                 data-option="email-autoloadnext"
@@ -24,6 +24,19 @@
 
         </div>
 
+        <div class="form-check">
+			<input type="checkbox" class="form-check-input" id="-email-expand-recipients-"
+                data-option="email-expand-recipients"
+                value="yes"
+				<?php if ( currentUser::option('email-expand-recipients') == 'yes') print 'checked' ?> />
+
+			<label class="form-check-label" for="-email-expand-recipients-">
+				Expand Email Recipients in message view
+
+			</label>
+
+        </div>
+
     </div>
 
 </div>
@@ -31,6 +44,7 @@
 $(document).ready( function() {
 	$.each([
 		'#-email-autoloadnext-',
+		'#-email-expand-recipients-',
 	], function( i, el) {
 		$(el).on( 'change', function() {
 			let _me = $(this);
