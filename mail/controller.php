@@ -432,7 +432,7 @@ class controller extends \Controller {
 		if (  isset( $params['charset'])) {
 			if (  $params['charset']) {
 				$p->charset = $params['charset'];
-				sys::logger( sprintf('%s : %s', $params['charset'], __METHOD__));
+				// sys::logger( sprintf('%s : %s', $params['charset'], __METHOD__));
 
 			}
 
