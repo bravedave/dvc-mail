@@ -556,8 +556,9 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 		if ( !/^re: /i.test( _subject)) _subject = 're: ' + _subject;
 
 		let j = {
+			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : '<br /><br />' + _wrap[0].outerHTML,
 			subject : _subject,
-			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : '<br /><br />' + _wrap[0].outerHTML
+			user_id : <?= $this->data->user_id ?>
 
 		};
 
@@ -565,7 +566,7 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 		// console.log( _data.message);
 		// console.log( this);
 		let role = $(this).data('role');
-		console.log( role);
+		// console.log( role);
 		if ( /^reply(-all)?/.test( role)) {
 			j.in_reply_to = _data.message.messageid;
 			j.in_reply_to_msg = _data.message.uid;

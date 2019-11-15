@@ -170,12 +170,18 @@ html, body { font-family: sans-serif; }
 <?php
     foreach ( $msg->attachments as $key => $attachment) {
         if ( 'object' == gettype( $attachment)) {
-            $path = sprintf('%s/file?uid=%s&folder=%s&item=%s',
-                $this->route,
-                $msg->Uid,
-                urlencode($msg->Folder),
-                urlencode($attachment->ContentId)
-            );
+            $path = [
+                sprintf('%s/file', $this->route),
+                sprintf('?uid=%s', $msg->Uid),
+                sprintf('&folder=%s', urlencode($msg->Folder)),
+                sprintf('&item=%s',urlencode($attachment->ContentId)),
+
+            ];
+
+            if ( $this->data->user_id) {
+                $path[] = sprintf('&user_id=%d', $this->data->user_id);
+
+            }
 
             $finfo = new \finfo(FILEINFO_MIME);
             $mimetype = $finfo->buffer( $attachment->Content);
@@ -187,10 +193,11 @@ html, body { font-family: sans-serif; }
                 data-id="%s"
                 data-mimetype="%s"
                 >%s</a></td></tr>',
-                strings::url( $path),
+                strings::url( implode( $path)),
                 $attachment->ContentId,
                 $mimetype,
                 $attachment->Name
+
             );
 
         }

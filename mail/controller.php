@@ -346,6 +346,7 @@ class controller extends \Controller {
 			}
 
 			$this->data = (object)[
+				'user_id' => $this->creds->user_id,
 				'default_folders' => inbox::default_folders( $this->creds),
 				'message' => $msg
 
