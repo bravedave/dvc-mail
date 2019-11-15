@@ -121,16 +121,16 @@ html, body { font-family: sans-serif; }
                     $ccs = dvc\mail\strings::splitEmails( $msg->CC);
                     if ( ( $icc = count( $ccs)) > 1) {
                         $uid = strings::rand();
-                        printf( '<span data-role="cc" style="font-size: small" data-email=%s>%s</span>',
-                            json_encode( $ccs[0]),
+                        printf( '<span data-role="cc" style="font-size: small" data-email="%s">%s</span>',
+                            htmlentities( $ccs[0]),
                             htmlentities( $ccs[0])
                         );
                         printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $icc-1);
                         array_shift( $ccs);
                         $_ccs = [];
                         foreach( $ccs as $cc) {
-                            $_ccs[] = sprintf( '<span data-role="cc" data-email=%s>%s</span>',
-                                json_encode( $cc),
+                            $_ccs[] = sprintf( '<span data-role="cc" data-email="%s">%s</span>',
+                                htmlentities( $cc),
                                 htmlentities( $cc)
                             );
 
@@ -139,8 +139,8 @@ html, body { font-family: sans-serif; }
 
                     }
                     else {
-                        printf( '<span data-role="cc" data-email=%s>%s</span>',
-                            json_encode( $msg->CC),
+                        printf( '<span data-role="cc" data-email="%s">%s</span>',
+                            htmlentities( $msg->CC),
                             htmlentities( $msg->CC)
                         );
 

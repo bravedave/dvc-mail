@@ -218,8 +218,10 @@ class home extends dvc\mail\controller {
 
 		if ( 'emailsplit' == $test) {
 			$test = 'dave@domain.tld, David Bray <david@brayworth.com.au> dave@domain.tld "Bray, David" <david@brayworth.com.au>, "Bray, Dave" <david@brayworth.com.au>; davbray@domain.tld';
+			$test = '"Ruggieri, Stephanie" <stephanie.ruggieri@bhp.com>';
 			Response::text_headers();
 			print_r( \dvc\mail\strings::splitEmails( $test));
+			print htmlentities( \dvc\mail\strings::splitEmails( $test)[0]);
 
 		}
 		elseif ( 'folders' == $test) {
