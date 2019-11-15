@@ -160,8 +160,18 @@ class client {
 		if ( isset( $_headers_rfc822->from ) && count( $_headers_rfc822->from )) {
 			$afrom = array_shift( $_headers_rfc822->from );
 			$from = $afrom->mailbox . "@" . $afrom->host;
-			if ( isset( $afrom->personal ))
-				$from = $afrom->personal . " <$from>";
+
+			if ( isset( $afrom->personal )) {
+				if ( preg_match( '/,/', $afrom->personal )) {
+					$from = sprintf( '"%s" <%s>', $afrom->personal, $from);
+
+				}
+				else {
+					$from = sprintf( '%s <%s>', $afrom->personal, $from);
+
+				}
+
+			}
 
 		}
 
@@ -175,8 +185,17 @@ class client {
 				elseif ( isset( $e->mailbox))
 					$s = $e->mailbox;
 
-				if ( isset( $e->personal ))
-					$s = sprintf( '%s <%s>', $e->personal, $s);
+				if ( isset( $e->personal )) {
+					if ( preg_match( '/,/', $e->personal )) {
+						$s = sprintf( '"%s" <%s>', $e->personal, $s);
+
+					}
+					else {
+						$s = sprintf( '%s <%s>', $e->personal, $s);
+
+					}
+
+				}
 
 				$to[] = $s;
 
@@ -195,8 +214,17 @@ class client {
 				elseif ( isset( $e->mailbox))
 					$s = $e->mailbox;
 
-				if ( isset( $e->personal ))
-					$s = sprintf( '%s <%s>', $e->personal, $s);
+				if ( isset( $e->personal )) {
+					if ( preg_match( '/,/', $e->personal )) {
+						$s = sprintf( '"%s" <%s>', $e->personal, $s);
+
+					}
+					else {
+						$s = sprintf( '%s <%s>', $e->personal, $s);
+
+					}
+
+				}
 
 				$cc[] = $s;
 

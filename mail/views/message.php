@@ -6,7 +6,7 @@
  *
  * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
  *      http://creativecommons.org/licenses/by/4.0/
- ** */
+ * */
 
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
@@ -79,7 +79,10 @@ html, body { font-family: sans-serif; }
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <small>to&nbsp;</small>
                     <?php
-                    $tos = explode( ',', $msg->To);
+
+
+                    // $tos = explode( ',', $msg->To);
+                    $tos = dvc\mail\strings::splitEmails( $msg->To);
                     if ( ( $ito = count( $tos)) > 1) {
                         $uid = strings::rand();
                         printf( '<span style="font-size: small;">%s</span>', htmlentities( $tos[0]));
@@ -113,7 +116,8 @@ html, body { font-family: sans-serif; }
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <small>cc&nbsp;</small>
                     <?php
-                    $ccs = explode( ',', $msg->CC);
+                    // $ccs = explode( ',', $msg->CC);
+                    $ccs = str_getcsv( $msg->CC, ",", "'");
                     if ( ( $icc = count( $ccs)) > 1) {
                         $uid = strings::rand();
                         printf( '<span data-role="cc" style="font-size: small" data-email=%s>%s</span>',

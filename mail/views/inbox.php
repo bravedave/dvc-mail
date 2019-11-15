@@ -557,7 +557,7 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 		let _frm = $('#<?= $uidFrm ?>');
 		let _frm_data = _frm.serializeFormJSON();
-		console.log( _frm_data);
+		// console.log( _frm_data);
 
 		let j = {
 			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : '<br /><br />' + _wrap[0].outerHTML,

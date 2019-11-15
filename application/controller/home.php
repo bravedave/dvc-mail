@@ -216,7 +216,13 @@ class home extends dvc\mail\controller {
 
 	public function tests( $test = null) {
 
-		if ( 'folders' == $test) {
+		if ( 'emailsplit' == $test) {
+			$test = 'dave@domain.tld, David Bray <david@brayworth.com.au> dave@domain.tld "Bray, David" <david@brayworth.com.au>, "Bray, Dave" <david@brayworth.com.au>; davbray@domain.tld';
+			Response::text_headers();
+			print_r( \dvc\mail\strings::splitEmails( $test));
+
+		}
+		elseif ( 'folders' == $test) {
 			sys::dump( $this->_folders());
 
 		}
