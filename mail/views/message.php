@@ -116,6 +116,7 @@ html, body { font-family: sans-serif; }
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <small>cc&nbsp;</small>
                     <?php
+                    printf( '<!-- --[%s]-- -->', $msg->CC);
 
                     $ccs = dvc\mail\strings::splitEmails( $msg->CC);
                     if ( ( $icc = count( $ccs)) > 1) {
