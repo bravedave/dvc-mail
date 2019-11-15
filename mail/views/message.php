@@ -41,26 +41,26 @@ html, body { font-family: sans-serif; }
                 <?php
                 $_style = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
                 if ( $this->data->default_folders['Sent'] == $msg->Folder) {
-                    printf( '<div style="%s"><small>to&nbsp;</small><strong data-role="from" data-email=%s>%s</strong></div>',
+                    printf( '<div style="%s"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
                         $_style,
-                        json_encode( $msg->To),
+                        htmlentities( $msg->To),
                         htmlentities( $msg->To)
                     );
 
                 }
                 else {
                     if ( $msg->From && $msg->From != $msg->fromEmail) {
-                        printf( '<div style="%s"><strong data-role="from" data-email=%s>%s</strong></div>',
+                        printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
                             $_style,
-                            json_encode( $msg->From),
+                            htmlentities( $msg->From),
                             htmlentities( $msg->From)
                         );
 
                     }
                     else {
-                        printf( '<div style="%s"><strong data-role="from" data-email=%s>%s</strong></div>',
+                        printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
                             $_style,
-                            json_encode( $msg->fromEmail),
+                            htmlentities( $msg->fromEmail),
                             $msg->fromEmail
                         );
 
@@ -116,7 +116,7 @@ html, body { font-family: sans-serif; }
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <small>cc&nbsp;</small>
                     <?php
-                    printf( '<!-- --[%s]-- -->', $msg->CC);
+                    // printf( '<!-- --[%s]-- -->', $msg->CC);
 
                     $ccs = dvc\mail\strings::splitEmails( $msg->CC);
                     if ( ( $icc = count( $ccs)) > 1) {
