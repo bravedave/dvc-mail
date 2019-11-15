@@ -555,10 +555,13 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 		if ( !/^re: /i.test( _subject)) _subject = 're: ' + _subject;
 
+		let _frm = $('#<?= $uidFrm ?>');
+		let _frm_data = frm.serializeFormJSON();
+
 		let j = {
 			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : '<br /><br />' + _wrap[0].outerHTML,
 			subject : _subject,
-			user_id : <?= $this->data->user_id ?>
+			user_id : _frm_data.user_id
 
 		};
 
