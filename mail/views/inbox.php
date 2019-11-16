@@ -40,7 +40,7 @@
 }
 </style>
 
-<div class="row h-100">
+<div class="row h-100 pb-3">
 	<div class="d-none" id="<?= $uidSearchAll = strings::rand() ?>" style="overflow: auto;" data-role="mail-search-all">
 		<form id="<?= $uidSearchAll ?>_form">
 			<input type="hidden" name="action" value="search-all-messages" />
@@ -1049,6 +1049,15 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 			});
 
 			_me.addClass('<?= $activeMessage ?>');
+			if ( !!_me[0].scrollIntoViewIfNeeded) {
+				_me[0].scrollIntoViewIfNeeded();
+
+			}
+			else {
+				_me[0].scrollIntoView({block: "center", behavior:"smooth"});
+				console.log( 'scrollIntoView');
+
+			}
 
 		})
 		.on( 'click', function( e) {
