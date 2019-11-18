@@ -529,9 +529,6 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 $(document).data('default_folders', <?= json_encode( $this->data->default_folders) ?>);
 
 (function() {
-	let defaultFolders = $(document).data('default_folders');
-	console.log( defaultFolders);
-
 	let seed = String( parseInt( Math.random() * 1000000));
 	let seedI = 0;
 
@@ -665,6 +662,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 	};
 
 	let _list_message_row = function( msg) {
+		let defaultFolders = $(document).data('default_folders');
+
 		let email = msg.from;
 		if ( msg.folder == defaultFolders.Sent) email = msg.to;
 		let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
@@ -1180,6 +1179,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let _row = $(this);
 					let _data = _row.data();
 					let _context = _brayworth_.context();
+					let defaultFolders = $(document).data('default_folders');
 
 					// console.log( _data);
 
@@ -1189,12 +1189,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 							e.stopPropagation();e.preventDefault();
 
 							_row.trigger('delete');
-
-							// _row.trigger('execute-action', {
-							// 	action : 'move-message',
-							// 	targetFolder : defaultFolders.Trash
-
-							// });
 
 							_context.close();
 
@@ -1215,6 +1209,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				.on( 'delete', function( e) {
 					let _row = $(this);
 					let _data = _row.data();
+					let defaultFolders = $(document).data('default_folders');
 
 					if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
 						_row.trigger('execute-action', {
@@ -1345,8 +1340,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
 			let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
-			// console.log( defaultFolders);
-
+\
 			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" /></button>')
 			.attr( 'title', _brayworth_.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.prependTo( primary)
