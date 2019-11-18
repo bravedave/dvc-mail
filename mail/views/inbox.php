@@ -153,7 +153,7 @@ $(document).on( 'mail-change-user', function( e, id) {
 
 	}).then( function( d) {
 		if ( 'ack' == d.response) {
-			// console.log(d);
+			console.log(d);
 			$(document).data('default_folders', d.data);
 
 		}
