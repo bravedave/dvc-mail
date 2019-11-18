@@ -1340,7 +1340,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
 			let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
-\
+
 			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" /></button>')
 			.attr( 'title', _brayworth_.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.prependTo( primary)
