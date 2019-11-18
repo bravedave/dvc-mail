@@ -144,6 +144,22 @@ $(document).on( 'mail-change-user', function( e, id) {
 	.trigger('mail-folderlist')
 	.trigger('mail-view-message-list');
 
+	let frm = $('#<?= $uidFrm ?>');
+	let frmData = frm.serializeFormJSON();
+	frmData.action = 'get-default-folders';
+	_brayworth_.post({
+		url : _brayworth_.url('<?= $this->route ?>'),
+		data : frmData
+
+	}).then( function( d) {
+		if ( 'ack' == d.response) {
+			// console.log(d);
+			$(document).data('default_folders', d.data);
+
+		}
+
+	})
+
 });
 
 $(document).on( 'mail-clear-reloader', function( e) {
@@ -510,8 +526,12 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 });
 
+$(document).data('default_folders', <?= json_encode( $this->data->default_folders) ?>);
+
 (function() {
-	let defaultFolders = <?= json_encode( $this->data->default_folders) ?>;
+	let defaultFolders = $(document).data('default_folders');
+	console.log( defaultFolders);
+
 	let seed = String( parseInt( Math.random() * 1000000));
 	let seedI = 0;
 
@@ -1858,6 +1878,7 @@ $(document).on('mail-clear-viewer', function( e) {
 });
 
 $(document).ready( function() {
+
 	$(document)
 	.data('route', '<?= $this->route ?>')
 	.data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');

@@ -58,6 +58,11 @@ class controller extends \Controller {
 			} else { \Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
 
 		}
+		elseif ( 'get-default-folders' == $action) {
+			Json::ack( $action)
+				->add( 'data', $this->_getDefaultFolders());
+
+		}
 		elseif ( 'get-folders' == $action) {
 			Json::ack( $action)
 				->add( 'folders', $this->_folders());
@@ -260,6 +265,12 @@ class controller extends \Controller {
 	protected function _folders( $format = 'json') {
 		$folders = folders::instance( $this->creds);
 		return $folders->getAll( $format);
+
+	}
+
+	protected function _getDefaultFolders( $format = 'json') {
+		$folders = folders::instance( $this->creds);
+		return $folders::$default_folders;
 
 	}
 
