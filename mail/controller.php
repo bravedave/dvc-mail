@@ -428,7 +428,8 @@ class controller extends \Controller {
 			$this->render([
 				'title' => $this->title = $this->label,
 				'scripts' => [
-					strings::url( sprintf( '%s/localjs', $this->route))
+					strings::url( sprintf( '%s/localjs', $this->route)),
+					strings::url( sprintf( '%s/mailjs', $this->route))
 
 				],
 				'content' => 'inbox'
@@ -501,6 +502,18 @@ class controller extends \Controller {
 
 	public function localjs() {
 		print '/* placeholder for local scripts */';
+
+	}
+
+	public function mailjs() {
+		// 'leadKey' => '00.js',
+		\jslib::viewjs([
+			'debug' => false,
+			'libName' => 'mailjs',
+			'jsFiles' => sprintf( '%s//js/*.js', __DIR__ ),
+			'libFile' => \config::tempdir()  . '_mailjs_tmp.js'
+
+		]);
 
 	}
 

@@ -651,7 +651,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		return;
 
-		var wrap = $('<div />');
+		let wrap = $('<div />');
 		if ( $(this).data('role') == 'reply-fast')
 			wrap.append('<p>' + $('#reply-fast-response').val() + '</p>');
 
@@ -1068,15 +1068,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			});
 
 			_me.addClass('<?= $activeMessage ?>');
-			if ( !!_me[0].scrollIntoViewIfNeeded) {
-				_me[0].scrollIntoViewIfNeeded();
-
-			}
-			else {
-				_me[0].scrollIntoView({block: "center", behavior:"smooth"});
-				console.log( 'scrollIntoView');
-
-			}
+			_me[0].scrollIntoViewIfNeeded();
 
 		})
 		.on( 'click', function( e) {
