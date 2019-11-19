@@ -1069,7 +1069,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			_me.addClass('<?= $activeMessage ?>');
 			window.setTimeout(() => {
-				_me[0].scrollIntoViewIfNeeded();
+				_me[0].scrollIntoViewIfNeeded({behavior: 'smooth'});
 
 			}, 200)
 
