@@ -8,7 +8,7 @@
  *      http://creativecommons.org/licenses/by/4.0/
  *
  * https://www.electrictoolbox.com/php-imap-message-body-attachments/
- * 
+ *
 */
 
 namespace dvc\imap;
@@ -153,19 +153,6 @@ class RawMessage {
 				}
 				$this->attachments[] = $attach;
 
-				// if ( !isset( $this->attachments[$filename] )) {
-					// if ( isset( $p->id )) {
-					// 	$this->cids[$filename] = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
-					// 	if ( $debug) sys::logger( "a. $filename (" . strlen($data) . ") : id: " . $this->cids[$filename] );
-
-					// }
-					// else {
-					// 	if ( $debug) sys::logger( "a. $filename (" . strlen($data) . ")" );
-
-					// }
-
-				// }
-
 			}
 			elseif ( isset( $params['name'])) {
 				$filename = $params['name'];
@@ -178,15 +165,6 @@ class RawMessage {
 				}
 				$this->attachments[] = $attach;
 
-				// if ( ! isset( $this->attachments[$filename] )) {
-				// 	$this->attachments[$filename] = $data;  // this is a problem if two files have same name
-				// 	if ( isset( $p->id ))
-				// 		$this->cids[$filename] = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
-
-				// if ( $debug) sys::logger( "b. $filename (" . strlen($data) . ")" );
-
-				// }
-
 			}
 			elseif ( $p->type == 5 && $data && isset( $p->id)) {
 				$id = preg_replace( array( "@(<|>)@" ), "", $p->id );
@@ -194,14 +172,6 @@ class RawMessage {
 				$attach->Name = $attach->ContentId = $id;
 				$attach->Content = $data;
 				$this->attachments[] = $attach;
-
-				// if ( ! isset( $this->attachments[$id] )) {
-				// 	$this->attachments[$id] = $data;  // this is a problem if two files have same name
-				// 	$this->cids[$id] = $id;
-
-				// 	if ( $debug) sys::logger( "c. $id(" . strlen($data) . " / " . $p->subtype  . ")" );
-
-				// }
 
 			}
 			elseif ( $debug) {
