@@ -1069,6 +1069,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			_me.addClass('<?= $activeMessage ?>');
 			_me[0].scrollIntoViewIfNeeded();
+			console.log('scrollIntoViewIfNeeded');
 
 		})
 		.on( 'click', function( e) {

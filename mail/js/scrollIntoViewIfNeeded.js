@@ -38,13 +38,13 @@ if (!Element.prototype.scrollIntoViewIfNeeded) {
         if ((overTop || overBottom || overLeft || overRight) && !centerIfNeeded) {
             // this.scrollIntoView(alignWithTop);
             this.scrollIntoView({ block: alignWithTop ? 'start' : 'end', behavior: 'smooth' });
-            console.log('scrollIntoViewIfNeeded');
+            // console.log('scrollIntoViewIfNeeded');
 
         }
-        else {
-            console.log('scrollIntoViewIfNeeded - not required');
+        // else {
+        //     console.log('scrollIntoViewIfNeeded - not required');
 
-        }
+        // }
 
     };
 
