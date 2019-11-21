@@ -238,7 +238,17 @@ class inbox {
 		if ( $options['term']) {
 			$terms = [];
 			$term = \str_replace( '"', '', $options['term']);
-			$from = sprintf( 'FROM "%s"', $term);
+
+			\sys::logger( sprintf('%s : %s', $options['folder'], __METHOD__));
+			if ( folders::$default_folders['Sent'] ==  $options['folder']) {
+				$from = sprintf( 'TO "%s"', $term);
+
+			}
+			else {
+				$from = sprintf( 'FROM "%s"', $term);
+
+			}
+
 			$subject = sprintf( 'SUBJECT "%s"', $term);
 			if ( isset($options['from']) && strtotime($options['from']) > 0) {
 				$since = strtotime($options['from']);
