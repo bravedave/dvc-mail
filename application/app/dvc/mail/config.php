@@ -21,14 +21,19 @@ abstract class config {
 	}
 
 	static function init() {
+		if ( !class_exists( 'dvc\ews\config')) {
+			self::$MODE = 'imap';
+
+		}
+
         if ( file_exists( $config = self::config())) {
 			$j = json_decode( file_get_contents( $config));
 
 			if ( isset( $j->mode)) self::$MODE = $j->mode;
 
-			self::$ENABLED = ( (bool)self::$MODE);
-
 		}
+
+		self::$ENABLED = ( (bool)self::$MODE);
 
 	}
 

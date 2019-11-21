@@ -32,7 +32,11 @@
 
 		}	?>
 
+<?php		if ( class_exists( 'dvc\ews\config')) {	?>
 			<li class="mt-1"><a href="<?= strings::url( 'settings') ?>">settings</a></li>
+
+<?php		}	// if ( class_exists( 'dvc\wepm\controller'))	?>
+
 			<li class="mt-1"><a href="<?= strings::url( 'options') ?>">options</a></li>
 
 		</ul>

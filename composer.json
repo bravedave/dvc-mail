@@ -24,9 +24,7 @@
 	"require": {
 		"ext-mailparse": "*",
 		"ext-imap": "*",
-		"php-ews/php-ews": "^1.0",
 		"bravedave/dvc": "dev-master",
-		"bravedave/dvc-ews": "dev-master",
 		"sabre/vobject": "^4.2"
 	},
 	"autoload": {
