@@ -105,7 +105,7 @@ class message {
 
 	public function safehtml() {
 		$debug = false;
-		// $debug = true;
+		$debug = true;
 
 		if ( !$this->Body ) {
 			$this->comments = sprintf( 'no html : %s %s', strlen($this->Body), __METHOD__);
@@ -283,6 +283,8 @@ class message {
 							}
 
 							$unsets[] = $key;
+							if ( $debug) \sys::logger( sprintf('unsetting %s : %s', $key, __METHOD__));
+
 							//~ unset( $this->attachments[$name] );
 							//~ if ( isset( $this->cids[$name] ))
 								//~ unset( $this->cids[$name]);
@@ -303,14 +305,24 @@ class message {
 
 		}
 
+		if ( $debug) \sys::logger( sprintf('attachments %d : %s ', count( $this->attachments), __METHOD__));
 		foreach ( $unsets as $u ) {
-			if ( isset( $this->attachments[$u] ))
+			if ( $debug) \sys::logger( sprintf('unset %s : %s', $u, __METHOD__));
+			if ( isset( $this->attachments[$u] )) {
+				if ( $debug) \sys::logger( sprintf('unset %s : %s : attachment ', $u, __METHOD__));
 				unset( $this->attachments[$u] );
 
-			if ( isset( $this->cids[$u] ))
+			}
+
+			if ( isset( $this->cids[$u] )) {
+				if ( $debug) \sys::logger( sprintf('unset %s : %s : cid ', $u, __METHOD__));
 				unset( $this->cids[$u]);
 
+			}
+
 		}
+
+		if ( $debug) \sys::logger( sprintf('... attachments %d : %s ', count( $this->attachments), __METHOD__));
 
 		// $html = $doc->saveHTML();
 		$tmpfile = \tempnam( \config::dataPath(), 'msg_');

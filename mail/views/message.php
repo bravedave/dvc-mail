@@ -10,6 +10,30 @@
 
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
+
+/**
+ * process the safe html before listing the attachments
+ * inline images are removed from the
+ * attachments in this process
+ */
+
+$msgHtml = '';
+if ( 'text' == strtolower( $msg->BodyType)) {
+    $msgHtml = sprintf( '<pre>%s</pre>', $msg->Body);
+
+}
+elseif ( $msg->hasMso()) {
+    $msgHtml = sprintf( '<style>p { margin: 0; }</style> %s %s',
+            $msg->getMso(),
+            $msg->safehtml());
+
+}
+else {
+    $msgHtml = $msg->safehtml();
+
+}
+
+
 // unset( $this->data->message);
 // $msg->attachments = [];
 // $msg->Body = '';
@@ -189,8 +213,8 @@ html, body { font-family: sans-serif; }
             $path = [
                 sprintf('%s/file', $this->route),
                 sprintf('?uid=%s', $msg->Uid),
-                sprintf('&folder=%s', urlencode($msg->Folder)),
-                sprintf('&item=%s',urlencode($attachment->ContentId)),
+                sprintf('&folder=%s', urlencode( $msg->Folder)),
+                sprintf('&item=%s', urlencode( $attachment->ContentId)),
 
             ];
 
@@ -327,18 +351,20 @@ html, body { font-family: sans-serif; }
     // }
     // sys::dump( $msg);
     // sys::dump( $msg->attachments);
-    if ( 'text' == strtolower( $msg->BodyType)) {
-        printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
+    printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msgHtml);
 
-    }
-    elseif ( $msg->hasMso()) {
-        printf( '<div message style="max-width: 100%%; overflow-x: auto;">%s %s %s</div>',
-            '<style>p { margin: 0; }</style>',
-            $msg->getMso(),
-            $msg->safehtml());
+    // if ( 'text' == strtolower( $msg->BodyType)) {
+    //     printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
 
-    }
-    else {
-        printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
+    // }
+    // elseif ( $msg->hasMso()) {
+    //     printf( '<div message style="max-width: 100%%; overflow-x: auto;">%s %s %s</div>',
+    //         '<style>p { margin: 0; }</style>',
+    //         $msg->getMso(),
+    //         $msg->safehtml());
 
-    }
+    // }
+    // else {
+    //     printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
+
+    // }
