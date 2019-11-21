@@ -165,15 +165,26 @@ html, body { font-family: sans-serif; }
 
         </tr>
 
-<?php   if ( count( $msg->attachments)) {   ?>
+<?php   if ( $iMsgCount = count( $msg->attachments)) {
+            $splitAt = $iMsgCount > 0 ? ceil( $iMsgCount/2) : 0; ?>
 
         <tr>
             <td style="padding: 0;">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr><td style="padding: 0;">
                 <table style="width: 100%;" cellpadding="2">
                     <tbody>
 
 <?php
+    $iMsg = 0;
     foreach ( $msg->attachments as $key => $attachment) {
+        if ($iMsg++ == $splitAt) {
+            print '</tbody></table></td>';
+            print '<td style="padding: 0;"><table style="width: 100%;" cellpadding="2"><tbody>';
+
+        }
+
         if ( 'object' == gettype( $attachment)) {
             $path = [
                 sprintf('%s/file', $this->route),
@@ -197,6 +208,7 @@ html, body { font-family: sans-serif; }
                 data-rel="attachment"
                 data-id="%s"
                 data-mimetype="%s"
+                style="font-size: small"
                 >%s</a></td></tr>',
                 strings::url( implode( $path)),
                 $attachment->ContentId,
@@ -292,7 +304,11 @@ html, body { font-family: sans-serif; }
                     </tbody>
 
                 </table>
+                        </td></tr>
 
+                    </tbody>
+
+                </table>
             </td>
 
         </tr>
