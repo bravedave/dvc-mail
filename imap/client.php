@@ -386,12 +386,20 @@ class client {
 				// sys::dump($headers->to);
 				$a = [];
 				foreach( $headers->to as $to) {
-					$name = $to->personal;
-					if ( false != strstr( $name, "'")) {
-						$name = sprintf( '"%s"', $name);
+					if ( isset( $to->personal)) {
+						$name = $to->personal;
+						if ( false != strstr( $name, "'")) {
+							$name = sprintf( '"%s"', $name);
+
+						}
+						$a[] = sprintf('%s <%s@%s>', $name, $to->mailbox, $to->host);
 
 					}
-					$a[] = sprintf('%s <%s@%s>', $name, $to->mailbox, $to->host);
+					else {
+						$a[] = sprintf('%s@%s', $to->mailbox, $to->host);
+						// sys::dump( $to);
+
+					}
 
 				}
 
