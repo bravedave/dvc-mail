@@ -662,11 +662,12 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 	};
 
 	let _list_message_row = function( msg) {
+		// console.table( msg);
 		let defaultFolders = $(document).data('default_folders');
 
 		let email = msg.from;
 		if ( msg.folder == defaultFolders.Sent) email = msg.to;
-		let from = $('<div class="col text-truncate font-weight-bold" from />').html( email);
+		let from = $('<div class="col text-truncate font-weight-bold" from />').html( email).attr('title', email);
 		if ( 'yes' == msg.answered) $('<?= $answered ?>').prependTo( from);
 		if ( 'no' == msg.seen) $('<?= $unseen ?>').prependTo( from);
 

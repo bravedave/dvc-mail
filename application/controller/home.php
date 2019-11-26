@@ -238,6 +238,16 @@ class home extends dvc\mail\controller {
 			);
 
 		}
+		elseif ( 'sentmessages' == $test) {
+			$msg = $this->_messages([
+				'folder' => 'Sent'
+			]);
+
+			Response::text_headers();
+			print_r( $msg);
+			printf( "elapsed : %s\n", $this->timer->elapsed());
+
+		}
 		elseif ( 'searchall' == $test) {
 			sys::dump( $this->_searchall([
 				'term' => 'error',

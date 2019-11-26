@@ -365,6 +365,43 @@ class client {
 			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
 			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
 
+			if ( isset( $headers->to)) {
+				/**
+				 *
+				 * [to] => Array (
+				 *		[0] => stdClass Object (
+				 *		 	[personal] => Dingo Star
+				*		 	[mailbox] => davbray
+				*		 	[host] => gmail.com
+				*		)
+				*
+				*		[1] => stdClass Object (
+				*			[personal] => Digital Dave
+				*			[mailbox] => davbray
+				*			[host] => live.com
+				*		)
+				*
+				* )
+				*/
+				// sys::dump($headers->to);
+				$a = [];
+				foreach( $headers->to as $to) {
+					$name = $to->personal;
+					if ( false != strstr( $name, "'")) {
+						$name = sprintf( '"%s"', $name);
+
+					}
+					$a[] = sprintf('%s <%s@%s>', $name, $to->mailbox, $to->host);
+
+				}
+
+				if ( $a) {
+					$ret->To = implode( ',', $a);
+
+				}
+
+			}
+
 		}
 
 		if ( $overview = imap_fetch_overview( $this->_stream, $email_number, 0)) {
@@ -374,7 +411,10 @@ class client {
 			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
 			if ( isset( $msg->answered)) $ret->answered = ( $msg->answered ? 'yes' : 'no' );
 
-			if ( isset( $msg->to)) $ret->To = self::decodeMimeStr((string)$msg->to);
+			if ( !$ret->To) {
+				if ( isset( $msg->to)) $ret->To = self::decodeMimeStr((string)$msg->to);
+
+			}
 
 			if ( isset( $msg->subject)) $ret->Subject = self::decodeMimeStr($msg->subject);
 
