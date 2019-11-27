@@ -749,7 +749,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				};
 				params.toolbar = $( '<div class="btn-group btn-group-sm" />'),
-				params.btnClass = 'btn btn-secondary-outline px-2';
+				params.btnClass = 'btn btn-secondary-outline px-3';
 
 				frame[0].contentWindow.setTimeout( () => {
 					let id = params.message.messageid;
