@@ -748,6 +748,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					btnClass : 'btn btn-secondary px-3'
 
 				};
+				params.toolbar = $( '<div class="btn-group btn-group-sm" />'),
+				params.btnClass = 'btn btn-secondary-outline px-2';
 
 				frame[0].contentWindow.setTimeout( () => {
 					let id = params.message.messageid;
@@ -795,6 +797,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 							});
 
 							$('#<?= $uidViewer ?>').trigger('clear');
+							$(document).trigger('mail-view-message-list');
 
 						});
 
@@ -894,6 +897,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
+					if ( _brayworth_.browser.isMobileDevice) return;
 					let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
 					btn
 					.addClass( params.btnClass)
@@ -914,7 +918,9 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				(function() {
-					let btn = $('<button type="button flex-shrink-1"><i class="fa fa-external-link" /></button>');
+					if ( _brayworth_.browser.isMobileDevice) return;
+
+					let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
 
 					btn
 					.attr('title', 'pop out')
@@ -1744,6 +1750,7 @@ $(document).on( 'mail-toggle-view', function() {
 $(document).on( 'mail-view-message-list', function( e) {
 	$(document).data('focus', 'message-list');
 	$(document).trigger('mail-set-view');
+	// console.log('mail-view-message-list');
 
 });
 
@@ -1846,7 +1853,6 @@ if ( !_brayworth_.browser.isMobileDevice) {
 
 			e.stopPropagation();
 			( function( data) {
-				// _row.trigger('delete');
 				if ( 'undefined' != typeof data.message) {
 					let row = $('[msgid="'+data.message+'"]');
 					if ( row.length > 0) {
