@@ -109,12 +109,12 @@ html, body { font-family: sans-serif; }
                     $tos = dvc\mail\strings::splitEmails( $msg->To);
                     if ( ( $ito = count( $tos)) > 1) {
                         $uid = strings::rand();
-                        printf( '<span style="font-size: small;">%s</span>', htmlentities( $tos[0]));
+                        printf( '<span style="font-size: small;" data-role="to" data-email="%s">%s</span>', htmlspecialchars( $tos[0]), htmlentities( $tos[0]));
                         printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito-1);
                         array_shift( $tos);
                         $_tos = [];
                         foreach( $tos as $to) {
-                            $_tos[] = htmlentities( $to);
+                            $_tos[] = sprintf( '<span data-role="to" data-email="%s">%s</span>', htmlspecialchars( $to), htmlentities( $to));
 
                         }
 

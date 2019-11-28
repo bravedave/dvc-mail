@@ -9,6 +9,7 @@
  *
  * */
 
+use dvc\imap\account;
 use dvc\mail\credentials;
 
 class home extends dvc\mail\controller {
@@ -169,10 +170,20 @@ class home extends dvc\mail\controller {
 		});
 
 		$(document).ready( function() {
+			_brayworth_.currentUser = {
+				email : "%s",
+				email_822 : "%s <%s>"
+
+			};
+
 			console.log( \'-- add scripts here -- : %s\');
 
 		});
-		', __METHOD__);
+		',
+		htmlspecialchars( account::$EMAIL),
+		htmlspecialchars( account::$NAME),
+		htmlspecialchars( account::$EMAIL),
+		__METHOD__);
 
 	}
 

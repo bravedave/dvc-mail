@@ -594,19 +594,42 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			j.in_reply_to_folder = _data.message.folder;
 
 			if ( _to != undefined) {
-				j.to = _to;
+				let em = String( _to).getEmail();
+				if ( '' != em && em != _brayworth_.currentUser.email) {
+					j.to = _to;
+
+				}
 
 			}
 
 			if ( 'reply-all' == role && _to != undefined) {
+				let _gots = [];
 				let _ccs = [];
+				$('[data-role="to"]', _document).each( function( i, el) {
+					let _el = $(el);
+					let _data = _el.data();
+
+					let em = String( _data.email).getEmail();
+					if ( '' != em && em != _brayworth_.currentUser.email && _to != em && _gots.indexOf( em) < 0) {
+						// console.log( _data);
+						_gots.push( em);
+						_ccs.push( _data.email);
+
+					}
+
+				});
+
 				$('[data-role="cc"]', _document).each( function( i, el) {
 					let _el = $(el);
 					let _data = _el.data();
 
-					// console.log( _data);
-					_ccs.push( _data.email);
+					let em = String( _data.email).getEmail();
+					if ( '' != em && em != _brayworth_.currentUser.email && _to != em && _gots.indexOf( em) < 0) {
+						// console.log( _data);
+						_gots.push( em);
+						_ccs.push( _data.email);
 
+					}
 
 				});
 				// var e, a = [];

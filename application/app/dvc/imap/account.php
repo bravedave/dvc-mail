@@ -14,9 +14,12 @@ use bCrypt;
 
 abstract class account {
 	static $SERVER = '';
+	static $TYPE = '';
+	static $NAME = '';
+	static $EMAIL = '';
 	static $USERNAME = '';
 	static $PASSWORD = '';
-	static $TYPE = '';
+
 	static $ENABLED = false;
 
     static function config() {
@@ -30,6 +33,8 @@ abstract class account {
 
 			if ( isset( $j->server)) self::$SERVER = $j->server;
 			if ( isset( $j->type)) self::$TYPE = $j->type;
+			if ( isset( $j->name)) self::$NAME = $j->name;
+			if ( isset( $j->email)) self::$EMAIL = $j->email;
 			if ( isset( $j->username)) self::$USERNAME = $j->username;
 			if ( isset( $j->password)) self::$PASSWORD = bCrypt::decrypt( $j->password);
 

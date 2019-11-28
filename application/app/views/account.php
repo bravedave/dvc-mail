@@ -44,6 +44,30 @@ $account = $this->data->account;
 
 	<div class="form-group row">
 		<div class="col">
+			<label for="<?= $uid = strings::rand() ?>">name:</label>
+			<input type="text" class="form-control" name="name"
+				autocomplete="off"
+				id="<?= $uid ?>"
+				required value="<?= $account->name ?>" />
+
+		</div>
+
+	</div>
+
+	<div class="form-group row">
+		<div class="col">
+			<label for="<?= $uid = strings::rand() ?>">email:</label>
+			<input type="email" class="form-control" name="email"
+				autocomplete="off"
+				id="<?= $uid ?>"
+				required value="<?= $account->email ?>" />
+
+		</div>
+
+	</div>
+
+	<div class="form-group row">
+		<div class="col">
 			<label for="<?= $uid = strings::rand() ?>">username:</label>
 			<input type="text" class="form-control" name="username"
 				autocomplete="off"

@@ -33,6 +33,8 @@ class imap extends dvc\imap\controller {
 			// \sys::dump( $this->getPost());
 			$a = (object)[
 				'server' => $this->getPost('server'),
+				'name' => $this->getPost('name'),
+				'email' => $this->getPost('email'),
 				'username' => $this->getPost('username'),
 				'password' => $this->getPost('password'),
 				'type' => $this->getPost('type'),
@@ -66,9 +68,11 @@ class imap extends dvc\imap\controller {
 		$this->data = (object)[
 			'account' => (object)[
 				'server' => account::$SERVER,
+				'type' => account::$TYPE,
+				'name' => account::$NAME,
+				'email' => account::$EMAIL,
 				'username' => account::$USERNAME,
 				'password' => account::$PASSWORD,
-				'type' => account::$TYPE,
 
 			]
 
