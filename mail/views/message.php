@@ -122,7 +122,9 @@ html, body { font-family: sans-serif; }
 
                     }
                     else {
-                        print htmlentities( $msg->To);
+                        printf( '<span data-role="to" data-email="%s">%s</span>',
+                            htmlspecialchars( $msg->To),
+                            htmlentities( $msg->To));
 
                     } ?>
 
