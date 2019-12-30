@@ -19,11 +19,47 @@ abstract class account {
 	static $EMAIL = '';
 	static $USERNAME = '';
 	static $PASSWORD = '';
+	static $PROFILE = '';
 
 	static $ENABLED = false;
 
     static function config() {
 		return config::IMAP_DATA() . 'imap-account.json';
+
+	}
+
+    static function profile( string $profile) : string {
+		if ( $_profile = preg_replace( '@[^0-9a-zA-Z]@', '', $profile)) {
+			return sprintf( '%simap-profile-%s.json', config::IMAP_DATA(), $_profile);
+
+		}
+
+		return '';
+
+	}
+
+    static function profiles() : array {
+		$ret = [];
+
+		$iterator = new \Globiterator( sprintf( '%simap-profile-*.json', config::IMAP_DATA()));
+		foreach ( $iterator as $config) {
+			$j = json_decode( file_get_contents( $config));
+			if ( isset( $j->profile)) {
+				$ret[] = (object)[
+					'name' => $config->getFilename(),
+					'profile' => $j->profile,
+					'path' => $config->getPathname(),
+
+				];
+
+			}
+
+			// \sys::logger( sprintf('%s : %s', $config->getFilename(), __METHOD__));
+			// \sys::logger( sprintf('%s : %s', $config->getPathname(), __METHOD__));
+
+		}
+
+		return $ret;
 
 	}
 
@@ -37,6 +73,7 @@ abstract class account {
 			if ( isset( $j->email)) self::$EMAIL = $j->email;
 			if ( isset( $j->username)) self::$USERNAME = $j->username;
 			if ( isset( $j->password)) self::$PASSWORD = bCrypt::decrypt( $j->password);
+			if ( isset( $j->profile)) self::$PROFILE = $j->profile;
 
 			self::$ENABLED = ( (bool)self::$SERVER && (bool)self::$USERNAME && (bool)self::$PASSWORD);
 

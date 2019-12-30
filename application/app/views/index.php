@@ -28,7 +28,24 @@
 			<li><a href="<?= strings::url( 'webmail') ?>">webmail</a></li>
 			<li><a href="<?= strings::url( 'imap/account') ?>">account</a></li>
 
-<?php		}
+<?php
+				if ($profiles = dvc\imap\account::profiles()) {
+					print '<ul class="list-unstyled my-4 pl-2">';
+					print '<li><h6>profiles</h6></li>';
+					foreach ($profiles as $profile) {
+						printf( '<li href="#" data-role="load-profile" data-profile="%s">%s</li>',
+							htmlspecialchars( $profile->profile),
+							$profile->profile);
+
+					}
+
+					print '</ul>';
+
+				}
+
+				// sys::dump( $profiles, null, false);
+
+			}
 
 		}	?>
 
@@ -44,3 +61,77 @@
 	</div>
 
 </div>
+<script>
+$(document).ready( function() {
+	$('li[data-role="load-profile"]').each( function( i, el) {
+
+		$(el).on( 'contextmenu', function( e) {
+			if ( e.shiftKey)
+				return;
+
+			e.stopPropagation();e.preventDefault();
+
+			_brayworth_.hideContexts();
+
+			let _el = $(this);
+			let _data = _el.data();
+			// console.table( _data);
+
+			let _context = _brayworth_.context();
+
+			_context.append( $('<a href="#">load profile</a>').on( 'click', function( e) {
+				e.stopPropagation();e.preventDefault();
+
+				_brayworth_.post({
+					url : _brayworth_.url('imap'),
+					data : {
+						action : 'load-profile',
+						profile : _data.profile,
+
+					},
+
+				}).then( function( d) {
+					_brayworth_.growl( d);
+					if ( 'ack' == d.response) {
+						window.location.reload();
+
+					}
+
+				});
+
+				_context.close();
+
+			}));
+
+			_context.append( $('<a href="#"><i class="fa fa-trash" />delete profile</a>').on( 'click', function( e) {
+				e.stopPropagation();e.preventDefault();
+
+				_brayworth_.post({
+					url : _brayworth_.url('imap'),
+					data : {
+						action : 'delete-profile',
+						profile : _data.profile,
+
+					},
+
+				}).then( function( d) {
+					_brayworth_.growl( d);
+					if ( 'ack' == d.response) {
+						_el.remove();
+
+					}
+
+				});
+
+				_context.close();
+
+			}));
+
+			_context.open( e);
+
+		});;
+
+	});
+
+});
+</script>
