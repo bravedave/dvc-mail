@@ -14,10 +14,13 @@ use sys;
 class inbox {
 	protected $_client = null;
 
+	protected $_creds = null;
+
 	var $errors = [];
 
 	function __construct( $creds = null) {
 		// sys::dump( $creds);
+		$this->_creds = $creds;
 		$this->_client = client::instance( $creds);
 
 	}
@@ -28,7 +31,29 @@ class inbox {
 
 		];
 
-    }
+	}
+
+	public function EmptyTrash( $folder) {
+		$ret = false;
+		$folders = new folders( $this->_creds);
+		if ( $folder == $folders::$default_folders['Trash']) {
+			if ( $this->_client->open( true, $folder )) {
+				$ret = $this->_client->empty_trash();
+				$this->_client->close( CL_EXPUNGE);
+
+			}
+			else {
+				sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
+
+			}
+
+			return $ret;
+
+		}
+
+		return $ret;
+
+	}
 
 	public function finditems( $params) {
 		$options = array_merge([

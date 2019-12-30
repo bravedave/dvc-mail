@@ -58,6 +58,17 @@ class controller extends \Controller {
 			} else { \Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
 
 		}
+		elseif ( 'empty-trash' == $action) {
+			if ( $folder = (string)$this->getPost( 'folder')) {
+				$inbox = inbox::instance( $this->creds);
+				if ($inbox->EmptyTrash( $folder)) {
+					\Json::ack( sprintf( 'perhaps : %s', $action));
+
+				} else { \Json::nak( sprintf( 'error: %s', $action)); }
+
+			} else { \Json::nak( sprintf( 'missing folder name: %s', $action)); }
+
+		}
 		elseif ( 'get-default-folders' == $action) {
 			Json::ack( $action)
 				->add( 'data', $this->_getDefaultFolders());

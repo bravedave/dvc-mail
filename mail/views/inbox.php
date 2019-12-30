@@ -324,11 +324,9 @@ $(document).on( 'mail-clear-reloader', function( e) {
 				let _me = $(this);
 				let _data = _me.data();
 				let _context = _brayworth_.context();
-				let ctrl
 
 				// console.log( 'contextmenu');
-				_context.append( ctrl = $('<a href="#">create subfolder</a>'));
-				ctrl.on( 'click', function( e) {
+				_context.append( $('<a href="#">create subfolder</a>').on( 'click', function( e) {
 					e.preventDefault();
 
 					_brayworth_.textPrompt({
@@ -370,36 +368,90 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 					_context.close();
 
-				});
+				}));
 
-				_context.append( ctrl = $('<a href="#"><i class="fa fa-trash" />delete folder</a>'));
-				ctrl.on( 'click', function( e) {
-					e.preventDefault();
+				let docData = $(document).data();
+				let fldrCheck = {
+					folders : docData.default_folders,
+					default : function( fldr) {
+						let b = false
 
-					let frm = $('#<?= $uidFrm ?>');
-					let frmData = frm.serializeFormJSON();
-					frmData.action = 'delete-folder';
-					frmData.folder = _data.folder;
+						$.each( this.folders, function( i, s) {
+							if ( fldr == s) {
+								b = true;
+								return false;
 
-					$('#<?= $uidFolders ?>').trigger('spin');
+							}
 
-					_brayworth_.post({
-						url : _brayworth_.url('<?= $this->route ?>'),
-						data : frmData,
+						});
 
-					}).then( function( d) {
-						_brayworth_.growl( d);
-						$(document).trigger('mail-folderlist-reload');
-						if ( 'nak' == d.response) {
-							console.log( d);
+						return b;
 
-						}
+					}
 
-					});
+				};
 
-					_context.close();
+				if ( _data.folder == docData.default_folders.Trash) {
+					_context.append( $('<a href="#"><i class="fa fa-trash" />empty trash</a>').on( 'click', function( e) {
+						e.preventDefault();
 
-				});
+						let frm = $('#<?= $uidFrm ?>');
+						let frmData = frm.serializeFormJSON();
+						frmData.action = 'empty-trash';
+						frmData.folder = _data.folder;
+
+						$('#<?= $uidFolders ?>').trigger('spin');
+
+						_brayworth_.post({
+							url : _brayworth_.url('<?= $this->route ?>'),
+							data : frmData,
+
+						}).then( function( d) {
+							_brayworth_.growl( d);
+							$(document).trigger('mail-folderlist-reload');
+							if ( 'nak' == d.response) {
+								console.log( d);
+
+							}
+
+						});
+
+						_context.close();
+
+					}));
+
+				}
+				else if ( !fldrCheck.default( _data.folder)) {
+					_context.append( $('<a href="#"><i class="fa fa-trash" />delete folder</a>').on( 'click', function( e) {
+						e.preventDefault();
+
+						let frm = $('#<?= $uidFrm ?>');
+						let frmData = frm.serializeFormJSON();
+						frmData.action = 'delete-folder';
+						frmData.folder = _data.folder;
+
+						$('#<?= $uidFolders ?>').trigger('spin');
+
+						_brayworth_.post({
+							url : _brayworth_.url('<?= $this->route ?>'),
+							data : frmData,
+
+						}).then( function( d) {
+							_brayworth_.growl( d);
+							$(document).trigger('mail-folderlist-reload');
+							if ( 'nak' == d.response) {
+								console.log( d);
+
+							}
+
+						});
+
+						_context.close();
+
+					}));
+
+				}
+
 
 				$(document).trigger( 'mail-folders-context', {
 					element : this,

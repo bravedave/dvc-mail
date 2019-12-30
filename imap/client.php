@@ -489,10 +489,10 @@ class client {
 
 	}
 
-	public function close() {
+	public function close( $flag = 0) {
 		if ( $this->_open ) {
 			/* close the connection */
-			imap_close($this->_stream);
+			imap_close( $this->_stream, $flag);
 			$this->_open = false;
 
 		}
@@ -631,6 +631,13 @@ class client {
 		}
 
 		return ( $ret );
+
+	}
+
+	public function empty_trash() {
+
+		$total = imap_num_msg( $this->_stream );
+		return imap_delete( $this->_stream, "1:{$total}", 0);	// returns true
 
 	}
 
