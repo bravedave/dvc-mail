@@ -29,7 +29,41 @@ class imap extends dvc\imap\controller {
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
-		if ( 'save-account' == $action) {
+		if ( 'delete-profile' == $action) {
+			if ( $profile = $this->getPost('profile')) {
+				if ( $profile_config = account::profile( $profile)) {
+					if ( file_exists( $profile_config)) {
+						unlink( $profile_config);
+						\Json::ack( $action);
+
+					} else { \Json::nak( sprintf( 'profile %s not found : %s', $profile_config, $action)); }
+
+				} else { \Json::nak( sprintf( 'invalid profile name : %s', $action)); }
+
+			} else { \Json::nak( $action); }
+
+		}
+		elseif ( 'load-profile' == $action) {
+			if ( $profile = $this->getPost('profile')) {
+				if ( $profile_config = account::profile( $profile)) {
+					if ( file_exists( $profile_config)) {
+						$config = account::config();
+						if ( file_exists( $config)) unlink( $config);
+
+						if ( copy( $profile_config, $config)) {
+							// \sys::logger( sprintf('<load profile : %s> %s', $profile, __METHOD__));
+							\Json::ack( $action);
+
+						} else { \Json::nak( sprintf( 'failed to copy profile to default : %s', $action)); }
+
+					} else { \Json::nak( sprintf( 'profile %s not found : %s', $profile_config, $action)); }
+
+				} else { \Json::nak( sprintf( 'invalid profile name : %s', $action)); }
+
+			} else { \Json::nak( $action); }
+
+		}
+		elseif ( 'save-account' == $action) {
 			// \sys::dump( $this->getPost());
 			$a = (object)[
 				'server' => $this->getPost('server'),
@@ -38,6 +72,7 @@ class imap extends dvc\imap\controller {
 				'username' => $this->getPost('username'),
 				'password' => $this->getPost('password'),
 				'type' => $this->getPost('type'),
+				'profile' => $this->getPost('profile'),
 
 			];
 
@@ -51,15 +86,24 @@ class imap extends dvc\imap\controller {
 			if ( $a->password) $a->password = bCrypt::crypt( $a->password);
 
 			$config = account::config();
-			if ( file_exists( $config)) unlink( $config);
 
+			if ( file_exists( $config)) unlink( $config);
 			file_put_contents( $config, json_encode( $a, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+
+			if ( '' != $a->profile && 'default' != $a->profile) {
+				if ( $profile_config = account::profile( $a->profile)) {
+					if ( file_exists( $profile_config)) unlink( $profile_config);
+					file_put_contents( $profile_config, json_encode( $a, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+
+				}
+
+			}
 
 			// sys::dump( $a, $config);
 
 			Response::redirect( strings::url( $this->route));
 
-        }
+		}
         else { parent::postHandler(); }
 
 	}
@@ -73,6 +117,7 @@ class imap extends dvc\imap\controller {
 				'email' => account::$EMAIL,
 				'username' => account::$USERNAME,
 				'password' => account::$PASSWORD,
+				'profile' => account::$PROFILE,
 
 			]
 
