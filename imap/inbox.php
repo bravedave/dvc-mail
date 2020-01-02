@@ -25,6 +25,32 @@ class inbox {
 
 	}
 
+	public function clearflag( $id, $folder, $flag) {
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->clearflag( $id, $flag);
+			$this->_client->close();
+
+			return $ret;
+
+		}
+
+		return false;
+
+	}
+
+	public function clearflagByUID( $uid, $folder, $flag) {
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->clearflagByUID( $uid, $flag);
+			$this->_client->close();
+
+			return $ret;
+
+		}
+
+		return false;
+
+	}
+
     public function defaults() {
 		return (object)[
 			'inbox' => client::INBOX
@@ -246,6 +272,18 @@ class inbox {
 
 		return false;
 
+	}
+
+	public function setflagByUID( $uid, $folder, $flag) {
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->setflagByUID( $uid, $flag);
+			$this->_client->close();
+
+			return $ret;
+
+		}
+
+		return false;
 
 	}
 

@@ -19,7 +19,7 @@ $msg = $this->data->message;
 
 $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
-    $msgHtml = sprintf( '<pre>%s</pre>', $msg->Body);
+    $msgHtml = sprintf( '<pre>%s</pre>', htmlentities( $msg->Body));
 
 }
 elseif ( $msg->hasMso()) {

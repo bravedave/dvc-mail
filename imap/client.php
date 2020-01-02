@@ -489,6 +489,33 @@ class client {
 
 	}
 
+	public function clearflag( $id, $flag) {
+		$ret = false;
+		$total = imap_num_msg( $this->_stream );
+		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
+		foreach ( $result as $msg) {
+			if ( isset($msg->message_id)) {
+				if ( "{$msg->message_id}" == "{$id}" ) {
+					imap_clearflag_full( $this->_stream, $msg->msgno, $flag);
+					$ret = true;
+					break;
+
+				}
+
+			}
+
+		}
+
+		return $ret;
+
+	}
+
+	public function clearflagByUID( $uid, $flag) {
+		// \sys::logger( sprintf('<%s> %s', $uid, __METHOD__));
+		return imap_clearflag_full( $this->_stream, $uid, $flag, ST_UID);
+
+	}
+
 	public function close( $flag = 0) {
 		if ( $this->_open ) {
 			/* close the connection */
@@ -813,6 +840,11 @@ class client {
 		}
 
 		return $ret;
+
+	}
+
+	public function setflagByUID( $uid, $flag) {
+		return imap_setflag_full( $this->_stream, $uid, $flag, ST_UID);
 
 	}
 

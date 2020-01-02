@@ -94,12 +94,28 @@ class controller extends \Controller {
 				->add( 'messages', $this->_messages( $params));
 
 		}
-		elseif ( 'mark-seen' == $action) {
-			if ( $msgID = $this->getPost('messageid')) {
+		elseif ( 'mark-seen' == $action || 'mark-unseen' == $action) {
+			$msgID = $this->getPost('messageid');
+			$uid = $this->getPost('uid');
+
+			if ( $msgID || $uid) {
 				$folder = $this->getPost('folder', 'default');
 
 				$inbox = inbox::instance( $this->creds);
-				if ( $res = $inbox->setflag( $msgID, $folder, '\seen')) {
+				if ( 'mark-unseen' == $action) {
+					$res = $uid ?
+						$inbox->clearflagByUID( $uid, $folder, '\seen') :
+						$res = $inbox->clearflag( $msgID, $folder, '\seen');
+
+				}
+				else{
+					$res = $uid ?
+						$inbox->setflagByUID( $uid, $folder, '\seen') :
+						$res = $inbox->setflag( $msgID, $folder, '\seen');
+
+				}
+
+				if ( $res) {
 					Json::ack( $action);
 
 				} else { Json::nak( $action); }
@@ -348,15 +364,33 @@ class controller extends \Controller {
 		$options = array_merge([
 			'creds' => $this->creds,
 			'folder' => 'default',
-			'msg' => false
+			'msg' => false,
+			'uid' => false,
 
 		], $params);
 
+		$msg = false;
 		$inbox = inbox::instance( $options['creds']);
-		if ( $msg = $inbox->GetItemByMessageID(
-			$options['msg'],
-			$includeAttachments = true,
-			$options['folder'])) {
+		if ( $options['msg']) {
+			$msg = $inbox->GetItemByMessageID(
+				$options['msg'],
+				$includeAttachments = true,
+				$options['folder']
+
+			);
+
+		}
+		elseif ( $options['uid']) {
+			$msg = $inbox->GetItemByUID(
+				$options['uid'],
+				$includeAttachments = true,
+				$options['folder']
+
+			);
+
+		}
+
+		if ( $msg) {
 			// unset( $msg->attachments);
 			// sys::dump( $msg);
 			// print $msg->safehtml();
@@ -540,11 +574,15 @@ class controller extends \Controller {
 	}
 
 	public function view() {
-		if ( $msg = $this->getParam('msg')) {
+		$msg = $this->getParam('msg');
+		$uid = $this->getParam('uid');
+
+		if ( $msg || $uid) {
 			$this->_view([
 				'creds' => $this->creds,
 				'folder' => $this->getParam('folder','default'),
 				'msg' => $msg,
+				'uid' => $uid,
 
 			]);
 

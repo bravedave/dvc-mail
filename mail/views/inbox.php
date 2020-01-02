@@ -802,10 +802,21 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
 			let params = [
-				'msg=' + encodeURIComponent( _data.message.messageid),
 				'folder=' + encodeURIComponent( _data.folder)
 
 			];
+
+			// console.log( _data.message);
+
+			if ( '' != String( _data.message.messageid)) {
+				params.push('msg=' + encodeURIComponent( _data.message.messageid));
+
+			}
+
+			if ( '' != String( _data.message.uid)) {
+				params.push('uid=' + encodeURIComponent( _data.message.uid));
+
+			}
 
 			if ( Number( user_id) > 0) {
 				params.push('user_id=' + user_id);
@@ -827,11 +838,14 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				params.btnClass = 'btn btn-secondary-outline px-3';
 
 				frame[0].contentWindow.setTimeout( () => {
-					let id = params.message.messageid;
-							// console.log( id);
-							// console.log( $('[msgid="'+id+'"]'));
+					if ( '' != String( params.message.messageid)) {
+						$('[msgid="'+params.message.messageid+'"]').trigger('mark-seen');
 
-					$('[msgid="'+id+'"]').trigger('mark-seen');
+					}
+					else if ( '' != String( params.message.uid)) {
+						$('[id="'+params.message.uid+'"]').trigger('mark-seen');
+
+					};
 
 				}, 3000);
 
@@ -1181,6 +1195,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				let row = $('[msgid="'+msg.messageid+'"]');
 				if ( row.length > 0) {
 					row.data('seen', true);
+					row.data('read', msg.seen);
 					// console.log('found : '+msg.messageid);
 					if ( 'no' == msg.seen) {
 						let _unseen = $('[unseen]', row);
@@ -1260,19 +1275,38 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let _context = _brayworth_.context();
 					let defaultFolders = $(document).data('default_folders');
 
-					// console.log( _data);
-
-					if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-						let ctrl= $('<a href="#"><i class="fa fa-trash" />move to '+defaultFolders.Trash+'</a>');
-						ctrl.on( 'click', function( e) {
+					if ( 'yes' == String( _data.read)) {
+						_context.append( $('<a href="#">mark unseen</a>').on( 'click', function( e) {
 							e.stopPropagation();e.preventDefault();
 
-							_row.trigger('delete');
+							_row.trigger('mark-unseen');
 
 							_context.close();
 
-						});
-						_context.append( ctrl);
+						}));
+
+					}
+					else {
+						_context.append( $('<a href="#">mark seen</a>').on( 'click', function( e) {
+							e.stopPropagation();e.preventDefault();
+
+							_row.trigger('mark-seen');
+
+							_context.close();
+
+						}));
+
+					}
+
+					if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
+						_context.append( $('<a href="#"><i class="fa fa-trash" />move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
+								e.stopPropagation();e.preventDefault();
+
+								_row.trigger('delete');
+
+								_context.close();
+
+						}));
 
 					}
 
@@ -1368,6 +1402,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let data = frm.serializeFormJSON();
 					data.folder = _data.folder;
 					data.messageid = _data.message.messageid;
+					data.uid = _data.message.uid;
 					data.action = 'mark-seen';
 
 
@@ -1378,6 +1413,37 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					}).then( function( d) {
 						if ( 'ack' == d.response) {
 							$('[unseen]', _me).remove();
+							_me.data('read', 'yes');
+
+						}
+						else {
+							_brayworth_.growl( d);
+
+						}
+
+					});
+
+				})
+				.on('mark-unseen', function( e) {
+					let _me = $(this);
+					let _data = _me.data();
+
+					let frm = $('#<?= $uidFrm ?>');
+					let data = frm.serializeFormJSON();
+					data.folder = _data.folder;
+					data.messageid = _data.message.messageid;
+					data.uid = _data.message.uid;
+					data.action = 'mark-unseen';
+
+
+					_brayworth_.post({
+						url : _brayworth_.url('<?= $this->route ?>'),
+						data : data,
+
+					}).then( function( d) {
+						if ( 'ack' == d.response) {
+							$('<?= $unseen ?>').prependTo( $('[from]', _me));
+							_me.data('read', 'no');
 
 						}
 						else {
