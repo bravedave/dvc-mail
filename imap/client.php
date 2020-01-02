@@ -638,7 +638,7 @@ class client {
 			if ( $msgno > 0 ) {
 				if ( $ret = $this->_getmessage( $msgno)) {
 					$ret->Folder = $folder;
-					sys::logger( sprintf( 'retrieved msgno via imap : %s :: %s : %s', $uid, $folder, __METHOD__));
+					if ( self::$debug) sys::logger( sprintf( 'retrieved msgno via imap : %s :: %s : %s', $uid, $folder, __METHOD__));
 
 				}
 

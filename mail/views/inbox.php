@@ -759,7 +759,9 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		row
 		.attr('id', rowID)
 		.attr('msgid', msg.messageid)
+		.attr('uid', msg.uid)
 		.data('seen', true)
+		.data('read', msg.seen)
 		.data('received', time.format( 'YYYYMMDDHHmmss'));
 
 		let cell = $('<div class="col" />').appendTo( row);
@@ -839,13 +841,19 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				frame[0].contentWindow.setTimeout( () => {
 					if ( '' != String( params.message.messageid)) {
+						// console.log( 'issue mark seen by messageid');
 						$('[msgid="'+params.message.messageid+'"]').trigger('mark-seen');
 
 					}
 					else if ( '' != String( params.message.uid)) {
-						$('[id="'+params.message.uid+'"]').trigger('mark-seen');
+						// console.log( 'issue mark seen by uid', '[id="'+params.message.uid+'"]');
+						$('[uid="'+params.message.uid+'"]').trigger('mark-seen');
 
-					};
+					}
+					// else {
+					// 	console.log( 'mark seen not issued');
+
+					// }
 
 				}, 3000);
 
