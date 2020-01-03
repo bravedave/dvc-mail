@@ -124,14 +124,20 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'move-message' == $action) {
-			if ( $msgID = $this->getPost('messageid')) {
-				// sys::logger( sprintf( '%s : %s', $itemID, __METHOD__));
+			$msgID = $this->getPost('messageid');
+			$uid = $this->getPost('uid');
+
+			if ( $msgID || $uid) {
 
 				$srcFolder = $this->getPost('folder', 'default');
 				if ( $targetFolder = $this->getPost('targetFolder')) {
 
 					$inbox = inbox::instance( $this->creds);
-					if ( $res = $inbox->MoveItem( $msgID, $srcFolder, $targetFolder)) {
+					$res = $uid ?
+						$inbox->MoveItemByUID( $uid, $srcFolder, $targetFolder) :
+						$inbox->MoveItem( $msgID, $srcFolder, $targetFolder);
+
+					if ( $res) {
 						\Json::ack( $action);
 
 					} else { \Json::nak( $action); }

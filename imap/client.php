@@ -689,6 +689,16 @@ class client {
 
 	}
 
+	public function move_message_byUID( $uid, $target) {
+		if ($ret = imap_mail_move( $this->_stream, $uid, $target, CP_UID)) {
+			imap_expunge( $this->_stream);
+
+		}
+
+		return $ret;
+
+	}
+
 	public function open( $full = true, &$folder = 'default' ) {
 		$debug = self::$debug;
 		// $debug = true;

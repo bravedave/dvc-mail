@@ -1368,6 +1368,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let data = frm.serializeFormJSON();
 					data.folder = _data.folder;
 					data.messageid = _data.message.messageid;
+					data.uid = _data.message.uid;
 					data.targetFolder = folder;
 
 					$.extend( data, params);

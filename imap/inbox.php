@@ -163,6 +163,27 @@ class inbox {
 
 	}
 
+	public function MoveItemByUID(
+		string $uid,
+		string $folder = "default",
+		string $archiveFolder ) {
+
+		$ret = false;
+
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->move_message_byUID( $uid, $archiveFolder);
+			$this->_client->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
+
+		}
+
+		return ( $ret);
+
+	}
+
 	public function ReadFromFile( $msgStore) {
 		$debug = false;
 		//~ $debug = true;
