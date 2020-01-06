@@ -838,6 +838,10 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				};
 				params.toolbar = $( '<div class="btn-group btn-group-sm" />'),
 				params.btnClass = 'btn btn-secondary-outline px-3';
+				if ( Number( user_id) > 0) {
+					params.user_id = user_id;
+
+				}
 
 				frame[0].contentWindow.setTimeout( () => {
 					if ( '' != String( params.message.messageid)) {
