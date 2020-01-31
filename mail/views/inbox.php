@@ -1653,7 +1653,13 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		$('#<?= $uidMsgs ?>').data('folder', folder);
 		if ( !!lastMessages) {
 			// console.log( 'lastMessages - ' + data.folder);
-			_list_messages( JSON.parse( lastMessages), true);
+			try {
+				_list_messages( JSON.parse( lastMessages), true);
+
+			} catch (error) {
+				console.log( error);
+
+			}
 			sessionStorage.removeItem( key);
 
 		}
