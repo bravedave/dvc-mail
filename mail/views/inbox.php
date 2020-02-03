@@ -764,6 +764,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		.data('read', msg.seen)
 		.data('received', time.format( 'YYYYMMDDHHmmss'));
 
+		$('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="fa fa-trash mt-2" /></div>').appendTo( row);
 		let cell = $('<div class="col" />').appendTo( row);
 
 		$('<div class="row" />').append( from).appendTo( cell);
@@ -1467,6 +1468,29 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					});
 
 				});
+
+				$('[trash-control]', row).on( 'click', function( e) {
+					e.stopPropagation();e.preventDefault();
+					row.trigger( 'delete');
+
+				});
+
+				row.swipeOn({
+					left : function( e) {
+						$('[trash-control]', this).addClass( 'd-none');
+						// console.log( 'trash-off', e, this);
+
+					},
+					right : function( e) {
+						$('[trash-control]', this).removeClass( 'd-none');
+						this.siblings().each( function( i, el) {
+							$('[trash-control]', el).addClass( 'd-none');
+
+						});
+
+					}
+
+				})
 
 			});
 
