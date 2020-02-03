@@ -765,7 +765,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		.data('received', time.format( 'YYYYMMDDHHmmss'));
 
 		$('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="fa fa-trash mt-2" /></div>').appendTo( row);
-		let cell = $('<div class="col" />').appendTo( row);
+		let cell = $('<div class="col" message-control/>').appendTo( row);
 
 		$('<div class="row" />').append( from).appendTo( cell);
 		$('<div class="row" />').append( subject).append( received).appendTo( cell);
@@ -1477,14 +1477,28 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				row.swipeOn({
 					left : function( e) {
-						$('[trash-control]', this).addClass( 'd-none');
+						( function( el) {
+							el.addClass( 'd-none');
+							el.siblings( '[message-control]').removeClass('col-10');
+
+						})( $('[trash-control]', this));
+
 						// console.log( 'trash-off', e, this);
 
 					},
 					right : function( e) {
-						$('[trash-control]', this).removeClass( 'd-none');
+						( function( el) {
+							el.removeClass( 'd-none');
+							el.siblings( '[message-control]').addClass('col-10');
+
+						})( $('[trash-control]', this));
+
 						this.siblings().each( function( i, el) {
-							$('[trash-control]', el).addClass( 'd-none');
+							( function( el) {
+								el.addClass( 'd-none');
+								el.siblings( '[message-control]').removeClass('col-10');
+
+							})( $('[trash-control]', el));
 
 						});
 
