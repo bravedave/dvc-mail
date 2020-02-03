@@ -56,6 +56,16 @@
 
 			<li class="mt-1"><a href="<?= strings::url( 'options') ?>">options</a></li>
 
+			<li class="mt-1">
+				<h6 class="my-0">Tests</h6>
+				<ul class="list-unstyled">
+					<li><a href="<?= strings::url( 'tests/messages') ?>">dump messages</a></li>
+
+				</ul>
+
+			</li>
+
+
 		</ul>
 
 	</div>

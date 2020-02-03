@@ -247,6 +247,14 @@ class home extends dvc\mail\controller {
 				false
 
 			);
+			// sys::dump( $this->_messages([
+			// 	'folder' => 'Deleted Items',
+			// 	'page' => 2
+			// 	]),
+			// 	sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
+			// 	false
+
+			// );
 
 		}
 		elseif ( 'sentmessages' == $test) {

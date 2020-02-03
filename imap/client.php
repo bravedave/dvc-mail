@@ -433,8 +433,6 @@ class client {
 
 			}
 
-			if ( isset( $msg->message_id)) $ret->xmessage_id = $msg->message_id;
-
 			if ( isset( $msg->date)) {
 				$ret->Recieved = $msg->date;
 
@@ -448,10 +446,23 @@ class client {
 
 		}
 
-		$headerLines = explode( "\n", imap_fetchheader( $this->_stream, $email_number));
+		$_headers = imap_fetchheader( $this->_stream, $email_number);
+		$headerLines = explode( "\n", $_headers);
 		foreach ( $headerLines as $l) {
 			//~ sys::logger($l);
-			if ( preg_match( '/^X-CMS-Draft/', $l)) {
+			if ( preg_match( '/^Message-ID/', $l)) {
+				/**
+				 * I'm sure this is to cope with a one time bug ...
+				 */
+				if ( preg_match( '@"@', $ret->MessageID)) {
+					$x = explode( ':', $l);
+					$ret->MessageID = trim( array_pop( $x));
+					// sys::dump( explode( "\n", $ret->MessageID),'Invalid MessageID');
+
+				}
+
+			}
+			elseif ( preg_match( '/^X-CMS-Draft/', $l)) {
 				$x = explode( ':', $l);
 				$ret->{'X-CMS-Draft'} = trim( array_pop( $x));
 
