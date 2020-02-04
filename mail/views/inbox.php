@@ -584,6 +584,13 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 	let seed = String( parseInt( Math.random() * 1000000));
 	let seedI = 0;
 
+	let encodeHTMLEntities = function( html) {
+		let txt = document.createElement("span");
+		txt.textContent = html;
+		return txt.innerHTML;
+
+	}
+
 	let reply = function( _data) {
 		let frame = $('iframe', '#<?= $uidViewer ?>');
 		if ( frame.length < 1) return;
@@ -606,7 +613,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let _time = $('[data-role="time"]', _document).text();
 		if ( '' != String( _time)) {
 			if ( '' != String( _to)) {
-				_wrap.prepend('on ' + _time + ' ' + _to + ' wrote:');
+				_wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( _to) + ' wrote:');
 
 			}
 			else {
