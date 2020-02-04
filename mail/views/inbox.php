@@ -592,14 +592,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let _body = $('div[message]', _document);
 
 		let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;" />');
-			if ( _brayworth_.browser.isMobileDevice) {
-				_wrap.text( _body.text().replace(/\n\s*/g,"\n").replace(/\n\n/g,"\n").trim())
+			_wrap.html( _body.clone().html());
 
-			}
-			else {
-				_wrap.html( _body.clone().html());
-
-			}
 			$('p', _wrap).each(function() {
 				let _me = $(this);
 				if( _me.html().length == 0)
@@ -715,6 +709,15 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		}
 		else {
+			// ( function(html) {
+			// 	let txt = document.createElement("span");
+			// 	txt.textContent = html;
+			// 	console.log( '<txt.innerHTML>');
+			// 	console.log( txt.innerHTML);
+			// 	console.log( '</txt.innerHTML>');
+
+			// })( j.original);
+
 			console.table( j);
 			_brayworth_.modal({
 				title:'alert',
