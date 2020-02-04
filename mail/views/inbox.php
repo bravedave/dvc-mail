@@ -629,7 +629,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		// console.log( _frm_data);
 
 		let j = {
-			message : _brayworth_.browser.isMobileDevice ? _wrap.text() : '<br /><br />' + _wrap[0].outerHTML,
+			message : _brayworth_.browser.isMobileDevice ? '' : '<br /><br />' + _wrap[0].outerHTML,
+			original : _wrap[0].outerHTML,
 			subject : _subject,
 			user_id : _frm_data.user_id
 
@@ -719,7 +720,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				title:'alert',
 				text:'no email program to run ..'
 
-			})
+			});
 
 		}
 		// console.log( _to, _time, _body);
