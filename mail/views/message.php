@@ -30,6 +30,9 @@ elseif ( $msg->hasMso()) {
 }
 else {
     $msgHtml = $msg->safehtml();
+    // $msgHtml = $msg->Body;
+    // \sys::logger( sprintf('<%s> %s', strlen( $msgHtml), __METHOD__));
+
 
 }
 

@@ -126,6 +126,16 @@ class home extends dvc\mail\controller {
 
 	}
 
+	public function changes() {
+		$this->render([
+			'title' => $this->title = 'Change Log',
+			'primary' => 'changes',
+			'secondary' =>'index'
+
+		]);
+
+	}
+
 	public function localjs() {
 		printf( '
 		$(document).on( \'mail-messages-context\', function( e, params) {
@@ -237,6 +247,10 @@ class home extends dvc\mail\controller {
 		}
 		elseif ( 'folders' == $test) {
 			sys::dump( $this->_folders());
+
+		}
+		elseif ( 'info' == $test) {
+			phpinfo();
 
 		}
 		elseif ( 'messages' == $test) {

@@ -215,6 +215,14 @@ class message {
 
 		}
 
+		/**
+		 * seems to be a memory bug in DOMDocument SetAttribute
+		 * cidContent replaces images using str_replace to avoid
+		 *
+		 * */
+
+		$cidContent = [];
+
 		foreach($doc->getElementsByTagName('img') as $img) {
 			if ( $img->hasAttributes()) {
 
@@ -241,36 +249,82 @@ class message {
 							( strpos( $src, "cid:$name" ) !== false ) ||
 							( strpos( $src, "cid:$data->ContentId" ) !== false )
 							) {
-							if ( $debug) \sys::logger( "processing .....$src, $name" );
+
 							// \sys::dump( $data);
 
 							if ( preg_match( "@.gif$@i", $name )) {
-								$img->setAttribute('src', 'data:image/gif;base64,' . base64_encode( $data->Content ));
+								$cidContent[] = (object)[
+									'refer' => $key,
+									'content' => 'data:image/gif;base64,' . base64_encode( $data->Content )
+
+								];
+
+								$img->setAttribute('src', $key );
 								$img->removeAttribute('data-safe-src');
+								if ( $debug) \sys::logger( sprintf( 'process gif ..... %s, %s : %s', $src, $name, __METHOD__));
+
 							}
 							elseif ( preg_match( "@.jpe?g$@i", $name )) {
-								$img->setAttribute('src', 'data:image/jpeg;base64,' . base64_encode( $data->Content ));
+								$cidContent[] = (object)[
+									'refer' => $key,
+									'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content )
+
+								];
+
+								$img->setAttribute('src', $key );
 								$img->removeAttribute('data-safe-src');
+								if ( $debug) \sys::logger( sprintf( 'process jpg ..... %s, %s : %s', $src, $name, __METHOD__));
+
 							}
 							elseif ( preg_match( "@.png$@i", $name )) {
-								$img->setAttribute('src', 'data:image/png;base64,' . base64_encode( $data->Content ));
+								$key = strings::rand();
+								$cidContent[] = (object)[
+									'refer' => $key,
+									'content' => 'data:image/png;base64,' . base64_encode( $data->Content )
+
+								];
+
+								$img->setAttribute('src', $key );
 								$img->removeAttribute('data-safe-src');
+								if ( $debug) \sys::logger( sprintf( 'process png ..... %s, %s : %s', $src, $name, __METHOD__));
+
 							}
 							else {
+
+								if ( $debug) \sys::logger( sprintf( 'processing ..... %s, %s : %s', $src, $name, __METHOD__));
+
 								$finfo = new \finfo(FILEINFO_MIME);
 								$mimetype = $finfo->buffer($data->Content);
 								if ( preg_match( "@image/gif@i", $mimetype )) {
-									$img->setAttribute('src', 'data:image/gif;base64,' . base64_encode( $data->Content ));
+									$cidContent[] = (object)[
+										'refer' => $key,
+										'content' => 'data:image/gif;base64,' . base64_encode( $data->Content )
+
+									];
+
+									$img->setAttribute('src', $key );
 									$img->removeAttribute('data-safe-src');
 
 								}
 								elseif ( preg_match( "@image/jpe?g@i", $mimetype )) {
-									$img->setAttribute('src', 'data:image/jpeg;base64,' . base64_encode( $data->Content ));
+									$cidContent[] = (object)[
+										'refer' => $key,
+										'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content )
+
+									];
+
+									$img->setAttribute('src', $key );
 									$img->removeAttribute('data-safe-src');
 
 								}
 								elseif ( preg_match( "@image/png@i", $mimetype )) {
-									$img->setAttribute('src', 'data:image/png;base64,' . base64_encode( $data->Content ));
+									$cidContent[] = (object)[
+										'refer' => $key,
+										'content' => 'data:image/png;base64,' . base64_encode( $data->Content )
+
+									];
+
+									$img->setAttribute('src', $key );
 									$img->removeAttribute('data-safe-src');
 
 								}
@@ -329,6 +383,11 @@ class message {
 		$doc->saveHTMLfile( $tmpfile);
 		$html = \file_get_contents( $tmpfile);
 		unlink( $tmpfile);
+
+		foreach ( $cidContent as $cid) {
+			$html = \str_replace( $cid->refer, $cid->content, $html);
+
+		}
 
 		$html = str_replace( '<o_namespace_', '<o:', $html);
 		$html = str_replace( '</o_namespace_', '</o:', $html);

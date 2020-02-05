@@ -60,11 +60,13 @@
 				<h6 class="my-0">Tests</h6>
 				<ul class="list-unstyled">
 					<li><a href="<?= strings::url( 'tests/messages') ?>">dump messages</a></li>
+					<li><a href="<?= strings::url( 'tests/info') ?>">phpinfo</a></li>
 
 				</ul>
 
 			</li>
 
+			<li><a href="<?= strings::url( 'changes') ?>">changes</a></li>
 
 		</ul>
 

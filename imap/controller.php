@@ -31,12 +31,12 @@ class controller extends \Controller {
 
 	}
 
-	protected function getView( $viewName = 'index', $controller = null ) {
+	protected function getView( $viewName = 'index', $controller = null, $logMissingView = true) {
 		$view = sprintf( '%s/views/%s.php', __DIR__, $viewName );		// php
 		if ( file_exists( $view))
 			return ( $view);
 
-		return parent::getView( $viewName, $controller);
+		return parent::getView( $viewName, $controller, $logMissingView);
 
 	}
 
