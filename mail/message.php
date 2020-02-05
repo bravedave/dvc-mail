@@ -253,79 +253,85 @@ class message {
 							// \sys::dump( $data);
 
 							if ( preg_match( "@.gif$@i", $name )) {
+								$_uid = strings::rand();
 								$cidContent[] = (object)[
-									'refer' => $key,
+									'refer' => $_uid,
 									'content' => 'data:image/gif;base64,' . base64_encode( $data->Content )
 
 								];
 
-								$img->setAttribute('src', $key );
+								$img->setAttribute('src', $_uid );
 								$img->removeAttribute('data-safe-src');
 								if ( $debug) \sys::logger( sprintf( 'process gif ..... %s, %s : %s', $src, $name, __METHOD__));
 
 							}
 							elseif ( preg_match( "@.jpe?g$@i", $name )) {
+								$_uid = strings::rand();
 								$cidContent[] = (object)[
-									'refer' => $key,
+									'refer' => $_uid,
 									'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content )
 
 								];
 
-								$img->setAttribute('src', $key );
+								$img->setAttribute('src', $_uid );
 								$img->removeAttribute('data-safe-src');
 								if ( $debug) \sys::logger( sprintf( 'process jpg ..... %s, %s : %s', $src, $name, __METHOD__));
 
 							}
 							elseif ( preg_match( "@.png$@i", $name )) {
-								$key = strings::rand();
+								$_uid = strings::rand();
 								$cidContent[] = (object)[
-									'refer' => $key,
+									'refer' => $_uid,
 									'content' => 'data:image/png;base64,' . base64_encode( $data->Content )
 
 								];
 
-								$img->setAttribute('src', $key );
+								$img->setAttribute('src', $_uid );
 								$img->removeAttribute('data-safe-src');
 								if ( $debug) \sys::logger( sprintf( 'process png ..... %s, %s : %s', $src, $name, __METHOD__));
 
 							}
 							else {
 
-								if ( $debug) \sys::logger( sprintf( 'processing ..... %s, %s : %s', $src, $name, __METHOD__));
-
 								$finfo = new \finfo(FILEINFO_MIME);
 								$mimetype = $finfo->buffer($data->Content);
 								if ( preg_match( "@image/gif@i", $mimetype )) {
+									$_uid = strings::rand();
 									$cidContent[] = (object)[
-										'refer' => $key,
+										'refer' => $_uid,
 										'content' => 'data:image/gif;base64,' . base64_encode( $data->Content )
 
 									];
 
-									$img->setAttribute('src', $key );
+									$img->setAttribute('src', $_uid );
 									$img->removeAttribute('data-safe-src');
+									if ( $debug) \sys::logger( sprintf( 'processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
 
 								}
 								elseif ( preg_match( "@image/jpe?g@i", $mimetype )) {
+									$_uid = strings::rand();
 									$cidContent[] = (object)[
-										'refer' => $key,
+										'refer' => $_uid,
 										'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content )
 
 									];
 
-									$img->setAttribute('src', $key );
+									$img->setAttribute('src', $_uid );
 									$img->removeAttribute('data-safe-src');
+									if ( $debug) \sys::logger( sprintf( 'processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
 
 								}
 								elseif ( preg_match( "@image/png@i", $mimetype )) {
+									$_uid = strings::rand();
 									$cidContent[] = (object)[
-										'refer' => $key,
+										'refer' => $_uid,
 										'content' => 'data:image/png;base64,' . base64_encode( $data->Content )
 
 									];
 
-									$img->setAttribute('src', $key );
+									$img->setAttribute('src', $_uid );
 									$img->removeAttribute('data-safe-src');
+									if ( $debug) \sys::logger( sprintf( 'processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
 
 								}
 								elseif ( $debug) {
@@ -386,6 +392,8 @@ class message {
 
 		foreach ( $cidContent as $cid) {
 			$html = \str_replace( $cid->refer, $cid->content, $html);
+			// \sys::logger( sprintf('<%s> %s', $cid->refer, __METHOD__));
+
 
 		}
 
