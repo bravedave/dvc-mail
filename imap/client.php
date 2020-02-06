@@ -364,7 +364,7 @@ class client {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
 			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
-			$_cache = config::IMAP_CACHE() . sprintf('%s_%s_%s.json', $this->_account, $this->_folder, $ret->Uid);
+			$_cache = config::IMAP_CACHE() . sprintf('%s_%s_%s.json', str_replace('\\', '_', $this->_account), $this->_folder, $ret->Uid);
 			// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
 
 			if ( \file_exists( $_cache)) {
