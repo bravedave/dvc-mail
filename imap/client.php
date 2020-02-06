@@ -38,7 +38,7 @@ class client {
 
 	const INBOX = 'Inbox';
 
-	static protected function _instance( credentials $cred = null ) {
+	protected static function _instance( credentials $cred = null ) {
 		if ( is_null( $cred))
 			$cred = credentials::getCurrentUser();
 
@@ -62,32 +62,6 @@ class client {
 		}
 
 		return ( false );
-
-	}
-
-	static function default_folders() : array {
-		return folders::$default_folders;
-
-	}
-
-	static function instance( credentials $cred = null ) {
-		if ( $client = self::_instance( $cred)) {
-			// if ( isset( \config::$exchange_timezone))
-			// 	$client->setTimezone( \config::$exchange_timezone);
-
-		}
-
-		return ( $client);
-
-	}
-
-	static function instanceForDelete( credentials $cred = null ) {
-		return ( self::_instance( $cred));
-
-	}
-
-	static function instanceForSync( credentials $cred = null ) {
-		return ( self::_instance( $cred));
 
 	}
 
@@ -128,6 +102,52 @@ class client {
 		return str_replace(
 			['’',	'…'],
 			['\'',	'...'], $string);
+	}
+
+	static function default_folders() : array {
+		return folders::$default_folders;
+
+	}
+
+	static function instance( credentials $cred = null ) {
+		if ( $client = self::_instance( $cred)) {
+			// if ( isset( \config::$exchange_timezone))
+			// 	$client->setTimezone( \config::$exchange_timezone);
+
+		}
+
+		return ( $client);
+
+	}
+
+	static function instanceForDelete( credentials $cred = null ) {
+		return ( self::_instance( $cred));
+
+	}
+
+	static function instanceForSync( credentials $cred = null ) {
+		return ( self::_instance( $cred));
+
+	}
+
+	protected function _cache_prefix() {
+		return strtolower( sprintf( '%s_%s', str_replace('\\', '_', $this->_account), $this->_folder));
+
+	}
+
+	protected function _flush_cache() {
+		if ( !config::$_imap_cache_flushing) return;
+
+		$_path = config::IMAP_CACHE() . $this->_cache_prefix() . '*';
+		$iterator = new \GlobIterator( $_path);
+		foreach ($iterator as $item) {
+			// \sys::logger( sprintf('flush <%s>  %s', $item->getRealPath(), __METHOD__));
+			unlink( $item->getRealPath());
+
+		}
+
+		// \sys::logger( sprintf('flushed <%s>  %s', $_path, __METHOD__));
+
 	}
 
 	protected function _getmessage( $msgno, $overview = false ) : \dvc\mail\message {
@@ -364,7 +384,7 @@ class client {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
 			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
-			$_cache = config::IMAP_CACHE() . sprintf('%s_%s_%s.json', str_replace('\\', '_', $this->_account), $this->_folder, $ret->Uid);
+			$_cache = sprintf('%s%s_%s.json', config::IMAP_CACHE(), $this->_cache_prefix(), $ret->Uid);
 			// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
 
 			if ( \file_exists( $_cache)) {
@@ -550,6 +570,11 @@ class client {
 			imap_close( $this->_stream, $flag);
 			$this->_open = false;
 
+			if ( CL_EXPUNGE == $flag) {
+				$this->_flush_cache();
+
+			}
+
 		}
 
 	}
@@ -710,6 +735,8 @@ class client {
 			if ( "{$msg->message_id}" == "{$id}" ) {
 				imap_mail_move( $this->_stream, $msg->msgno, $target);
 				imap_expunge( $this->_stream);
+				$this->_flush_cache();
+
 				$ret = sprintf( 'moved to %s : %s', $target, __METHOD__ );
 				break;
 
@@ -724,6 +751,7 @@ class client {
 	public function move_message_byUID( $uid, $target) {
 		if ($ret = imap_mail_move( $this->_stream, $uid, $target, CP_UID)) {
 			imap_expunge( $this->_stream);
+			$this->_flush_cache();
 
 		}
 

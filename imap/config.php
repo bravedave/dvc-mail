@@ -20,7 +20,10 @@ abstract class config extends \config {
 	static protected $_IMAP_VERSION = 0;
 
 	static protected $_imap_cleaned_up = false;
-	static protected $_imap_cache_max_age = 86400;
+	static protected $_imap_cache_max_age = 14400;	// 4 hours
+
+	static $_imap_cache_flushing = false;	// enforces cache flush on purge
+	// static $_imap_cache_flushing = true;
 
 	static function IMAP_CACHE() {
 		$data = self::IMAP_DATA() . '_cache' . DIRECTORY_SEPARATOR;
@@ -38,24 +41,16 @@ abstract class config extends \config {
 			self::$_imap_cleaned_up = true;
 
 			// clean this folder
-			// \sys::logger( sprintf('<%s> %s', 'please clean up', __METHOD__));
 			$iterator = new \GlobIterator($data . '*');
-			$n = 0;
 			foreach ($iterator as $item) {
 				$age = time() - $item->getMTime();
 
 				if ( $age > self::$_imap_cache_max_age) {
-					// \sys::logger( sprintf('<%s> %s', sprintf("[%d] %s : delete : %s", ++$n, $item->getRealPath(), $age), __METHOD__));
 					unlink( $item->getRealPath());
-
-				}
-				else {
-					// \sys::logger( sprintf('<%s> %s', sprintf("[%d] %s : good : %s", ++$n, $iterator->key(), $age), __METHOD__));
 
 				}
 
 			}
-			// \sys::logger( sprintf('<%s> %s', 'please clean [done]', __METHOD__));
 
 		}
 
