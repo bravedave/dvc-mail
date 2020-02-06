@@ -320,7 +320,7 @@ class controller extends \Controller {
 		$inbox = inbox::instance( $options['creds']);
 		// \sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
 		$messages = (array)$inbox->finditems( $options);
-		\sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+		// \sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
 		// sys::dump( $messages);
 
 		$a = [];
