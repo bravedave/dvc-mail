@@ -318,7 +318,9 @@ class controller extends \Controller {
 		], $params);
 
 		$inbox = inbox::instance( $options['creds']);
+		// \sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
 		$messages = (array)$inbox->finditems( $options);
+		\sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
 		// sys::dump( $messages);
 
 		$a = [];
@@ -477,7 +479,7 @@ class controller extends \Controller {
 
 			\dvc\pages\_page::$momentJS = true;
 			$this->render([
-				'title' => $this->title = $this->label,
+				'title' => $this->title = 'mail',
 				'scripts' => [
 					strings::url( sprintf( '%s/localjs', $this->route)),
 					strings::url( sprintf( '%s/mailjs', $this->route))

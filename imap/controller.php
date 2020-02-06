@@ -99,40 +99,6 @@ class controller extends \Controller {
 				->add( 'messages', $a);
 
 		}
-		// elseif ( 'move-message' == $action) {
-		// 	if ( $msgID = $this->getPost('messageid')) {
-		// 		// sys::logger( sprintf( '%s : %s', $itemID, __METHOD__));
-
-		// 		$srcFolder = $this->getPost('folder', 'INBOX');
-
-		// 		$inbox = new inbox( $this->creds);
-		// 		if ( $msg = $inbox->GetItemByMessageID( $msgID, false, $srcFolder)) {
-
-		// 			if ( $targetFolder = $this->getPost('targetFolder')) {
-		// 				$moved = false;
-		// 				$folders = new folders( $this->creds);
-		// 				foreach( $_fldrs = $folders->getAll() as $_fldr) {
-		// 					if ( $targetFolder == $_fldr->map) {
-		// 						if ( $inbox->MoveItem( $msg, $targetFolder)) {
-		// 							$moved = true;
-		// 							\Json::ack( $action);
-		// 							break;
-
-		// 						}
-
-		// 					}
-
-		// 				}
-
-		// 				if ( !$moved) { \Json::nak( sprintf('%s : message not moved', $action)); }
-
-		// 			} else { \Json::nak( sprintf('%s : folder not found', $action)); }
-
-		// 		} else { \Json::nak( sprintf('%s : message not found in %s', $action, $srcFolder)); }
-
-		// 	}
-
-		// }
         else { parent::postHandler(); }
 
 	}
@@ -186,12 +152,6 @@ class controller extends \Controller {
 		}
 
 	}
-
-	// public function folders() {
-	// 	$folders = new folders( $this->creds);
-	// 	sys::dump( $folders->getAll());
-
-	// }
 
 	public function js( $scope = 'global') {
 		if ( 'local' == $scope) {

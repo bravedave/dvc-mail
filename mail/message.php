@@ -75,6 +75,73 @@ class message {
 
 	}
 
+	public function asJson() {
+		return json_encode((object)[
+			'attachmentIDs' => $this->attachmentIDs,
+			'attachments' => $this->attachments,
+			'answered' => $this->answered,
+			'flagged' => $this->flagged,
+			'forwarded' => $this->forwarded,
+			'fromName' => $this->fromName,
+			'fromEmail' => $this->fromEmail,
+			'seen' => $this->seen,
+			'tags' => $this->tags,
+			'time' => $this->time,
+			'BodyType' => $this->BodyType,
+			'Body' => $this->Body,
+			'Folder' => $this->Folder,
+			'From' => $this->From,
+			'ItemId' => $this->ItemId,
+			'MessageID' => $this->MessageID,
+			'Recieved' => $this->Recieved,
+			'Subject' => $this->Subject,
+			'To' => $this->To,
+			'CC' => $this->CC,
+			'BCC' => $this->BCC,
+			'Uid' => $this->Uid,
+			'MSGNo' => $this->MSGNo,
+			'CharSet' => $this->CharSet,
+			'in_reply_to' => $this->in_reply_to,
+			'references' => $this->references,
+			'cids' => $this->cids
+
+		], JSON_PRETTY_PRINT);
+
+	}
+
+	public function fromJson( $json) {
+		$o = \json_decode( $json);
+
+		$this->attachmentIDs = (array)$o->attachmentIDs;
+		$this->attachments = (array)$o->attachments;
+		$this->answered = (string)$o->answered;
+		$this->flagged = (string)$o->flagged;
+		$this->forwarded = (string)$o->forwarded;
+		$this->fromName = (string)$o->fromName;
+		$this->fromEmail = (string)$o->fromEmail;
+		$this->seen = (string)$o->seen;
+		$this->tags = (string)$o->tags;
+		$this->time = (string)$o->time;
+		$this->BodyType = (string)$o->BodyType;
+		$this->Body = (string)$o->Body;
+		$this->Folder = (string)$o->Folder;
+		$this->From = (string)$o->From;
+		$this->ItemId = (string)$o->ItemId;
+		$this->MessageID = (string)$o->MessageID;
+		$this->Recieved = (string)$o->Recieved;
+		$this->Subject = (string)$o->Subject;
+		$this->To = (string)$o->To;
+		$this->CC = (string)$o->CC;
+		$this->BCC = (string)$o->BCC;
+		$this->Uid = (string)$o->Uid;
+		$this->MSGNo = (string)$o->MSGNo;
+		$this->CharSet = (string)$o->CharSet;
+		$this->in_reply_to = (string)$o->in_reply_to;
+		$this->references = (string)$o->references;
+		$this->cids = (string)$o->cids;
+
+	}
+
 	public function getMso() {
         $header = trim( $this->getHtmlHeader());
         if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {

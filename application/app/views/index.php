@@ -25,7 +25,7 @@
 <?php		}
 			elseif ( 'imap' == dvc\mail\config::$MODE) {	?>
 
-			<li><a href="<?= strings::url( 'webmail') ?>">webmail</a></li>
+			<li><a href="<?= strings::url( 'webmail') ?>">mail</a></li>
 			<li><a href="<?= strings::url( 'imap/account') ?>">account</a></li>
 
 <?php

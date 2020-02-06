@@ -769,7 +769,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		row = $('<div class="row border-bottom border-light py-2" />');
 		row
 		.attr('id', rowID)
-		.attr('msgid', msg.messageid)
 		.attr('uid', msg.uid)
 		.data('seen', true)
 		.data('read', msg.seen)
@@ -810,9 +809,10 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			}
 
-			// console.log( msg);
 			$(document).trigger('mail-view-message');
-			if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) return;
+			// console.log( msg);
+			// console.log( $('#<?= $uidViewer ?>').data('uid'));
+			if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) return;
 
 			let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
 			let params = [
@@ -821,11 +821,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			];
 
 			// console.log( _data.message);
-
-			if ( '' != String( _data.message.messageid)) {
-				params.push('msg=' + encodeURIComponent( _data.message.messageid));
-
-			}
 
 			if ( '' != String( _data.message.uid)) {
 				params.push('uid=' + encodeURIComponent( _data.message.uid));
@@ -856,20 +851,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				}
 
 				frame[0].contentWindow.setTimeout( () => {
-					if ( '' != String( params.message.messageid)) {
-						// console.log( 'issue mark seen by messageid');
-						$('[msgid="'+params.message.messageid+'"]').trigger('mark-seen');
-
-					}
-					else if ( '' != String( params.message.uid)) {
+					if ( '' != String( params.message.uid)) {
 						// console.log( 'issue mark seen by uid', '[id="'+params.message.uid+'"]');
 						$('[uid="'+params.message.uid+'"]').trigger('mark-seen');
 
 					}
-					// else {
-					// 	console.log( 'mark seen not issued');
-
-					// }
 
 				}, 3000);
 
@@ -897,13 +883,14 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						.addClass( params.btnClass)
 						.on( 'click', function( e) {
 							// _me is the active row
-							// console.log( _me[0]);
+							// console.log( params.message);
 							// return;
-							let id = params.message.messageid;
+							let uid = params.message.uid;
 							// console.log( id);
-							// console.log( $('[msgid="'+id+'"]'));
+							// console.log( $('[uid="'+uid+'"]').first());
+							// return;
 
-							$('[msgid="'+id+'"]').trigger('execute-action', {
+							$('[uid="'+uid+'"]').first().trigger('execute-action', {
 								action : 'move-message',
 								targetFolder : defaultFolders.Trash
 
@@ -979,8 +966,12 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 								let target = select.val();
 								// console.log( target);
 
-								let id = params.message.messageid;
-								$('[msgid="'+id+'"]').trigger('execute-action', {
+								let uid = params.message.uid;
+								// console.log( id);
+								// console.log( $('[uid="'+uid+'"]').first());
+								// return;
+
+								$('[uid="'+uid+'"]').first().trigger('execute-action', {
 									action : 'move-message',
 									targetFolder : target
 
@@ -1177,8 +1168,9 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			// let frameWrap = $('<div class="pl-sm-1 h-100" />').append( frame);
 
+
 			$('#<?= $uidViewer ?>')
-			.data('message', _data.message.messageid)
+			.data('uid', _data.message.uid)
 			.html('')
 			.append( frame);
 
@@ -1210,17 +1202,17 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		$(document).trigger( 'mail-clear-reloader');
 
 		let _list_messages = function( messages, cacheData) {
-			$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+			$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
 				$(el).data('seen', false);
 
 			});
 
 			$.each( messages, function( i, msg) {
-				let row = $('[msgid="'+msg.messageid+'"]');
+				let row = $('[uid="'+msg.uid+'"]');
 				if ( row.length > 0) {
 					row.data('seen', true);
 					row.data('read', msg.seen);
-					// console.log('found : '+msg.messageid);
+					// console.log('found : '+msg.uid);
 					if ( 'no' == msg.seen) {
 						let _unseen = $('[unseen]', row);
 						if ( _unseen.length == 0 ) {
@@ -1246,7 +1238,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					return;
 
 				}
-				// console.log('build : [msgid="'+msg.messageid+'"]');
+				// console.log('build : [uid="'+msg.uid+'"]');
 
 				// console.log( msg);
 				// msg.folder ==
@@ -1263,7 +1255,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				*/
 				let time = _brayworth_.moment( msg.received);
 				let nextMsg = false;
-				$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+				$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
 					// $(el).data('seen', false);
 					let _el = $(el);
 					let _data = _el.data();
@@ -1383,7 +1375,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let frm = $('#<?= $uidFrm ?>');
 					let data = frm.serializeFormJSON();
 					data.folder = _data.folder;
-					data.messageid = _data.message.messageid;
 					data.uid = _data.message.uid;
 					data.targetFolder = folder;
 
@@ -1408,7 +1399,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 						_me.remove();
 
-						if ( _data.message.messageid == $('#<?= $uidViewer ?>').data('message')) {
+						if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
 							$('#<?= $uidViewer ?>').trigger('clear');
 							$(document).trigger('mail-view-message-list');
 
@@ -1426,7 +1417,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let frm = $('#<?= $uidFrm ?>');
 					let data = frm.serializeFormJSON();
 					data.folder = _data.folder;
-					data.messageid = _data.message.messageid;
 					data.uid = _data.message.uid;
 					data.action = 'mark-seen';
 
@@ -1456,7 +1446,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let frm = $('#<?= $uidFrm ?>');
 					let data = frm.serializeFormJSON();
 					data.folder = _data.folder;
-					data.messageid = _data.message.messageid;
 					data.uid = _data.message.uid;
 					data.action = 'mark-unseen';
 
@@ -1519,7 +1508,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('[msgid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+			$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
 				let _el = $(el);
 				if ( !_el.data('seen')) {
 					_el.remove();
@@ -1717,7 +1706,9 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		.off('mail-messages-loader')
 		.on('mail-messages-loader', function() {
 
-			$('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+			$('i.fa-refresh', '#<?= $uidMsgs ?>')
+				.removeClass('fa-refresh')
+				.addClass('fa-spinner fa-spin');
 			$(document).trigger( 'mail-clear-reloader');
 
 			_brayworth_.post({
@@ -1970,7 +1961,7 @@ $(document).on( 'mail-view-message', function( e) {
 });
 
 $(document).on( 'mail-message-load-first', function() {
-	$('#<?= $uidMsgs ?> > div[msgid]').first().trigger('view');
+	$('#<?= $uidMsgs ?> > div[uid]').first().trigger('view');
 
 });
 
@@ -2027,6 +2018,7 @@ if ( !_brayworth_.browser.isMobileDevice) {
 		*		up = 38
 		*		right = 39
 		*		down = 40
+		*		delete = 46
 		*/
 
 		// console.log( e);
@@ -2056,18 +2048,19 @@ if ( !_brayworth_.browser.isMobileDevice) {
 			$('iframe', '#<?= $uidViewer ?>').focus();
 
 		}
-		else if ( 46 == e.keyCode) {
+		else if ( 46 == e.keyCode) {	// delete
 
 			if ( $( 'body').hasClass('modal-open')) return;
 
 			e.stopPropagation();
 			( function( data) {
-				if ( 'undefined' != typeof data.message) {
-					let row = $('[msgid="'+data.message+'"]');
-					if ( row.length > 0) {
-						row.trigger('delete');
 
-					}
+				// console.log( data);
+				// return;
+
+				if ( 'undefined' != typeof data.uid) {
+					$('> [uid="'+data.uid+'"]', '#<?= $uidMsgs ?>').first().trigger('delete');
+
 
 				}
 

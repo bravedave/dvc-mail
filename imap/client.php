@@ -357,14 +357,23 @@ class client {
 		//~ $message = imap_fetchbody($stream,$email_number,1);
 
 		$ret = new \dvc\mail\message;
+		$_cache = false;
 
 		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
 		if ( $headers) {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
-			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
 			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
+			$_cache = config::IMAP_CACHE() . sprintf('%s_%s_%s.json', $this->_account, $this->_folder, $ret->Uid);
+			// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
 
+			if ( \file_exists( $_cache)) {
+				$ret->fromJson( \file_get_contents( $_cache));
+				return $ret;
+
+			}
+
+			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
 			if ( isset( $headers->to)) {
 				/**
 				 *
@@ -477,6 +486,14 @@ class client {
 		// $message = imap_fetchbody($inbox,$email_number,1);
 		// $output.= '<div class="body"><pre>'.$message.'</pre></div>';
 
+		if ( $_cache) {
+			if ( file_exists( $_cache))
+				\unlink( $_cache);
+
+			\file_put_contents( $_cache, $ret->asJson());
+
+		}
+
 		return ( $ret );
 
 	}
@@ -556,9 +573,11 @@ class client {
 
 		], $params);
 
-		$ret = [];
+		// \sys::logger( sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
 
+		$ret = [];
 		if ($emails = imap_sort( $this->_stream, SORTARRIVAL, true, SE_NOPREFETCH )) {
+			// \sys::logger( sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
 			// sys::dump( $emails);
 			$start = $i = 0;
 			$_start = (int)$options->page * (int)$options->pageSize;
@@ -566,12 +585,14 @@ class client {
 				if ( $start++ >= $_start ) {
 					if ( $i++ >= $options->pageSize ) break;
 					$msg = $this->_overview( $email_number);
+					// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $msg->Uid, __METHOD__));
 					$msg->Folder = $this->_folder;
 					$ret[] = $msg;
 
 				}
 
 			}
+			// \sys::logger( sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
 
 		}
 
