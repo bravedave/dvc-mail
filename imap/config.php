@@ -43,10 +43,13 @@ abstract class config extends \config {
 			// clean this folder
 			$iterator = new \GlobIterator($data . '*');
 			foreach ($iterator as $item) {
-				$age = time() - $item->getMTime();
+				if ( file_exists( $item->getRealPath())) {
+					$age = time() - $item->getMTime();
 
-				if ( $age > self::$_imap_cache_max_age) {
-					unlink( $item->getRealPath());
+					if ( $age > self::$_imap_cache_max_age) {
+						unlink( $item->getRealPath());
+
+					}
 
 				}
 
@@ -59,7 +62,7 @@ abstract class config extends \config {
 	}
 
 	static function IMAP_DATA() {
-		$data = self::dataPath() . DIRECTORY_SEPARATOR . 'imap' . DIRECTORY_SEPARATOR;
+		$data = rtrim( self::dataPath(), '/ ') . DIRECTORY_SEPARATOR . 'imap' . DIRECTORY_SEPARATOR;
 
 		if ( ! is_dir( $data)) {
 			mkdir( $data);

@@ -135,18 +135,36 @@ class client {
 
 	}
 
-	protected function _flush_cache() {
-		if ( !config::$_imap_cache_flushing) return;
+	protected function _cache_path( $uid) {
+		return sprintf('%s%s_%s.json',
+			config::IMAP_CACHE(),
+			$this->_cache_prefix(),
+			$uid);
 
-		$_path = config::IMAP_CACHE() . $this->_cache_prefix() . '*';
-		$iterator = new \GlobIterator( $_path);
-		foreach ($iterator as $item) {
-			// \sys::logger( sprintf('flush <%s>  %s', $item->getRealPath(), __METHOD__));
-			unlink( $item->getRealPath());
+	}
+
+	protected function _flush_cache( string $uid = null) {
+		if ( \is_null( $uid)) {
+			if ( !config::$_imap_cache_flushing) return;
+
+			$_path = config::IMAP_CACHE() . $this->_cache_prefix() . '*';
+			$iterator = new \GlobIterator( $_path);
+			foreach ($iterator as $item) {
+				// \sys::logger( sprintf('flush <%s>  %s', $item->getRealPath(), __METHOD__));
+				unlink( $item->getRealPath());
+
+			}
+
+			// \sys::logger( sprintf('flushed <%s>  %s', $_path, __METHOD__));
 
 		}
+		else {
+			if ( file_exists($path = $this->_cache_path( $uid))) {
+				unlink( $path);
 
-		// \sys::logger( sprintf('flushed <%s>  %s', $_path, __METHOD__));
+			}
+
+		}
 
 	}
 
@@ -369,12 +387,13 @@ class client {
 
 	}
 
+	/**
+	 * get information for this specific email
+	 * */
 	protected function _overview( $email_number = -1 ) : \dvc\mail\message {
 		if ( $email_number < 0 )
 			return ( false );
 
-		/* get information for this specific email */
-		//~ $message = imap_fetchbody($stream,$email_number,1);
 
 		$ret = new \dvc\mail\message;
 		$_cache = false;
@@ -384,11 +403,16 @@ class client {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
 			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
-			$_cache = sprintf('%s%s_%s.json', config::IMAP_CACHE(), $this->_cache_prefix(), $ret->Uid);
+			// $_cache = sprintf('%s%s_%s.json', config::IMAP_CACHE(), $this->_cache_prefix(), $ret->Uid);
+			$_cache = $this->_cache_path( $ret->Uid);
 			// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
 
 			if ( \file_exists( $_cache)) {
 				$ret->fromJson( \file_get_contents( $_cache));
+				// if ( isset( $headers->Unseen)) sys::logger( sprintf('seen <%s> : %s', $headers->Unseen, __METHOD__));
+				if ( isset( $headers->Unseen)) $ret->seen = 'U' == $headers->Unseen ? 'no' : 'yes';
+
+				// sys::logger( sprintf('seen <%s> : %s', $ret->seen, __METHOD__));
 				return $ret;
 
 			}
@@ -438,6 +462,7 @@ class client {
 				}
 
 			}
+			sys::logger( sprintf('<headers> : %s', __METHOD__));
 
 		}
 
@@ -472,6 +497,8 @@ class client {
 
 			if ( isset( $msg->in_reply_to)) $ret->in_reply_to = $msg->in_reply_to;
 			if ( isset( $msg->references)) $ret->references = $msg->references;
+			sys::logger( sprintf('<overview> : %s', __METHOD__));
+
 
 		}
 
@@ -544,8 +571,11 @@ class client {
 		foreach ( $result as $msg) {
 			if ( isset($msg->message_id)) {
 				if ( "{$msg->message_id}" == "{$id}" ) {
-					imap_clearflag_full( $this->_stream, $msg->msgno, $flag);
-					$ret = true;
+
+					$ret = $this->clearflagByUID( \imap_uid( $this->_stream, $msg->msgno), $flag);
+					// imap_clearflag_full( $this->_stream, $msg->msgno, $flag);
+					// $ret = true;
+
 					break;
 
 				}
@@ -560,7 +590,9 @@ class client {
 
 	public function clearflagByUID( $uid, $flag) {
 		// \sys::logger( sprintf('<%s> %s', $uid, __METHOD__));
+		$this->_flush_cache( $uid);
 		return imap_clearflag_full( $this->_stream, $uid, $flag, ST_UID);
+
 
 	}
 
@@ -733,11 +765,11 @@ class client {
 			if ( !isset($msg->message_id)) continue;
 
 			if ( "{$msg->message_id}" == "{$id}" ) {
-				imap_mail_move( $this->_stream, $msg->msgno, $target);
-				imap_expunge( $this->_stream);
-				$this->_flush_cache();
+				$ret = $this->move_message_byUID( \imap_uid(  $this->_stream, $msg->msgno));
+				// imap_mail_move( $this->_stream, $msg->msgno, $target);
+				// imap_expunge( $this->_stream);
+				// $ret = sprintf( 'moved to %s : %s', $target, __METHOD__ );
 
-				$ret = sprintf( 'moved to %s : %s', $target, __METHOD__ );
 				break;
 
 			}
@@ -749,9 +781,10 @@ class client {
 	}
 
 	public function move_message_byUID( $uid, $target) {
+		$this->_flush_cache( $uid);
 		if ($ret = imap_mail_move( $this->_stream, $uid, $target, CP_UID)) {
 			imap_expunge( $this->_stream);
-			$this->_flush_cache();
+			$this->_flush_cache();	// generally flush cache after expunge if that is enabled
 
 		}
 
@@ -899,8 +932,9 @@ class client {
 		foreach ( $result as $msg) {
 			if ( isset($msg->message_id)) {
 				if ( "{$msg->message_id}" == "{$id}" ) {
-					imap_setflag_full( $this->_stream, $msg->msgno, $flag);
-					$ret = true;
+					$ret = $this->setflagByUID( imap_uid( $this->_stream, $msg->msgno), $flag);
+					// imap_setflag_full( $this->_stream, $msg->msgno, $flag);
+					// $ret = true;
 					break;
 
 				}
@@ -914,6 +948,7 @@ class client {
 	}
 
 	public function setflagByUID( $uid, $flag) {
+		$this->_flush_cache( $uid);
 		return imap_setflag_full( $this->_stream, $uid, $flag, ST_UID);
 
 	}

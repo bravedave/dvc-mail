@@ -1,3 +1,10 @@
+### 08/02/2020
+1. Fixed bug
+   * with intro of caching, the _read_ status was being taken from cache
+     * when marking as _read_ flush the cache
+     * seen flag is read each parse, so if another client marks as seen, we also see
+   * fix issue if two users were cleaning up cache simultaneously
+
 ### 06/02/2020
 1. Fixed bug introduced yesterday - message images were not being indexed properly
 2. Move away from message id to uid as a method of accessing the message
