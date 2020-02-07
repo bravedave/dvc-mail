@@ -134,7 +134,7 @@ $account = $this->data->account;
 			<input type="text" class="form-control" name="smtp_server" placeholder="smtp server"
 				autocomplete="off"
 				id="<?= $uid ?>"
-				required value="<?= $account->smtp_server ?>" />
+				value="<?= $account->smtp_server ?>" />
 
 		</div>
 
@@ -143,7 +143,7 @@ $account = $this->data->account;
 			<input type="text" class="form-control" name="smtp_port" placeholder="465,587"
 				autocomplete="off"
 				id="<?= $uid ?>"
-				required value="<?= $account->smtp_port ?>" />
+				value="<?= $account->smtp_port ?>" />
 
 		</div>
 
@@ -155,7 +155,7 @@ $account = $this->data->account;
 			<input type="text" class="form-control" name="smtp_username" placeholder="smtp username"
 				autocomplete="off"
 				id="<?= $uid ?>"
-				required value="<?= $account->smtp_username ?>" />
+				value="<?= $account->smtp_username ?>" />
 
 		</div>
 
