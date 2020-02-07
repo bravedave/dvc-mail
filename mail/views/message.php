@@ -57,153 +57,140 @@ html, body { font-family: sans-serif; }
 ::-webkit-scrollbar-thumb {
 	background-color: darkgrey;
 	outline: 1px solid slategrey;
+    border-bottom: 1px solid #ddd;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: auto;
+    background-color: #efefef;
+    margin: 0;
+}
+.grid-item {
+    padding: 8px;;
 }
 </style>
-<table style="width: 100%; font-family: sans-serif; border-bottom: 1px solid silver;" cellpadding="2">
-    <tbody>
-        <tr>
-            <td>
-                <span style="float: right;"><?= strings::asLocalDate( $msg->Recieved, $time = true) ?></span>
-                <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
-                <?php
-                $_style = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
-                if ( $this->data->default_folders['Sent'] == $msg->Folder) {
-                    printf( '<div style="%s"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
-                        $_style,
-                        htmlentities( $msg->To),
-                        htmlentities( $msg->To)
-                    );
+<div class="grid-container">
+    <div class="grid-item">
+        <span style="float: right;"><?= strings::asLocalDate( $msg->Recieved, $time = true) ?></span>
+        <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
+        <?php
+        $_style = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+        if ( $this->data->default_folders['Sent'] == $msg->Folder) {
+            printf( '<div style="%s"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
+                $_style,
+                htmlentities( $msg->To),
+                htmlentities( $msg->To)
+            );
 
-                }
-                else {
-                    if ( $msg->From && $msg->From != $msg->fromEmail) {
-                        printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
-                            $_style,
-                            htmlentities( $msg->From),
-                            htmlentities( $msg->From)
-                        );
+        }
+        else {
+            if ( $msg->From && $msg->From != $msg->fromEmail) {
+                printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
+                    $_style,
+                    htmlentities( $msg->From),
+                    htmlentities( $msg->From)
+                );
 
-                    }
-                    else {
-                        printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
-                            $_style,
-                            htmlentities( $msg->fromEmail),
-                            $msg->fromEmail
-                        );
+            }
+            else {
+                printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
+                    $_style,
+                    htmlentities( $msg->fromEmail),
+                    $msg->fromEmail
+                );
 
-                    }
+            }
 
-                }
-                ?>
+        }
+        ?>
 
-            </td>
-
-        </tr>
+    </div>
 
 <?php   if ( $this->data->default_folders['Sent'] != $msg->Folder) {    ?>
-        <tr>
-            <td>
-                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    <small>to&nbsp;</small>
-                    <?php
+    <div class="grid-item" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <small>to&nbsp;</small>
+        <?php
 
 
-                    // $tos = explode( ',', $msg->To);
-                    $tos = dvc\mail\strings::splitEmails( $msg->To);
-                    if ( ( $ito = count( $tos)) > 1) {
-                        $uid = strings::rand();
-                        printf( '<span style="font-size: small;" data-role="to" data-email="%s">%s</span>', htmlspecialchars( $tos[0]), htmlentities( $tos[0]));
-                        printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito-1);
-                        array_shift( $tos);
-                        $_tos = [];
-                        foreach( $tos as $to) {
-                            $_tos[] = sprintf( '<span data-role="to" data-email="%s">%s</span>', htmlspecialchars( $to), htmlentities( $to));
+        // $tos = explode( ',', $msg->To);
+        $tos = dvc\mail\strings::splitEmails( $msg->To);
+        if ( ( $ito = count( $tos)) > 1) {
+            $uid = strings::rand();
+            printf( '<span style="font-size: small;" data-role="to" data-email="%s">%s</span>', htmlspecialchars( $tos[0]), htmlentities( $tos[0]));
+            printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito-1);
+            array_shift( $tos);
+            $_tos = [];
+            foreach( $tos as $to) {
+                $_tos[] = sprintf( '<span data-role="to" data-email="%s">%s</span>', htmlspecialchars( $to), htmlentities( $to));
 
-                        }
+            }
 
-                        printf( '<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode( ', ', $_tos));
+            printf( '<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode( ', ', $_tos));
 
-                    }
-                    else {
-                        printf( '<span data-role="to" data-email="%s">%s</span>',
-                            htmlspecialchars( $msg->To),
-                            htmlentities( $msg->To));
+        }
+        else {
+            printf( '<span data-role="to" data-email="%s">%s</span>',
+                htmlspecialchars( $msg->To),
+                htmlentities( $msg->To));
 
-                    } ?>
+        } ?>
 
-                </div>
-
-            </td>
-
-        </tr>
+    </div>
 
 <?php   }   // if ( $this->data->default_folders['Sent'] == $msg->Folder)
 
         if ( $msg->CC) {    ?>
-        <tr>
-            <td>
-                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    <small>cc&nbsp;</small>
-                    <?php
-                    // printf( '<!-- --[%s]-- -->', $msg->CC);
+    <div class="grid-item" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <small>cc&nbsp;</small>
+        <?php
+        // printf( '<!-- --[%s]-- -->', $msg->CC);
 
-                    $ccs = dvc\mail\strings::splitEmails( $msg->CC);
-                    if ( ( $icc = count( $ccs)) > 1) {
-                        $uid = strings::rand();
-                        printf( '<span data-role="cc" style="font-size: small" data-email="%s">%s</span>',
-                            htmlentities( $ccs[0]),
-                            htmlentities( $ccs[0])
-                        );
-                        printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $icc-1);
-                        array_shift( $ccs);
-                        $_ccs = [];
-                        foreach( $ccs as $cc) {
-                            $_ccs[] = sprintf( '<span data-role="cc" data-email="%s">%s</span>',
-                                htmlentities( $cc),
-                                htmlentities( $cc)
-                            );
+        $ccs = dvc\mail\strings::splitEmails( $msg->CC);
+        if ( ( $icc = count( $ccs)) > 1) {
+            $uid = strings::rand();
+            printf( '<span data-role="cc" style="font-size: small" data-email="%s">%s</span>',
+                htmlentities( $ccs[0]),
+                htmlentities( $ccs[0])
+            );
+            printf( '&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $icc-1);
+            array_shift( $ccs);
+            $_ccs = [];
+            foreach( $ccs as $cc) {
+                $_ccs[] = sprintf( '<span data-role="cc" data-email="%s">%s</span>',
+                    htmlentities( $cc),
+                    htmlentities( $cc)
+                );
 
-                        }
-                        printf( '<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode( ', ', $_ccs));
+            }
+            printf( '<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode( ', ', $_ccs));
 
-                    }
-                    else {
-                        printf( '<span data-role="cc" data-email="%s">%s</span>',
-                            htmlentities( $msg->CC),
-                            htmlentities( $msg->CC)
-                        );
+        }
+        else {
+            printf( '<span data-role="cc" data-email="%s">%s</span>',
+                htmlentities( $msg->CC),
+                htmlentities( $msg->CC)
+            );
 
-                    } ?>
+        } ?>
 
-                </div>
-
-            </td>
-
-        </tr>
+    </div>
 
 <?php   }   // if ( $msg->CC)   ?>
 
-        <tr>
-            <td>
-                <div data-role="subject" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    <?= $msg->Subject ?>
+    <div class="grid-item" data-role="subject" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <?= $msg->Subject ?>
 
-                </div>
+    </div>
 
-            </td>
-
-        </tr>
-
+</div>
 <?php   if ( $iMsgCount = count( $msg->attachments)) {
             $splitAt = $iMsgCount > 0 ? ceil( $iMsgCount/2) : 0; ?>
 
-        <tr>
-            <td style="padding: 0;">
-                <table style="width: 100%;">
-                    <tbody>
-                        <tr><td style="padding: 0;">
-                <table style="width: 100%;" cellpadding="2">
-                    <tbody>
+<table style="width: 100%;">
+    <tbody>
+        <tr><td style="padding: 0;">
+<table style="width: 100%;" cellpadding="2">
+    <tbody>
 
 <?php
     $iMsg = 0;
@@ -330,23 +317,16 @@ html, body { font-family: sans-serif; }
 
     }   // foreach ( $msg->attachments as $key => $attachment)  ?>
 
-                    </tbody>
+    </tbody>
 
-                </table>
-                        </td></tr>
-
-                    </tbody>
-
-                </table>
-            </td>
-
-        </tr>
-
-<?php   }   // if ( count( $msg->attachments))  ?>
+</table>
+        </td></tr>
 
     </tbody>
 
 </table>
+
+<?php   }   // if ( count( $msg->attachments))  ?>
 
 <?php
     // unset( $msg->src);
