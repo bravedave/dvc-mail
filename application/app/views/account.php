@@ -129,6 +129,89 @@ $account = $this->data->account;
 	</div>
 
 	<div class="form-group row">
+		<div class="col-md-9">
+			<label for="<?= $uid = strings::rand() ?>">smtp server:</label>
+			<input type="text" class="form-control" name="smtp_server" placeholder="smtp server"
+				autocomplete="off"
+				id="<?= $uid ?>"
+				required value="<?= $account->smtp_server ?>" />
+
+		</div>
+
+		<div class="col-md-3">
+			<label for="<?= $uid = strings::rand() ?>">smtp port:</label>
+			<input type="text" class="form-control" name="smtp_port" placeholder="465,587"
+				autocomplete="off"
+				id="<?= $uid ?>"
+				required value="<?= $account->smtp_port ?>" />
+
+		</div>
+
+	</div>
+
+	<div class="form-group row">
+		<div class="col">
+			<label for="<?= $uid = strings::rand() ?>">smtp username:</label>
+			<input type="text" class="form-control" name="smtp_username" placeholder="smtp username"
+				autocomplete="off"
+				id="<?= $uid ?>"
+				required value="<?= $account->smtp_username ?>" />
+
+		</div>
+
+	</div>
+
+	<div class="form-group row">
+		<div class="col">
+			<label for="<?= $uid = strings::rand() ?>">smtp password:</label>
+			<div class="input-group">
+				<input class="form-control" name="smtp_password" placeholder="smtp password" autocomplete="new-password" id="<?= $uid ?>" />
+				<div class="input-group-append" id="<?= $uid ?>-control">
+					<div class="input-group-text">
+						<i class="fa fa-eye"></i>
+
+					</div>
+
+				</div>
+
+				<script>
+				$(document).ready( function() {
+					$('#<?= $uid ?>')
+					.attr('type','password')
+					.val('--------');
+
+				});
+				</script>
+
+			</div>
+
+			<script>
+			$(document).ready( function() {
+				$('#<?= $uid ?>-control').on( 'click', function( e) {
+					let _me = $(this);
+					let fld = $('#<?= $uid ?>');
+
+					if ( 'text' == fld.attr( 'type')) {
+						fld.attr( 'type', 'password');
+						$('.fa-eye-slash', _me).removeClass('fa-eye-slash').addClass('fa-eye');
+
+					}
+					else {
+						fld.attr( 'type', 'text');
+						$('.fa-eye', _me).removeClass('fa-eye').addClass('fa-eye-slash');
+
+					}
+
+				});
+
+			});
+			</script>
+
+		</div>
+
+	</div>
+
+	<div class="form-group row">
 		<div class="col">
 			<label for="<?= $uid = strings::rand() ?>">profile:</label>
 			<input type="text" class="form-control" name="profile" placeholder="default profile"

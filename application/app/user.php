@@ -9,6 +9,8 @@
  *
 */
 
+use dvc\imap\account;
+
 class user extends dvc\user {
     protected $_options = false;
 
@@ -39,7 +41,15 @@ class user extends dvc\user {
 
     }
 
-    function option( $key, $value = null) {
+    public function __construct() {
+        parent::__construct();
+
+		$this->email = account::$EMAIL;
+        $this->name = account::$NAME;
+
+    }
+
+    public function option( $key, $value = null) {
         if ( !$this->_options) $this->_optionsLoad();
 
         $ret = isset( $this->_options->{$key}) ? $this->_options->{$key} : '';

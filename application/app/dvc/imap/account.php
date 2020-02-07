@@ -19,6 +19,10 @@ abstract class account {
 	static $EMAIL = '';
 	static $USERNAME = '';
 	static $PASSWORD = '';
+	static $SMTP_SERVER = '';
+	static $SMTP_PORT = '';
+	static $SMTP_USERNAME = '';
+	static $SMTP_PASSWORD = '';
 	static $PROFILE = '';
 
 	static $ENABLED = false;
@@ -73,6 +77,10 @@ abstract class account {
 			if ( isset( $j->email)) self::$EMAIL = $j->email;
 			if ( isset( $j->username)) self::$USERNAME = $j->username;
 			if ( isset( $j->password)) self::$PASSWORD = bCrypt::decrypt( $j->password);
+			if ( isset( $j->smtp_server)) self::$SMTP_SERVER = $j->smtp_server;
+			if ( isset( $j->smtp_port)) self::$SMTP_PORT = $j->smtp_port;
+			if ( isset( $j->smtp_username)) self::$SMTP_USERNAME = $j->smtp_username;
+			if ( isset( $j->smtp_password)) self::$SMTP_PASSWORD = bCrypt::decrypt( $j->smtp_password);
 			if ( isset( $j->profile)) self::$PROFILE = $j->profile;
 
 			self::$ENABLED = ( (bool)self::$SERVER && (bool)self::$USERNAME && (bool)self::$PASSWORD);

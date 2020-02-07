@@ -71,6 +71,10 @@ class imap extends dvc\imap\controller {
 				'email' => $this->getPost('email'),
 				'username' => $this->getPost('username'),
 				'password' => $this->getPost('password'),
+				'smtp_server' => $this->getPost('smtp_server'),
+				'smtp_port' => $this->getPost('smtp_port'),
+				'smtp_username' => $this->getPost('smtp_username'),
+				'smtp_password' => $this->getPost('smtp_password'),
 				'type' => $this->getPost('type'),
 				'profile' => $this->getPost('profile'),
 
@@ -83,7 +87,13 @@ class imap extends dvc\imap\controller {
 
 			}
 
+			if ( !trim( $a->smtp_password, '- ')) {
+				$a->smtp_password = account::$SMTP_PASSWORD;
+
+			}
+
 			if ( $a->password) $a->password = bCrypt::crypt( $a->password);
+			if ( $a->smtp_password) $a->smtp_password = bCrypt::crypt( $a->smtp_password);
 
 			$config = account::config();
 
@@ -117,6 +127,10 @@ class imap extends dvc\imap\controller {
 				'email' => account::$EMAIL,
 				'username' => account::$USERNAME,
 				'password' => account::$PASSWORD,
+				'smtp_server' => account::$SMTP_SERVER,
+				'smtp_port' => account::$SMTP_PORT,
+				'smtp_username' => account::$SMTP_USERNAME,
+				'smtp_password' => account::$SMTP_PASSWORD,
 				'profile' => account::$PROFILE,
 
 			]

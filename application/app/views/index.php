@@ -27,6 +27,32 @@
 
 			<li><a href="<?= strings::url( 'webmail') ?>">mail</a></li>
 			<li><a href="<?= strings::url( 'imap/account') ?>">account</a></li>
+			<?php
+				if ( method_exists( $this, 'compose')) {	?>
+			<li><a href="#" id="<?= $uid = strings::rand() ?>">compose</a></li>
+			<script>
+			$(document).ready( function() {
+				// headerClass : '',
+				// beforeOpen : function() {},
+				// onClose : function() {},
+				// onSuccess : function() {},
+				$('#<?= $uid ?>').on( 'click', function( e) {
+					e.stopPropagation();e.preventDefault();
+
+					let url = _brayworth_.url('<?= $this->route ?>/compose');
+					// console.log( url);
+
+					_brayworth_.loadModal({
+						url : url
+
+					});
+
+				});
+
+			});
+			</script>
+			<?php
+				}	// if ( method_exists( $this, 'compose'))	?>
 
 <?php
 				if ($profiles = dvc\imap\account::profiles()) {

@@ -177,6 +177,35 @@ class controller extends \Controller {
 				->add( 'messages', $this->_search( $params));
 
 		}
+		elseif ( 'send email' == $action) {
+			$to = $this->getPost( 'to');
+			$subject = $this->getPost( 'subject');
+			$message = $this->getPost( 'message');
+
+			/**----------------------------------- */
+			$mail = \currentUser::mailer();
+			$mail->AddAddress( $to);
+
+			$mail->Subject  = $subject;
+
+			// $mail->CharSet = 'UTF-8';
+			// $mail->Encoding = 'quoted-printable';
+			// $mail->msgHTML( $message);
+			$mail->Body = $message;
+
+			if ( $mail->send()) {
+				Json::ack( $action);
+
+			}
+			else {
+				Json::nak( $mail->ErrorInfo);
+
+			}
+
+			/**----------------------------------- */
+
+
+		}
 		else {
 			parent::postHandler();
 
@@ -514,6 +543,22 @@ class controller extends \Controller {
 			return ( $view);
 
 		return parent::getView( $viewName, $controller, $logMissingView);
+
+	}
+
+	public function compose() {
+		$this->data = (object)[
+			'to' => '',
+			'subject' => '',
+			'message' => '',
+		];
+
+		$this->modal([
+			'title' => $this->title = 'Email',
+			'class' => 'modal-lg',
+			'load' => 'email-dialog'
+
+		]);
 
 	}
 
