@@ -16,6 +16,7 @@ class home extends dvc\mail\controller {
 	const allowedOptions = [
 		'email-autoloadnext',
 		'email-expand-recipients',
+		'email-enable-quick-reply',
 
 	];
 

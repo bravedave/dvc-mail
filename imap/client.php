@@ -462,7 +462,7 @@ class client {
 				}
 
 			}
-			sys::logger( sprintf('<headers> : %s', __METHOD__));
+			// sys::logger( sprintf('<headers> : %s', __METHOD__));
 
 		}
 
@@ -497,7 +497,7 @@ class client {
 
 			if ( isset( $msg->in_reply_to)) $ret->in_reply_to = $msg->in_reply_to;
 			if ( isset( $msg->references)) $ret->references = $msg->references;
-			sys::logger( sprintf('<overview> : %s', __METHOD__));
+			// sys::logger( sprintf('<overview> : %s', __METHOD__));
 
 
 		}

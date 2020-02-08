@@ -810,8 +810,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			}
 
 			$(document).trigger('mail-view-message');
-			// console.log( msg);
-			// console.log( $('#<?= $uidViewer ?>').data('uid'));
 			if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) return;
 
 			let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
@@ -833,7 +831,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			}
 
 			let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
-			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="height: 100%;" />');
+			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="calc(100% - 3rem);" />');
 			frame.on( 'load', function( e) {
 				// console.log( this, e);
 				let _frame = this;
@@ -1122,7 +1120,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				// let f = $('body>footer');
 				// if ( f.length > 0) h += f.height();
 
-				frame.css('height','calc(100% - 3rem)');
+				// frame.css('height','calc(100% - 3rem)');
 
 				if ( !_brayworth_.browser.isMobileDevice) {
 					$(_frame.contentDocument).on('keydown', function( e) {
@@ -1161,6 +1159,36 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					window : _frame.contentDocument
 
 				});
+
+<?php if ( currentUser::option('email-enable-quick-reply') == 'yes') { ?>
+				(function() {
+					let row = $('<div class="row mx-0" />').appendTo( '#<?= $uidViewer ?>');
+					let col = $('<div class="col position-relative" />').appendTo( row);
+					let ta = $('<textarea class="form-control" rows="3" />').appendTo(col);
+					frame.css('height', 'calc( 100% - ' + row.height() + 'px - 3rem)');
+
+					ta.attr( 'placeholder', 'quick reply not enabled yet');
+
+					let btn = $('<button type="button" class="btn btn-primary position-absolute rounded-circle" style="top: -1rem; right: 0;"><i class="fa fa-paper-plane-o" /></button>');
+					btn.on( 'click', function( e) {
+						e.stopPropagation();e.preventDefault();
+
+						let frm = $('#<?= $uidFrm ?>');
+						let frmData = frm.serializeFormJSON();
+
+						frmData.action = 'send-email';
+						frmData.to = '';
+						frmData.subject = '';
+						frmData.message = '';
+
+						console.table(frmData);
+
+					});
+					btn.appendTo( col);
+
+
+				})();
+<?php }	 ?>
 
 			});
 
@@ -1865,7 +1893,7 @@ $(document).on( 'mail-set-view', function() {
 		$('#<?= $uidMsgs ?>').attr( 'class', 'd-none h-100');
 
 		$('#<?= $uidSearchAll ?>').attr( 'class', 'col-md-5 h-100');
-		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0');
+		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
 
 		$('input[type="search"]', '#<?= $uidSearchAll ?>').focus();
 
@@ -1876,13 +1904,13 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-0');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-1');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-0');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-1');
 
 		}
 
@@ -1893,13 +1921,13 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-0');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-1');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-0');
+			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
 
 		}
 

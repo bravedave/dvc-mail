@@ -59,6 +59,17 @@ class user extends dvc\user {
             $this->_optionsSave();
 
         }
+        else {
+            if ( !is_null( $value)) {
+                if ( isset($this->_options->{$key})) {
+                    unset( $this->_options->{$key});
+                    $this->_optionsSave();
+
+                }
+
+            }
+
+        }
 
         return $ret;
 

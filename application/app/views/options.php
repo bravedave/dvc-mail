@@ -25,6 +25,19 @@
         </div>
 
         <div class="form-check">
+			<input type="checkbox" class="form-check-input" id="-email-enable-quick-reply-"
+                data-option="email-enable-quick-reply"
+                value="yes"
+				<?php if ( currentUser::option('email-enable-quick-reply') == 'yes') print 'checked' ?> />
+
+			<label class="form-check-label" for="-email-enable-quick-reply-">
+				Enable Quick Reply
+
+			</label>
+
+        </div>
+
+        <div class="form-check">
 			<input type="checkbox" class="form-check-input" id="-email-expand-recipients-"
                 data-option="email-expand-recipients"
                 value="yes"
@@ -45,12 +58,13 @@ $(document).ready( function() {
 	$.each([
 		'#-email-autoloadnext-',
 		'#-email-expand-recipients-',
+		'#-email-enable-quick-reply-',
 	], function( i, el) {
 		$(el).on( 'change', function() {
 			let _me = $(this);
 			let val = _me.prop( 'checked') ? _me.val() : '';
 
-			//~ console.log( _me.data('option'), val);
+			console.log( _me.data('option'), val);
 
             _brayworth_.post({
                 url : _brayworth_.url('/'),
