@@ -1162,16 +1162,16 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 <?php if ( currentUser::option('email-enable-quick-reply') == 'yes') { ?>
 				(function() {
-					let row = $('<div class="row mx-0" />').appendTo( '#<?= $uidViewer ?>');
+					let form = $('<form />').appendTo( '#<?= $uidViewer ?>');
+					let row = $('<div class="row mx-0" />').appendTo( form);
 					let col = $('<div class="col position-relative" />').appendTo( row);
-					let ta = $('<textarea class="form-control" rows="3" />').appendTo(col);
+					let ta = $('<textarea class="form-control" rows="3" required />').appendTo(col);
 					frame.css('height', 'calc( 100% - ' + row.height() + 'px - 3rem)');
 
 					ta.attr( 'placeholder', 'quick reply not enabled yet');
 
-					let btn = $('<button type="button" class="btn btn-primary position-absolute rounded-circle" style="top: -1rem; right: 0;"><i class="fa fa-paper-plane-o" /></button>');
-					btn.on( 'click', function( e) {
-						e.stopPropagation();e.preventDefault();
+					let btn = $('<button type="submit" class="btn btn-primary position-absolute rounded-circle" style="top: -1rem; right: 0;"><i class="fa fa-paper-plane-o" /></button>');
+					form.on( 'submit', function( e) {
 
 						let frm = $('#<?= $uidFrm ?>');
 						let frmData = frm.serializeFormJSON();
@@ -1180,8 +1180,54 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						frmData.to = '';
 						frmData.subject = '';
 						frmData.message = '';
+						frmData.in_reply_to = _data.message.messageid;
+						frmData.in_reply_to_msg = _data.message.uid;
+						frmData.in_reply_to_folder = _data.message.folder;
+
+						/**----------------------------------------------------------------------- */
+						let frame = $('iframe', '#<?= $uidViewer ?>');
+						if ( frame.length > 0) {
+							let _document = frame[0].contentDocument;
+							let _body = $('div[message]', _document);
+
+							let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;" />');
+								_wrap.html( _body.clone().html());
+
+								$('p', _wrap).each(function() {
+									let _me = $(this);
+									if( _me.html().length == 0)
+										_me.remove();
+
+								});
+
+							frmData.subject = $('[data-role="subject"]', _document).text().trim();
+							if ( !/^re: /i.test( frmData.subject)) frmData.subject = 're: ' + frmData.subject;
+
+							frmData.to = $('[data-role="from"]', _document).text();
+
+							let _time = $('[data-role="time"]', _document).text();
+							if ( '' != String( _time)) {
+								if ( '' != String( frmData.to)) {
+									_wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( frmData.to) + ' wrote:');
+
+								}
+								else {
+									_wrap.prepend('message on ' + _time + ' contained:');
+
+								}
+
+							}
+
+							let _m = $('<div />').append( $('<p />').text( ta.val())).append( _wrap);
+							frmData.message = _m.html();
+
+						}
+
+						/**----------------------------------------------------------------------- */
 
 						console.table(frmData);
+						return false;
+
 
 					});
 					btn.appendTo( col);
