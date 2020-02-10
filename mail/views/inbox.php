@@ -1906,6 +1906,17 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			.prepend('<i class="fa fa-search pull-right" />')
 			.insertBefore( '#<?= $uidSearchAll ?>_form');
 
+		/**
+		 * button to return us to the default mail view
+		 * */
+		$('<button type="button" class="btn btn-light pull-right pr-0" style="margin-top: -1rem;">&times;</button>')
+			.on( 'click', function( e) {
+				$(document).trigger( 'mail-default-view');
+
+			})
+			.insertBefore( h);
+
+
 		$('#<?= $uidSearchAll ?>_form').addClass( 'd-none');
 		$('#<?= $uidSearchAll ?>_buttons').addClass( 'd-none');
 
