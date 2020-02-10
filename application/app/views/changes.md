@@ -4,9 +4,10 @@
    b. added navigation to allow exiting search and returning to normal mail view
    c. Some searchs will be more successul than others
       * e.g.
+        * the shorter the word the less likely it is to be unique - 3 letter words will probably yeild unexpected results
         * soft is probably going to take a long time, because all html messages contain the words microsoft - soft is a derivative
         * soft pillow will be more success because that term is unique
-
+      * Having said all that, I have done work on looking extracting the the text of the message for results, but the results are slower
 2. Bugs
    a. fixed glitch in naming of cache objects
 
