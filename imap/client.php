@@ -131,7 +131,9 @@ class client {
 	}
 
 	protected function _cache_prefix() {
-		return strtolower( sprintf( '%s_%s', str_replace('\\', '_', $this->_account), $this->_folder));
+		return strtolower( sprintf( '%s_%s',
+			str_replace('\\', '_', $this->_account),
+			preg_replace( '@[\\\/]@', '_', $this->_folder)));
 
 	}
 

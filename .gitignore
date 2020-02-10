@@ -2,3 +2,4 @@
 application/data/*
 vendor/*
 composer.lock
+application/controller/x.php
