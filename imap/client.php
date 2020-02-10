@@ -751,7 +751,6 @@ class client {
 	}
 
 	public function empty_trash() {
-
 		$total = imap_num_msg( $this->_stream );
 		return imap_delete( $this->_stream, "1:{$total}", 0);	// returns true
 

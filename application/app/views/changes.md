@@ -1,5 +1,10 @@
+### 10/02/2020
+1. Search feature
+   a. now includes TEXT in search field
+   b. added navigation to allow exiting search and returning to normal mail view
+
 ### 09/02/2020
-1. New Quick Reply feature
+1. New Quick Reply feature - incomplete and disabled by default
 
 ### 08/02/2020
 1. Fixed bug

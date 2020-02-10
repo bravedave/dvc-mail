@@ -323,7 +323,7 @@ class inbox {
 			$terms = [];
 			$term = \str_replace( '"', '', $options['term']);
 
-			\sys::logger( sprintf('%s : %s', $options['folder'], __METHOD__));
+			// \sys::logger( sprintf('%s : %s', $options['folder'], __METHOD__));
 			if ( folders::$default_folders['Sent'] ==  $options['folder']) {
 				$from = sprintf( 'TO "%s"', $term);
 
@@ -334,10 +334,12 @@ class inbox {
 			}
 
 			$subject = sprintf( 'SUBJECT "%s"', $term);
+			$text = sprintf( 'TEXT "%s"', $term);
 			if ( isset($options['from']) && strtotime($options['from']) > 0) {
 				$since = strtotime($options['from']);
 				$from .= sprintf( ' SINCE "%s"', date( 'd-M-Y', $since));
 				$subject .= sprintf( ' SINCE "%s"', date( 'd-M-Y', $since));
+				$text .= sprintf( ' SINCE "%s"', date( 'd-M-Y', $since));
 
 			}
 
@@ -345,11 +347,19 @@ class inbox {
 				$before = strtotime($options['to']);
 				$from .= sprintf( ' BEFORE "%s"', date( 'd-M-Y', $before));
 				$subject .= sprintf( ' BEFORE "%s"', date( 'd-M-Y', $before));
+				$text .= sprintf( ' BEFORE "%s"', date( 'd-M-Y', $before));
 
 			}
 
+			/**
+			 * We are searching
+			 * - depending on wether this is the sent items or not - in the from or to fields
+			 * - in the subject
+			 * - in the text ? where is this
+			 */
 			$options['criteria'][] = $from;
 			$options['criteria'][] = $subject;
+			$options['criteria'][] = $text;
 
 			// sys::logger( sprintf('%s : %s', $from, __METHOD__));
 

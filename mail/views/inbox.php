@@ -44,6 +44,10 @@
 	<div class="d-none" id="<?= $uidSearchAll = strings::rand() ?>" style="overflow: auto;" data-role="mail-search-all">
 		<form id="<?= $uidSearchAll ?>_form">
 			<input type="hidden" name="action" value="search-all-messages" />
+
+			<button type="button" class="close" id="<?= $uid = strings::rand() ?>">&times;</button>
+			<script>$('#<?= $uid ?>').on( 'click', function( e) { $(document).trigger( 'mail-default-view');});</script>
+
 			<h6>Search All Folders</h6>
 
 			<div class="form-group row">
@@ -613,7 +617,14 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let _time = $('[data-role="time"]', _document).text();
 		if ( '' != String( _time)) {
 			if ( '' != String( _to)) {
-				_wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( _to) + ' wrote:');
+				let m = _brayworth_.moment( _time);
+				if ( m.isValid()) {
+					_time = m.format( 'll');
+
+				}
+
+				_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time);
+				// _wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( _to) + ' wrote:');
 
 			}
 			else {
@@ -726,11 +737,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			// })( j.original);
 
 			console.table( j);
-			_brayworth_.modal({
+			$('.modal-header', _brayworth_.modal({
 				title:'alert',
 				text:'no email program to run ..'
 
-			});
+			})).removeClass('bg-primary bg-secondary').addClass('bg-warning');
 
 		}
 		// console.log( _to, _time, _body);
@@ -1162,33 +1173,34 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 <?php if ( currentUser::option('email-enable-quick-reply') == 'yes') { ?>
 				(function() {
-					let form = $('<form />').appendTo( '#<?= $uidViewer ?>');
-					let row = $('<div class="row mx-0" />').appendTo( form);
-					let col = $('<div class="col position-relative" />').appendTo( row);
-					let ta = $('<textarea class="form-control" rows="3" required />').appendTo(col);
-					frame.css('height', 'calc( 100% - ' + row.height() + 'px - 3rem)');
+					let frame = $('iframe', '#<?= $uidViewer ?>');
+					if ( frame.length > 0) {
+						let _document = frame[0].contentDocument;
+						let _body = $('div[message]', _document);
+						let _to = $('[data-role="from"]', _document).text();
+						let _subject = $('[data-role="subject"]', _document).text().trim();
+						if ( !/^re: /i.test( _subject)) _subject = 're: ' + _subject;
 
-					ta.attr( 'placeholder', 'quick reply not enabled yet');
+						/**---------------------------------------------------------------------------- */
 
-					let btn = $('<button type="submit" class="btn btn-primary position-absolute rounded-circle" style="top: -1rem; right: 0;"><i class="fa fa-paper-plane-o" /></button>');
-					form.on( 'submit', function( e) {
+						let form = $('<form />').appendTo( '#<?= $uidViewer ?>');
+						let row = $('<div class="row mx-0" />').appendTo( form);
+						let col = $('<div class="col position-relative" />').appendTo( row);
+						let ta = $('<textarea class="form-control pt-2" rows="3" required />').appendTo(col);
 
-						let frm = $('#<?= $uidFrm ?>');
-						let frmData = frm.serializeFormJSON();
+						let ig = $('<div class="input-group input-group-sm position-absolute" style="top: -1.2rem; left: 27px; width: 360px; opacity: .7"><div class="input-group-prepend"><div class="input-group-text">to</div></div></div>')
+							.appendTo( col);
 
-						frmData.action = 'send-email';
-						frmData.to = '';
-						frmData.subject = '';
-						frmData.message = '';
-						frmData.in_reply_to = _data.message.messageid;
-						frmData.in_reply_to_msg = _data.message.uid;
-						frmData.in_reply_to_folder = _data.message.folder;
+						$('<input type="text" readonly class="form-control form-control-sm" />')
+							.val( _to)
+							.appendTo( ig);
 
-						/**----------------------------------------------------------------------- */
-						let frame = $('iframe', '#<?= $uidViewer ?>');
-						if ( frame.length > 0) {
-							let _document = frame[0].contentDocument;
-							let _body = $('div[message]', _document);
+						frame.css('height', 'calc( 100% - ' + row.height() + 'px - 3rem)');
+
+						ta.attr( 'placeholder', 'quick reply not enabled yet');
+
+						let btn = $('<button type="submit" class="btn btn-light btn-sm position-absolute rounded-circle" style="top: -1.2rem; right: 27px;"><i class="fa fa-paper-plane-o" /></button>');
+						form.on( 'submit', function( e) {
 
 							let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;" />');
 								_wrap.html( _body.clone().html());
@@ -1200,15 +1212,15 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 								});
 
-							frmData.subject = $('[data-role="subject"]', _document).text().trim();
-							if ( !/^re: /i.test( frmData.subject)) frmData.subject = 're: ' + frmData.subject;
-
-							frmData.to = $('[data-role="from"]', _document).text();
-
 							let _time = $('[data-role="time"]', _document).text();
 							if ( '' != String( _time)) {
-								if ( '' != String( frmData.to)) {
-									_wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( frmData.to) + ' wrote:');
+								if ( '' != String( _to)) {
+									let m = _brayworth_.moment( _time);
+									if ( m.isValid()) {
+										_time = m.format( 'll');
+
+									}
+									_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time);
 
 								}
 								else {
@@ -1218,20 +1230,33 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 							}
 
+							let frm = $('#<?= $uidFrm ?>');
+							let frmData = frm.serializeFormJSON();
+
+							frmData.action = 'send-email';
+							frmData.to = _to;
+							frmData.subject = _subject;
+							frmData.message = '';
+							frmData.in_reply_to = _data.message.messageid;
+							frmData.in_reply_to_msg = _data.message.uid;
+							frmData.in_reply_to_folder = _data.message.folder;
+
 							let _m = $('<div />').append( $('<p />').text( ta.val())).append( _wrap);
 							frmData.message = _m.html();
 
-						}
+							/**------------------- */
+							console.table(frmData);
+							/**------------------- */
 
-						/**----------------------------------------------------------------------- */
-
-						console.table(frmData);
-						return false;
+							return false;
 
 
-					});
-					btn.appendTo( col);
+						});
+						btn.appendTo( col);
 
+						/**---------------------------------------------------------------------------- */
+
+					}
 
 				})();
 <?php }	 ?>
@@ -1683,6 +1708,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			let fldSearch = $('<input class="form-control" type="search" />')
 			.appendTo( search)
 			.attr('placeholder', 'search ' + location)
+			.attr('title', 'press escape to exit')
 			.on( 'keyup', function( e) {
 				if ( 13 == e.keyCode) {
 					// console.log( 'enter');
@@ -1693,6 +1719,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						_me.trigger( 'search');
 
 					}
+
+				}
+				else if ( 27 == e.keyCode) {	// esc
+					search.addClass( 'd-none');
+					primary.removeClass( 'd-none');
 
 				}
 
@@ -1743,9 +1774,22 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			})
 			;
+
 			let iga = $('<div class="input-group-append" />').appendTo( search);
-			$('<button type="button" class="btn btn-outline-secondary px-1"><i class="fa fa-reply fa-flip-vertical" /></button>')
-			.on( 'click', function( e) { fldSearch.trigger( search); })
+			$('<button type="button" class="btn btn-outline-secondary px-2"><i class="fa fa-reply fa-flip-vertical" /></button>')
+			.on( 'click', function( e) { fldSearch.trigger( 'search'); })
+			.appendTo( iga);
+
+			iga = $('<div class="input-group-append" />').appendTo( search);
+			$('<button type="button" class="btn btn-outline-secondary px-2" title="advanced search">A</button>')
+			.on( 'click', function( e) {
+				$('input[name="term"]','#<?= $uidSearchAll ?>').val( fldSearch.val());
+
+				$(document)
+				.data('view', 'search')
+				.trigger( 'mail-set-view');
+
+			})
 			.appendTo( iga);
 
 		})( $('<div class="col" />').appendTo( heading));
@@ -1992,6 +2036,18 @@ $(document).on( 'mail-view-state', function() {
 		viewer : $('#<?= $uidViewer ?>').attr('class')
 
 	});
+
+});
+
+$(document).on( 'mail-default-view', function() {
+	let key = '<?= $this->route ?>-view';
+	let view = sessionStorage.getItem( key);
+
+	if ( !view) view = 'wide';
+	if ( ['condensed','wide'].indexOf(view) < 0) view = 'wide';
+
+	$(document).data('view', view);
+	$(document).trigger('mail-set-view');
 
 });
 
