@@ -842,7 +842,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			}
 
 			let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
-			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="calc(100% - 3rem);" />');
+			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="height: calc(100% - 3rem);" />');
 			frame.on( 'load', function( e) {
 				// console.log( this, e);
 				let _frame = this;
