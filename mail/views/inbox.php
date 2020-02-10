@@ -1958,7 +1958,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					});
 
 					spinner.remove();
-					let badge = $('<div class="badge badge-primary pull-right" />').html( d.messages.length);
+					let badge = $('<div class="badge badge-pill badge-secondary pull-right" />').html( d.messages.length);
 
 					fc
 					.removeClass('form-check')
