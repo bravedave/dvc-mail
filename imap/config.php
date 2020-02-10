@@ -10,7 +10,6 @@
 */
 
 namespace dvc\imap;
-// use bCrypt;
 
 abstract class config extends \config {
 	const imap_route = 'imap';

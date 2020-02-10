@@ -2,6 +2,11 @@
 1. Search feature
    a. now includes TEXT in search field
    b. added navigation to allow exiting search and returning to normal mail view
+   c. Some searchs will be more successul than others
+      * e.g.
+        * soft is probably going to take a long time, because all html messages contain the words microsoft - soft is a derivative
+        * soft pillow will be more success because that term is unique
+
 2. Bugs
    a. fixed glitch in naming of cache objects
 

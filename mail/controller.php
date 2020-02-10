@@ -13,7 +13,6 @@ namespace dvc\mail;
 
 // use dvc\mail\credentials;
 
-// use bCrypt;
 use Json;
 use Response;
 use strings;
@@ -373,7 +372,7 @@ class controller extends \Controller {
 
 	}
 
-	protected function _searchall( array $params = []) : array {
+	protected function _searchall_is_this_deprecated( array $params = []) : array {
 
 		$options = array_merge([
 			'term' => '',

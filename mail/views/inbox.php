@@ -623,7 +623,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				}
 
-				_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time);
+				_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time + '<br /><br />');
 				// _wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( _to) + ' wrote:');
 
 			}
@@ -1220,7 +1220,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 										_time = m.format( 'll');
 
 									}
-									_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time);
+									_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time + '<br /><br />');
 
 								}
 								else {
@@ -1736,7 +1736,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
-				$('button', search).html('').append('<i class="fa fa-spinner fa-spin" />').prop( 'disabled', true);
+				$('button[search-activate]', search).html('').append('<i class="fa fa-spinner fa-spin" />').prop( 'disabled', true);
 				fldSearch.prop( 'disabled', true);
 
 				if ( !!folder) { data.folder = folder; }
@@ -1776,7 +1776,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			;
 
 			let iga = $('<div class="input-group-append" />').appendTo( search);
-			$('<button type="button" class="btn btn-outline-secondary px-2"><i class="fa fa-reply fa-flip-vertical" /></button>')
+			$('<button type="button" class="btn btn-outline-secondary px-2" search-activate><i class="fa fa-reply fa-flip-vertical" /></button>')
 			.on( 'click', function( e) { fldSearch.trigger( 'search'); })
 			.appendTo( iga);
 

@@ -9,6 +9,7 @@
  *
  * */
 
+use dvc\bCrypt;
 use dvc\imap\account;
 use dvc\mail\credentials;
 

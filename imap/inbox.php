@@ -320,7 +320,6 @@ class inbox {
 
 		$ret = [];
 		if ( $options['term']) {
-			$terms = [];
 			$term = \str_replace( '"', '', $options['term']);
 
 			// \sys::logger( sprintf('%s : %s', $options['folder'], __METHOD__));

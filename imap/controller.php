@@ -11,7 +11,6 @@
 
 namespace dvc\imap;
 use dvc\mail\credentials;
-use bCrypt;
 use Json;
 use Response;
 use strings;

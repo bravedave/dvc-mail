@@ -25,9 +25,16 @@ class RawMessage {
 		$attachments = [],
 		$cids = [];
 
-	function __construct( $stream, $email_number ) {
+	protected $plainText = self::HTML;
+
+	const HTML = 0;
+	const PLAINTEXT = 1;
+
+	function __construct( $stream, $email_number, $plainText = self::HTML ) {
 		$debug = false;
 		// $debug = true;
+
+		$this->plainText = $plainText;
 
 		// BODY
 		$s = imap_fetchstructure( $stream, $email_number );
@@ -37,7 +44,29 @@ class RawMessage {
 		else {  // multipart: cycle through each part
 			// sys::logger( sprintf('get parts :s: %s', __METHOD__));
 			foreach ($s->parts as $partno0 => $p) {
+				// if ( self::PLAINTEXT == $plainText ) {
+				// 	if ( 0 == $p->type) {
+				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
+
+				// 	}
+				// 	elseif ( isset( $p->subtype) && 'plain' == strtolower( $p->subtype)) {
+				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
+
+				// 	}
+				// 	elseif ( isset( $p->subtype) && 'alternative' == strtolower( $p->subtype)) {
+				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
+
+				// 	}
+				// 	else {
+				// 		\sys::logger( sprintf('<%s:%s> %s', $email_number, $p->subtype, __METHOD__));
+
+				// 	}
+
+				// }
+				// else {
 				$this->getpart( $stream, $email_number, $p, $partno0+1 );
+
+				// }
 
 			}
 
@@ -70,7 +99,7 @@ class RawMessage {
 		//~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
 		// Any part may be encoded, even plain text messages, so check everything.
-		if ($p->encoding==4) {
+		if ( $p->encoding==4) {
 			if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s', __METHOD__));
 			// if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s : %s', print_r( $p, true), __METHOD__));
 			$data = quoted_printable_decode( $data);
@@ -141,37 +170,44 @@ class RawMessage {
 		 *	filename may be given as 'Filename' or 'Name' or both
 		 *	filename may be encoded, so see imap_mime_header_decode()
 		 */
-		if ( strlen( $data ) > 0 ) {
-			if ( isset( $params['filename'] )) {
-				$filename = $params['filename'];
-				$attach = new attachment;
-				$attach->Name = $attach->ContentId = $filename;
-				$attach->Content = $data;
-				if ( isset( $p->id )) {
-					$attach->ContentId = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
+		if ( self::PLAINTEXT != $this->plainText) {
+
+			if ( strlen( $data ) > 0 ) {
+
+				if ( isset( $params['filename'] )) {
+					$filename = $params['filename'];
+					$attach = new attachment;
+					$attach->Name = $attach->ContentId = $filename;
+					$attach->Content = $data;
+					if ( isset( $p->id )) {
+						$attach->ContentId = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
+
+					}
+					$this->attachments[] = $attach;
 
 				}
-				$this->attachments[] = $attach;
+				elseif ( isset( $params['name'])) {
+					$filename = $params['name'];
+					$attach = new attachment;
+					$attach->Name = $attach->ContentId = $filename;
+					$attach->Content = $data;
+					if ( isset( $p->id )) {
+						$attach->ContentId = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
 
-			}
-			elseif ( isset( $params['name'])) {
-				$filename = $params['name'];
-				$attach = new attachment;
-				$attach->Name = $attach->ContentId = $filename;
-				$attach->Content = $data;
-				if ( isset( $p->id )) {
-					$attach->ContentId = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
+					}
+					$this->attachments[] = $attach;
+
 
 				}
-				$this->attachments[] = $attach;
+				elseif ( $p->type == 5 && $data && isset( $p->id)) {
+					$id = preg_replace( array( "@(<|>)@" ), "", $p->id );
+					$attach = new attachment;
+					$attach->Name = $attach->ContentId = $id;
+					$attach->Content = $data;
+					$this->attachments[] = $attach;
 
-			}
-			elseif ( $p->type == 5 && $data && isset( $p->id)) {
-				$id = preg_replace( array( "@(<|>)@" ), "", $p->id );
-				$attach = new attachment;
-				$attach->Name = $attach->ContentId = $id;
-				$attach->Content = $data;
-				$this->attachments[] = $attach;
+
+				}
 
 			}
 			elseif ( $debug) {
@@ -217,7 +253,10 @@ class RawMessage {
 				$this->message .= "--[rfc822-headers]--\n\n" . trim( $data) . "\n\n";
 
 			elseif ( strtolower($p->subtype)=='calendar') {
-				$this->attachments[ 'calendar.ics'] = $data;  // this is a problem if two files have same name
+				if ( self::PLAINTEXT != $this->plainText) {
+					$this->attachments[ 'calendar.ics'] = $data;  // this is a problem if two files have same name
+
+				}
 
 			}
 			else {

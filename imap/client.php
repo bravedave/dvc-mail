@@ -137,11 +137,21 @@ class client {
 
 	}
 
-	protected function _cache_path( $uid) {
-		return sprintf('%s%s_%s.json',
-			config::IMAP_CACHE(),
-			$this->_cache_prefix(),
-			$uid);
+	protected function _cache_path( $uid, $txt = false) {
+		if ( $txt) {
+			return sprintf('%s%s_%s.txt',
+				config::IMAP_CACHE(),
+				$this->_cache_prefix(),
+				$uid);
+
+		}
+		else {
+			return sprintf('%s%s_%s.json',
+				config::IMAP_CACHE(),
+				$this->_cache_prefix(),
+				$uid);
+
+		}
 
 	}
 
@@ -345,6 +355,38 @@ class client {
 		if ( $debug) sys::logger( sprintf('exit : %s', __METHOD__));
 
 		return ( $ret );
+
+	}
+
+	protected function _getmessageText( $msgno) {
+		$debug = false;
+		// $debug = true;
+
+		$uid = \imap_uid( $this->_stream, $msgno);
+		$txtFile = $this->_cache_path( $uid, true);
+		if ( \file_exists( $txtFile)) {
+			if ( $debug) \sys::logger( sprintf('<%s => from cache : %s> %s', $msgno, $txtFile, __METHOD__));
+			return file_get_contents( $txtFile);
+
+		}
+
+		if ( $debug) \sys::logger( sprintf('<%s> %s', $msgno, __METHOD__));
+		$msg = new RawMessage( $this->_stream, $msgno, RawMessage::PLAINTEXT);
+		$text = '';
+		if ( 'html' == $msg->messageType) {
+			$text = \strings::html2text( $msg->messageHTML);
+
+		}
+
+		if ( !( strlen( $text) > 0)) {
+			$text = $msg->message;
+
+		}
+
+		if ( $debug) \sys::logger( sprintf('<%s =>%s> : %s : %s', $msgno, $uid, \strlen( $text), __METHOD__));
+		\file_put_contents( $txtFile, $text);
+
+		return $text;
 
 	}
 
@@ -883,16 +925,36 @@ class client {
 	public function search( array $params) : array {
 		$options = array_merge([
 			'criteria' => [],
-			'charset' => 'US-ASCII'
+			'charset' => 'US-ASCII',
+			'term' => '',
+			'time_limit' => 120
 
 		], $params);
 
 		$ret = [];
 		$results = [];
 		foreach ( $options['criteria'] as $criteria) {
+
+			set_time_limit( $options['time_limit']);
+
 			if ( $emails = imap_search( $this->_stream, $criteria, SE_FREE, $options['charset'])) {
 				foreach( $emails as $email_number) {
 					if ( !in_array( $email_number, $results)) {
+						if ( $options['term']) {
+							if ( preg_match( '@^TEXT @', $criteria)) {
+							// 	\sys::logger( sprintf('<%s> %s', $criteria, __METHOD__));
+								$txt = $this->_getmessageText( $email_number);
+								if ( false === strpos( $txt, $options['term'] )) {
+									// \sys::logger( sprintf('<%s> not found in text %s', $options['term'], __METHOD__));
+									continue;
+
+								}
+
+
+							}
+
+						}
+
 						$results[] = $email_number;
 
 					}
