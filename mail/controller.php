@@ -446,16 +446,16 @@ class controller extends \Controller {
 
 			// sys::dump( $msg);
 
+			// 'meta' => [
+			// 	'<meta name="viewport" content="width=device-width, initial-scale=1" />'
+
+			// ],
 			$this->render([
 				'css' => [
 					sprintf('<link type="text/css" rel="stylesheet" media="all" href="%s" />',
 						strings::url( $this->route . '/normalizecss')
 
 					)
-
-				],
-				'meta' => [
-					'<meta name="viewport" content="width=device-width, initial-scale=1" />'
 
 				],
 				'title' => $this->title = $msg->Subject,
