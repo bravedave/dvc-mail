@@ -1131,7 +1131,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				// let f = $('body>footer');
 				// if ( f.length > 0) h += f.height();
 				if ( _brayworth_.browser.isMobileDevice) {
-					frame.css('height','calc(100% - 1rem)');
+					// frame.css('height','calc(100% - 1rem)');
 
 				}
 				else {
