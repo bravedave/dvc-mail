@@ -1045,6 +1045,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 						window.open( _data.url, '_blank', 'toolbar=yes,menubar=no');
 						$('#<?= $uidViewer ?>').trigger('clear');
+						$(document).trigger('mail-view-message-list');
 
 					});
 
