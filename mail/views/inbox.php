@@ -2148,6 +2148,7 @@ $('#<?= $uidViewer ?>').on('clear', function( e) {
 	$(this)
 	.html('')
 	.removeData('message')
+	.removeData('uid')
 	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
 
 	if ( !_brayworth_.browser.isMobileDevice && 'yes' == $(document).data('autoloadnext')) {
