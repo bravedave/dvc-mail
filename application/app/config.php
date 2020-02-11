@@ -24,8 +24,7 @@ abstract class config extends dvc\config {
 
 		}
 
-		if ( ! is_writable( $data))
-			throw new Exception( $data . ' is not writable, please update permissions to allow');
+		if ( !is_writable( $data)) throw new dvc\Exceptions\DatapathNotWritable( $data);
 
 		return ( $data);
 

@@ -223,8 +223,7 @@ class inbox {
 
 		}
 
-		if ( !is_writable($msgStore))
-			throw new Exceptions\DirNotWritable( $msgStore);
+		if ( !is_writable($msgStore)) throw new Exceptions\DirNotWritable( $msgStore);
 
 		$attachmentPath = sprintf( '%s/attachments', $msgStore);
 		if ( !file_exists( $attachmentPath)) {
@@ -233,8 +232,7 @@ class inbox {
 
 		}
 
-		if ( !is_writable( $attachmentPath))
-			throw new Exceptions\DirNotWritable( $attachmentPath);
+		if ( !is_writable( $attachmentPath)) throw new Exceptions\DirNotWritable( $attachmentPath);
 
 		$j = [
 			'answered' => $message->answered,

@@ -1492,15 +1492,20 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						data : data,	//
 
 					}).then( function( d) {
-						_brayworth_.growl( d);
+						if ( 'ack' == d.response) {
+							ctrl.remove();	// unnecessary
 
-						ctrl.remove();	// unnecessary
+							_me.remove();
 
-						_me.remove();
+							if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
+								$('#<?= $uidViewer ?>').trigger('clear');
+								$(document).trigger('mail-view-message-list');
 
-						if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
-							$('#<?= $uidViewer ?>').trigger('clear');
-							$(document).trigger('mail-view-message-list');
+							}
+
+						}
+						else {
+							_brayworth_.growl( d);
 
 						}
 
