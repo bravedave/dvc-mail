@@ -1,3 +1,7 @@
+### 11/02/2020
+1. Adjusted cache time
+2. Mitigated Cache Cleanup to only run every 5 minutes
+
 ### 10/02/2020
 1. Search feature
    a. now includes TEXT in search field

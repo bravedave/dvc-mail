@@ -19,7 +19,9 @@ abstract class config extends \config {
 	static protected $_IMAP_VERSION = 0;
 
 	static protected $_imap_cleaned_up = false;
-	static protected $_imap_cache_max_age = 14400;	// 4 hours
+	// static protected $_imap_cache_max_age = 14400;	// 4 hours
+	static protected $_imap_cache_max_age = 43200;	// 12 hours
+	// static protected $_imap_cache_max_age = 259200;	// 3 days
 
 	static $_imap_cache_flushing = false;	// enforces cache flush on purge
 	// static $_imap_cache_flushing = true;
@@ -33,22 +35,32 @@ abstract class config extends \config {
 
 		}
 
-		if ( ! is_writable( $data))
+		if ( ! is_writable( $data)) {
 			throw new Exception( $data . ' is not writable, please update permissions to allow');
 
-		if ( !self::$_imap_cleaned_up) {
+		}
+
+		$runCleanUp = true;
+		$Semaphor = $data . 'semaphor.dat';
+		if ( \file_exists( $Semaphor)) {
+			$age = time() - \filemtime( $Semaphor);
+			$runCleanUp = ( $age > 600);
+
+		}
+
+		if ( $runCleanUp && !self::$_imap_cleaned_up) {
 			self::$_imap_cleaned_up = true;
+
+			if ( \file_exists( $Semaphor)) unlink( $Semaphor);
+			\file_put_contents( $Semaphor, date('c'));
 
 			// clean this folder
 			$iterator = new \GlobIterator($data . '*');
 			foreach ($iterator as $item) {
 				if ( file_exists( $item->getRealPath())) {
+
 					$age = time() - $item->getMTime();
-
-					if ( $age > self::$_imap_cache_max_age) {
-						unlink( $item->getRealPath());
-
-					}
+					if ( $age > self::$_imap_cache_max_age) unlink( $item->getRealPath());
 
 				}
 
