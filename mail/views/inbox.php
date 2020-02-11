@@ -1031,7 +1031,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				(function() {
-					if ( _brayworth_.browser.isMobileDevice) return;
+					// if ( _brayworth_.browser.isMobileDevice) return;
 
 					let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
 
