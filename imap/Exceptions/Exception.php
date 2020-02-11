@@ -9,6 +9,6 @@
 
 	*/
 
-namespace dvc\imap\exceptions;
+namespace dvc\imap\Exceptions;
 
 class Exception extends \dvc\Exception {}
