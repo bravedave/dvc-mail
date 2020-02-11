@@ -1175,7 +1175,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				});
 
-<?php if ( currentUser::option('email-enable-quick-reply') == 'yes') { ?>
+				<?php if ( currentUser::option('email-enable-quick-reply') == 'yes') { ?>
 				(function() {
 					let frame = $('iframe', '#<?= $uidViewer ?>');
 					if ( frame.length > 0) {
@@ -1263,7 +1263,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					}
 
 				})();
-<?php }	 ?>
+				<?php }	 ?>
 
 			});
 
@@ -2031,7 +2031,7 @@ $(document).on( 'mail-set-view', function() {
 
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-7 px-1');
+			$('#<?= $uidViewer ?>').attr( 'class', 'col-sm-9 col-md-7 px-1');
 
 		}
 		else {
@@ -2042,8 +2042,6 @@ $(document).on( 'mail-set-view', function() {
 		}
 
 	}
-
-	// $(document).trigger( 'mail-view-state');
 
 });
 
