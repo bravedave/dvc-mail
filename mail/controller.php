@@ -454,6 +454,10 @@ class controller extends \Controller {
 					)
 
 				],
+				'meta' => [
+					'<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes" />'
+
+				],
 				'title' => $this->title = $msg->Subject,
 				'template' => 'dvc\mail\pages\minimal',
 				'content' => 'message',
