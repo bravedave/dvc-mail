@@ -38,7 +38,36 @@
 	background-color: darkgrey;
 	outline: 1px solid slategrey;
 }
+
+@media (max-width: 575px) {
+	body.hide-nav-bar > nav,
+	body.hide-nav-bar > footer { display: none; }
+
+}
 </style>
+
+<style id="<?= $uid = strings::rand() ?>"></style>
+<script>
+$(document).on('resize-main-content-wrapper', function( e) {
+	let i = $('body > nav').height() + $('body > footer').height();
+
+	let css = [
+		'@media (max-width: 575px) {',
+		'	body:not(.hide-nav-bar) div[data-role="main-content-wrapper"] { height : calc( 100% - ' + i + 'px) }',
+		'	body.hide-nav-bar div[data-role="main-content-wrapper"] { height : 100% }',
+		'}',
+
+		'@media (min-width: 576px) {',
+		'	body div[data-role="main-content-wrapper"] { height : calc( 100% - ' + i + 'px) }',
+		'}'
+
+	];
+
+	$('#<?= $uid ?>').text( css.join("\n"));
+
+});
+</script>
+
 
 <div class="row h-100 pb-3">
 	<div class="d-none" id="<?= $uidSearchAll = strings::rand() ?>" style="overflow: auto;" data-role="mail-search-all">
@@ -853,7 +882,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				};
 				params.toolbar = $( '<div class="btn-group btn-group-sm" />'),
-				params.btnClass = 'btn btn-secondary-outline px-3';
+				params.btnClass = 'btn btn-secondary px-3';
 				if ( Number( user_id) > 0) {
 					params.user_id = user_id;
 
@@ -871,7 +900,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				/* build a toolbar */
 				let btns = [];
 				( function() {
-					let btn = $('<button type="button" class="d-md-none"><i class="fa fa-angle-left" /></button>');
+					let btn = $('<button type="button" class="d-md-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 8 8"><path d="M3 0l-3 2.53 3 2.47v-2h5v-1h-5v-2z" fill="#fff" transform="translate(0 1)" /></svg></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
@@ -1031,7 +1060,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				(function() {
-					// if ( _brayworth_.browser.isMobileDevice) return;
+					if ( _brayworth_.browser.isMobileDevice) return;
 
 					let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
 
@@ -1126,13 +1155,38 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				btns.forEach( element => { element.appendTo( params.toolbar); });
 
-				$('<div class="btn-toolbar" />').append( params.toolbar).prependTo( '#<?= $uidViewer ?>');
+				(function( toolbar) {
+					if ( _brayworth_.browser.isMobileDevice) {
+						let row = $('<div class="row" />').prependTo( '#<?= $uidViewer ?>');
+						$('<div class="col bg-secondary" />').appendTo( row).append( toolbar);
+
+					}
+					else {
+						toolbar.prependTo( '#<?= $uidViewer ?>');
+
+					}
+
+
+				})( $('<div class="btn-toolbar" role="toolbar" aria-label="Mail Toolbar" />').append( params.toolbar));
 
 				// let h = params.toolbar.height();
 				// let f = $('body>footer');
 				// if ( f.length > 0) h += f.height();
 				if ( _brayworth_.browser.isMobileDevice) {
-					// frame.css('height','calc(100% - 1rem)');
+					$('div[message] img', _frame.contentDocument).each( function( i, el) {
+						let _el = $(el);
+						let width = String( _el.css('width')).replace(/px$/,'');
+						if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.innerWidth)) {
+							console.log( width);
+							_el.css({
+								'width':'',
+								'max-width':'100%'
+
+							});
+
+						}
+
+					});
 
 				}
 				else {
@@ -1148,24 +1202,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					});
 
 				}
-
-				// let els = $('[message] [style]', _frame.contentDocument).each( function( i, el) {
-				// 	let _el = $(el);
-				// 	let width = String( _el.css('width')).replace(/px$/,'');
-				// 	console.log( width);
-
-				// 	if ( 'IMG' == el.tagName || (Number( width) > 0 && Number( width) > window.innerWidth)) {
-				// 		_el.css({
-				// 			'width':'',
-				// 			'max-width':'100%'
-
-				// 		});
-
-				// 	}
-				// 	// console.log( width);
-
-				// });
-				// // console.log( els)
 
 				$(document)
 				.trigger( 'mail-message-toolbar', params)
@@ -2007,6 +2043,9 @@ $(document).on( 'mail-set-view', function() {
 		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
 
 		$('input[type="search"]', '#<?= $uidSearchAll ?>').focus();
+		$('body').removeClass( 'hide-nav-bar');
+
+		$(document).trigger('resize-main-content-wrapper');
 
 	}
 	else if ( 'condensed' == view) {
@@ -2016,12 +2055,16 @@ $(document).on( 'mail-set-view', function() {
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
 			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-1');
+			$('body').addClass( 'hide-nav-bar');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
 			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-1');
+			$('body').removeClass( 'hide-nav-bar');
+
+			$(document).trigger('resize-main-content-wrapper');
 
 		}
 
@@ -2033,12 +2076,16 @@ $(document).on( 'mail-set-view', function() {
 		if ('message-view' == focus) {
 			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
 			$('#<?= $uidViewer ?>').attr( 'class', 'col-sm-9 col-md-7 px-1');
+			$('body').addClass( 'hide-nav-bar');
 
 		}
 		else {
 			// message-list
 			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
 			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
+			$('body').removeClass( 'hide-nav-bar');
+
+			$(document).trigger('resize-main-content-wrapper');
 
 		}
 
@@ -2233,11 +2280,8 @@ $(document).ready( function() {
 	.data('route', '<?= $this->route ?>')
 	.data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
 
-	let i = $('body > nav').height() + $('body > footer').height();
-	$('div[data-role="main-content-wrapper"]').css({
-		'height' : 'calc( 100% - ' + i + 'px)'
+	$(document).trigger('resize-main-content-wrapper');
 
-	})
 	$('html, body, div[data-role="main-content-wrapper"] > .row, div[data-role="main-content-wrapper"] > .row > .col').addClass( 'h-100');
 	$('div[data-role="content"]').removeClass( 'pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
 
