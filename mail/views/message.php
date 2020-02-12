@@ -66,7 +66,10 @@ html, body { font-family: sans-serif; }
     margin: 0;
 }
 .grid-item {
-    padding: 8px;;
+    padding: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 </style>
 <div class="grid-container">
@@ -74,9 +77,9 @@ html, body { font-family: sans-serif; }
         <span style="float: right;"><?= strings::asLocalDate( $msg->Recieved, $time = true) ?></span>
         <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
         <?php
-        $_style = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+        $_style = '';
         if ( $this->data->default_folders['Sent'] == $msg->Folder) {
-            printf( '<div style="%s"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
+            printf( '<div style="float: left; %s"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
                 $_style,
                 htmlentities( $msg->To),
                 htmlentities( $msg->To)
@@ -85,7 +88,7 @@ html, body { font-family: sans-serif; }
         }
         else {
             if ( $msg->From && $msg->From != $msg->fromEmail) {
-                printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
+                printf( '<div style="float: left; %s"><strong data-role="from" data-email="%s">%s</strong></div>',
                     $_style,
                     htmlentities( $msg->From),
                     htmlentities( $msg->From)
@@ -93,7 +96,7 @@ html, body { font-family: sans-serif; }
 
             }
             else {
-                printf( '<div style="%s"><strong data-role="from" data-email="%s">%s</strong></div>',
+                printf( '<div style="float: left; %s"><strong data-role="from" data-email="%s">%s</strong></div>',
                     $_style,
                     htmlentities( $msg->fromEmail),
                     $msg->fromEmail
