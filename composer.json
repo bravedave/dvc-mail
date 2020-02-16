@@ -1,11 +1,12 @@
 {
 	"name": "bravedave/dvc-mail",
 	"description": "Mail Interfaces for DVC",
+	"version": "0.0.1",
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"homepage": "http://brayworth.com",
 	"type": "library",
-	"license": "MIT",
+	"license": "cc-by-4.0",
 	"authors": [{
 		"name": "Brave Dave",
 		"email": "david@brayworth.com.au",
@@ -22,9 +23,9 @@
 		}
 	],
 	"require": {
+		"bravedave/dvc": "dev-master",
 		"ext-mailparse": "*",
 		"ext-imap": "*",
-		"bravedave/dvc": "dev-master",
 		"sabre/vobject": "^4.2"
 	},
 	"autoload": {
