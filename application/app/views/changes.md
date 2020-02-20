@@ -1,3 +1,8 @@
+#### 21/02/2020
+1. Searching for multiple words
+   * by default a word is a term "Buy Offer" searchs for that phrase
+   * separate by comma for a word list. e.g. Buy, Offer will find "Offer To Buy"
+
 #### 20/02/2020
 1. Introducing History stateFull API
    * when viewing a message, the state is pushed to history, the browsers back arrow now goes back to the message list

@@ -319,19 +319,29 @@ class inbox {
 		$ret = [];
 		if ( $options['term']) {
 			$term = \str_replace( '"', '', $options['term']);
+			$terms = explode(',', $term);
 
 			// \sys::logger( sprintf('%s : %s', $options['folder'], __METHOD__));
-			if ( folders::$default_folders['Sent'] ==  $options['folder']) {
-				$from = sprintf( 'TO "%s"', $term);
+			$_from = [];
+			$_subject = [];
+			$_text = [];
+			foreach ($terms as $_term) {
+				if ( folders::$default_folders['Sent'] ==  $options['folder']) {
+					$_from[] = sprintf( 'TO "%s"', trim( $_term));
+
+				}
+				else {
+					$_from[] = sprintf( 'FROM "%s"', trim( $_term));
+
+				}
+				$_subject[] = sprintf( 'SUBJECT "%s"', trim( $_term));
+				$_text[] = sprintf( 'TEXT "%s"', trim( $_term));
 
 			}
-			else {
-				$from = sprintf( 'FROM "%s"', $term);
+			$from = implode( ' ', $_from);
+			$subject = implode( ' ', $_subject);
+			$text = implode( ' ', $_text);
 
-			}
-
-			$subject = sprintf( 'SUBJECT "%s"', $term);
-			$text = sprintf( 'TEXT "%s"', $term);
 			if ( isset($options['from']) && strtotime($options['from']) > 0) {
 				$since = strtotime($options['from']);
 				$from .= sprintf( ' SINCE "%s"', date( 'd-M-Y', $since));
@@ -347,6 +357,7 @@ class inbox {
 				$text .= sprintf( ' BEFORE "%s"', date( 'd-M-Y', $before));
 
 			}
+
 
 			/**
 			 * We are searching

@@ -372,30 +372,6 @@ class controller extends \Controller {
 
 	}
 
-	protected function _searchall_is_this_deprecated( array $params = []) : array {
-
-		$options = array_merge([
-			'term' => '',
-			'max-results' => 10,
-
-		], $params);
-
-
-		$folders = $this->_folders( 'json');
-		// sys::dump( $folders);
-
-		$sb = new search( $this->creds, $options);
-		foreach( $folders as $folder) {
-			if ( count( $sb->messages()) >= $options['max-results']) break;
-			$sb->searchall( $folder);
-
-		}
-
-		// return $folders;
-		return $sb->messages();
-
-	}
-
 	protected function _view( array $params = []) {
 		$options = array_merge([
 			'creds' => $this->creds,
