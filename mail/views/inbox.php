@@ -851,7 +851,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			$(document).trigger('mail-view-message');
 			if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
-				$(document).trigger('mail-view-message-set-url');
+				$(document).trigger('mail-view-message-set-url', $('#<?= $uidViewer ?>').data('url'));
 				return;
 
 			}
@@ -1319,7 +1319,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			.html('')
 			.append( frame);
 
-			$(document).trigger('mail-view-message-set-url');
+			$(document).trigger('mail-view-message-set-url', url);
 
 			$('> .row', _me.parent()).each( function() {
 				$(this).removeClass( '<?= $activeMessage ?>');
@@ -2157,13 +2157,8 @@ $(document).on( 'mail-view-message-list', function( e) {
 
 });
 
-$(document).on( 'mail-view-message-set-url', function( e) {
-	// console.log( window.location.href);
-
-	let url = $('#<?= $uidViewer ?>').data('url');
-	// console.log( url);
+$(document).on( 'mail-view-message-set-url', function( e, url) {
 	if ( !!history.state) {
-		// console.log( history.state);
 		history.replaceState({ view : 'message'}, 'message', url);
 
 	}
@@ -2171,8 +2166,6 @@ $(document).on( 'mail-view-message-set-url', function( e) {
 		history.pushState({ view : 'message'}, 'message', url);
 
 	}
-
-	// history.replaceState({ view : 'message'}, 'message', url);
 
 });
 
@@ -2251,6 +2244,8 @@ $('#<?= $uidViewer ?>').on('clear', function( e) {
 	.removeData('message')
 	.removeData('uid')
 	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
+
+	$(document).trigger('mail-view-message-set-url', _brayworth_.url('<?= $this->route ?>'));
 
 	if ( !_brayworth_.browser.isMobileDevice && 'yes' == $(document).data('autoloadnext')) {
 		$(document).trigger( 'mail-message-load-next');
