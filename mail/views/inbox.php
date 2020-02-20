@@ -24,26 +24,26 @@
 </form>
 
 <style>
-.open-message { color: #004085; background-color: #cce5ff; }
-.<?= $uidCSS_dropHere = strings::rand(); ?> { border: 2px solid #ddd; background-color: #eee }
-::-webkit-scrollbar {
-    width: .5em;
-}
+	.open-message { color: #004085; background-color: #cce5ff; }
+	.<?= $uidCSS_dropHere = strings::rand(); ?> { border: 2px solid #ddd; background-color: #eee }
+	::-webkit-scrollbar {
+		width: .5em;
+	}
 
-::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-}
+	::-webkit-scrollbar-track {
+		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	}
 
-::-webkit-scrollbar-thumb {
-	background-color: darkgrey;
-	outline: 1px solid slategrey;
-}
+	::-webkit-scrollbar-thumb {
+		background-color: darkgrey;
+		outline: 1px solid slategrey;
+	}
 
-@media (max-width: 575px) {
-	body.hide-nav-bar > nav,
-	body.hide-nav-bar > footer { display: none; }
+	@media (max-width: 575px) {
+		body.hide-nav-bar > nav,
+		body.hide-nav-bar > footer { display: none; }
 
-}
+	}
 </style>
 
 <style id="<?= $uid = strings::rand() ?>"></style>
@@ -613,7 +613,7 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 $(document).data('default_folders', <?= json_encode( $this->data->default_folders) ?>);
 
-(function() {
+(function() {	// process mail messages into a list
 	let seed = String( parseInt( Math.random() * 1000000));
 	let seedI = 0;
 
@@ -850,7 +850,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			}
 
 			$(document).trigger('mail-view-message');
-			if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) return;
+			if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
+				$(document).trigger('mail-view-message-set-url');
+				return;
+
+			}
 
 			let user_id = $('input[name="user_id"]', '#<?= $uidFrm ?>').val();
 			let params = [
@@ -1311,8 +1315,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			$('#<?= $uidViewer ?>')
 			.data('uid', _data.message.uid)
+			.data('url', url)
 			.html('')
 			.append( frame);
+
+			$(document).trigger('mail-view-message-set-url');
 
 			$('> .row', _me.parent()).each( function() {
 				$(this).removeClass( '<?= $activeMessage ?>');
@@ -2149,6 +2156,53 @@ $(document).on( 'mail-view-message-list', function( e) {
 	// console.log('mail-view-message-list');
 
 });
+
+$(document).on( 'mail-view-message-set-url', function( e) {
+	// console.log( window.location.href);
+
+	let url = $('#<?= $uidViewer ?>').data('url');
+	// console.log( url);
+	if ( !!history.state) {
+		// console.log( history.state);
+		history.replaceState({ view : 'message'}, 'message', url);
+
+	}
+	else {
+		history.pushState({ view : 'message'}, 'message', url);
+
+	}
+
+	// history.replaceState({ view : 'message'}, 'message', url);
+
+});
+
+window.onpopstate = function( e) {
+	// console.log( e);
+
+	if ( !!e.state) {
+		if ( 'message' == e.state.view) {
+			$(document).trigger('mail-view-message');
+
+		}
+
+	}
+	else {
+			$(document).trigger('mail-view-message-list');
+
+	}
+
+	// else if ( Number( e.state.view) > 0) {
+	// 	$('body').trigger( 'load-application-viewer', e.state.view);
+
+	// }
+	// else {
+		// console.log( 'what about me ..', e.state);
+
+	// }
+
+};
+
+
 
 $(document).on( 'mail-view-message', function( e) {
 	$(document).data('focus', 'message-view');
