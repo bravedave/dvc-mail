@@ -1,4 +1,8 @@
 #### 21/02/2020
+1. imap_sort seems to struggle with large mailbox, particularly sent items
+   * if there are more than 500, revert to using simpler routine
+
+#### 21/02/2020
 1. Searching for multiple words
    * by default a word is a term "Buy Offer" searchs for that phrase
    * separate by comma for a word list. e.g. Buy, Offer will find "Offer To Buy"

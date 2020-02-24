@@ -435,31 +435,38 @@ class client {
 	 * get information for this specific email
 	 * */
 	protected function _overview( $email_number = -1 ) : \dvc\mail\message {
+		$debug = false;
+		// $debug = true;
+
 		if ( $email_number < 0 )
 			return ( false );
 
 
 		$ret = new \dvc\mail\message;
 		$_cache = false;
+		if ( $debug) \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
+		$uid = imap_uid( $this->_stream, $email_number);
+		if ( $debug) \sys::logger( sprintf('<%s> [%s:%s] %s', \application::timer()->elapsed(), $email_number, $uid, __METHOD__));
+
+		$_cache = $this->_cache_path( $uid);
+		if ( \file_exists( $_cache)) {
+			$ret->fromJson( \file_get_contents( $_cache));
+			// if ( isset( $headers->Unseen)) sys::logger( sprintf('seen <%s> : %s', $headers->Unseen, __METHOD__));
+			if ( isset( $headers->Unseen)) $ret->seen = 'U' == $headers->Unseen ? 'no' : 'yes';
+
+			// sys::logger( sprintf('seen <%s> : %s', $ret->seen, __METHOD__));
+			if ( $debug) \sys::logger( sprintf('<cache:%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
+			return $ret;
+
+		}
 
 		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
 		if ( $headers) {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
-			$ret->Uid = imap_uid( $this->_stream, $headers->Msgno);
+			$ret->Uid = $uid;
 			// $_cache = sprintf('%s%s_%s.json', config::IMAP_CACHE(), $this->_cache_prefix(), $ret->Uid);
-			$_cache = $this->_cache_path( $ret->Uid);
-			// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
 
-			if ( \file_exists( $_cache)) {
-				$ret->fromJson( \file_get_contents( $_cache));
-				// if ( isset( $headers->Unseen)) sys::logger( sprintf('seen <%s> : %s', $headers->Unseen, __METHOD__));
-				if ( isset( $headers->Unseen)) $ret->seen = 'U' == $headers->Unseen ? 'no' : 'yes';
-
-				// sys::logger( sprintf('seen <%s> : %s', $ret->seen, __METHOD__));
-				return $ret;
-
-			}
 
 			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
 			if ( isset( $headers->to)) {
@@ -666,37 +673,64 @@ class client {
 	}
 
 	public function finditems( array $params) : array {
+		$debug = false;
+		// $debug = true;
+
 		$options = (object)array_merge([
 			'deep' => false,
 			'page' => 0,
 			'pageSize' => 20,
-			'allPages' => false
+			'allPages' => false,
 
 		], $params);
 
-		// \sys::logger( sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
+		if ( $debug) \sys::logger( sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
+		$data = [
+			'msgCount' => imap_num_msg( $this->_stream)
+
+		];
+		if ( $debug) \sys::logger( sprintf('<msgCount : %s> <%s> %s', $data['msgCount'], \application::timer()->elapsed(), __METHOD__));
 
 		$ret = [];
-		if ($emails = imap_sort( $this->_stream, SORTARRIVAL, true, SE_NOPREFETCH )) {
-			// \sys::logger( sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
-			// sys::dump( $emails);
-			$start = $i = 0;
-			$_start = (int)$options->page * (int)$options->pageSize;
-			foreach( $emails as $email_number) {
-				if ( $start++ >= $_start ) {
-					if ( $i++ >= $options->pageSize ) break;
-					$msg = $this->_overview( $email_number);
-					// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $msg->Uid, __METHOD__));
-					$msg->Folder = $this->_folder;
-					$ret[] = $msg;
+
+		if ( $data['msgCount'] > 500) {
+			$emails = \range( $data['msgCount'], max( $data['msgCount'] - $options->pageSize, 0), -1 );
+			foreach ($emails as $email_number) {
+				// \sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
+
+				$msg = $this->_overview( $email_number);
+				$msg->Folder = $this->_folder;
+				$ret[] = $msg;
+
+			}
+
+
+		}
+		else {
+			if ($emails = imap_sort( $this->_stream, SORTARRIVAL, true, SE_NOPREFETCH )) {
+				if ( $debug) \sys::logger( sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
+				// sys::dump( $emails);
+				$start = $i = 0;
+				$_start = (int)$options->page * (int)$options->pageSize;
+				foreach( $emails as $email_number) {
+					if ( $debug) \sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
+
+					if ( $start++ >= $_start ) {
+						if ( $i++ >= $options->pageSize ) break;
+						$msg = $this->_overview( $email_number);
+						// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $msg->Uid, __METHOD__));
+						$msg->Folder = $this->_folder;
+						$ret[] = $msg;
+
+					}
 
 				}
 
 			}
-			// \sys::logger( sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
 
 		}
 
+		if ( $debug) \sys::logger( sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
 		return $ret;
 
 	}
