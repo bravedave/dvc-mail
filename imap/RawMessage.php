@@ -32,7 +32,7 @@ class RawMessage {
 
 	function __construct( $stream, $email_number, $plainText = self::HTML ) {
 		$debug = false;
-		// $debug = true;
+		$debug = true;
 
 		$this->plainText = $plainText;
 
@@ -77,6 +77,8 @@ class RawMessage {
 			}
 
 		}
+
+		// \sys::dump( $this);
 
 	}
 
@@ -283,8 +285,35 @@ class RawMessage {
 		elseif ($p->type==2 && $p->subtype == 'RFC822' && $data) {
 			/**
 			 * embedded message "send as attachment"
+			 *
+			 * Return-Path: <davidb@darcy.com.au>
+			 * Received: (from root@localhost)
+			 * 	by fed17.ashgrove.darcy.com.au (8.15.2/8.15.2/Submit) id 016DKpa8023804;
+			 * 	Thu, 6 Feb 2020 23:20:51 +1000
+			 * To: davidb@darcy.com.au
+			 * Subject: DIG GA PHP Error
+			 * From: DIG GA <webmaster@darcy.com.au>
+			 * Reply-To: DIG GA <davidb@darcy.com.au>
+			 * Content-Type: text/plain
+			 * Date: Thu, 06 Feb 2020 23:19:51 +1000
+			 * Message-ID: <20200206231951TheSystem@>
+			 * X-Mailer: PHP v7.3.13
+			 *
+			 * dvc-Exceptions-UnableToSelectDatabase (db.php ~ 30)(0)
+			 * /opt/data/core/vendor/bravedave/dvc/dvc/db.php(30)
+			 * #0 /opt/data/core/vendor/bravedave/dvc/dvc/dbi.php(56): dvc\db->__construct('mysql.internal', 'cmss', 'daCMS', 'daCMS')
+			 * #1 /opt/data/core/vendor/bravedave/dvc/dvc/sys.php(25): dvc\dbi->__construct()
+			 * #2 /opt/data/core/vendor/bravedave/dvc/dvc/core/application.php(499): dvc\sys::dbi()
+			 * #3 /opt/data/core/vendor/bravedave/dvc/dvc/core/controller.php(52): dvc\core\application->dbi()
+			 * #4 /opt/data/core/cms/application/app/Controller.php(78): dvc\core\controller->__construct('/opt/data/core/...')
+			 * #5 /opt/data/core/cms/application/app/service.php(32): Controller->__construct('/opt/data/core/...')
+			 * #6 /opt/data/core/cms/application/services/market-activity-email.php(15): service->run('marketactivity', 'diffmailSchedul...')
+			 * #7 {main}
 			 */
 			if ( $debugPart) sys::logger( sprintf( 'part type 2/RFC822(%s) : %s', strlen( $data), __METHOD__ ));
+			// sys::logger( sprintf( 'part type 2/RFC822(%s) : %s', strlen( $data), __METHOD__ ));
+			// \file_put_contents( config::dataPath() . '/you_want_this.dat', $data);
+			// sys::dump( $data);
 
 			$msg = new MimeMessage( $data);
 			if ( 'html' == $this->messageType) {

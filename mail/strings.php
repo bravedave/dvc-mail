@@ -11,13 +11,13 @@
 
 namespace dvc\mail;
 
-class strings extends \strings {
-    function splitEmails( string $strOfEmails) : array {
+abstract class strings extends \strings {
+    static function splitEmails( string $strOfEmails) : array {
 
         /*
 
-        noting that there is a missing , between the first two emails and thne test survives
-        so the email can be delimie by
+        noting that there is a missing , between the first two emails and the test survives
+        so the email can be delimited by
             - space
             - comma
             - semicolon

@@ -10,6 +10,7 @@
 
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
+// sys::dump( $msg);
 
 /**
  * process the safe html before listing the attachments
@@ -19,7 +20,8 @@ $msg = $this->data->message;
 
 $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
-    $msgHtml = sprintf( '<pre>%s</pre>', htmlentities( $msg->Body));
+    $msgHtml = sprintf( '<pre>%s</pre>', htmlspecialchars( $msg->Body));
+    $msgHtml = sprintf( '<pre>%s</pre>', $msg->Body);
 
 }
 elseif ( $msg->hasMso()) {
