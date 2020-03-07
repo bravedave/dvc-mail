@@ -1,21 +1,25 @@
-#### 21/02/2020
+###### 7/03/2020
+1. Better checking for plain text email and simplier display
+2. License updated to MIT
+
+###### 21/02/2020
 1. imap_sort seems to struggle with large mailbox, particularly sent items
    * if there are more than 500, revert to using simpler routine
 
-#### 21/02/2020
+###### 21/02/2020
 1. Searching for multiple words
    * by default a word is a term "Buy Offer" searchs for that phrase
    * separate by comma for a word list. e.g. Buy, Offer will find "Offer To Buy"
 
-#### 20/02/2020
+###### 20/02/2020
 1. Introducing History stateFull API
    * when viewing a message, the state is pushed to history, the browsers back arrow now goes back to the message list
 
-#### 11/02/2020
+###### 11/02/2020
 1. Adjusted cache time
 2. Mitigated Cache Cleanup to only run every 5 minutes
 
-#### 10/02/2020
+###### 10/02/2020
 1. Search feature
    a. now includes TEXT in search field
    b. added navigation to allow exiting search and returning to normal mail view
@@ -28,24 +32,24 @@
 2. Bugs
    a. fixed glitch in naming of cache objects
 
-#### 09/02/2020
+###### 09/02/2020
 1. New Quick Reply feature - incomplete and disabled by default
 
-#### 08/02/2020
+###### 08/02/2020
 1. Fixed bug
    * with intro of caching, the _read_ status was being taken from cache
      * when marking as _read_ flush the cache
      * seen flag is read each parse, so if another client marks as seen, we also see
    * fix issue if two users were cleaning up cache simultaneously
 
-#### 06/02/2020
+###### 06/02/2020
 1. Fixed bug introduced yesterday - message images were not being indexed properly
 2. Move away from message id to uid as a method of accessing the message
 3. Introduce caching to speed message header retrieval
 4. Introduce optional flushing of the cache
    * there seems to state that expunge resets uid's - I don't think that is the case, if I'm wrong will need to turn this on
 
-#### 05/02/2020
+###### 05/02/2020
 1. __imap\messages->safehtml()__
    * Seem to have discovered memory limitation in DOMDocument setAttribute
    * change to using str_replace which seem more robust

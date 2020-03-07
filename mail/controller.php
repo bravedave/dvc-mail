@@ -1,13 +1,12 @@
 <?php
-/**
+/*
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- * 		http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
- * */
+*/
 
 namespace dvc\mail;
 
@@ -420,27 +419,29 @@ class controller extends \Controller {
 
 			];
 
-			// sys::dump( $msg);
+			if ( 'text' == strtolower( $msg->BodyType)) {
+				Response::text_headers();
+				$this->load( 'plaintext');
 
-			// 'meta' => [
-			// 	'<meta name="viewport" content="width=device-width, initial-scale=1" />'
+			}
+			else {
+				$this->render([
+					'css' => [
+						sprintf('<link type="text/css" rel="stylesheet" media="all" href="%s" />',
+							strings::url( $this->route . '/normalizecss')
 
-			// ],
-			$this->render([
-				'css' => [
-					sprintf('<link type="text/css" rel="stylesheet" media="all" href="%s" />',
-						strings::url( $this->route . '/normalizecss')
+						)
 
-					)
+					],
+					'title' => $this->title = $msg->Subject,
+					'template' => 'dvc\mail\pages\minimal',
+					'content' => 'message',
+					'navbar' => [],
+					'charset' => $msg->CharSet,
 
-				],
-				'title' => $this->title = $msg->Subject,
-				'template' => 'dvc\mail\pages\minimal',
-				'content' => 'message',
-				'navbar' => [],
-				'charset' => $msg->CharSet,
+				]);
 
-			]);
+			}
 
 			// $msg->Body = strings::htmlSanitize( $msg->Body);
 			// Json::ack( $action)->add( 'message', $msg);

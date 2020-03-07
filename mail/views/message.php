@@ -1,12 +1,12 @@
 <?php
-/**
+/*
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- *      http://creativecommons.org/licenses/by/4.0/
- * */
+ * MIT License
+ *
+*/
 
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
@@ -20,8 +20,9 @@ $msg = $this->data->message;
 
 $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
-    $msgHtml = sprintf( '<pre>%s</pre>', htmlspecialchars( $msg->Body));
+    // $msgHtml = sprintf( '<pre>%s</pre>', htmlspecialchars( $msg->Body));
     $msgHtml = sprintf( '<pre>%s</pre>', $msg->Body);
+    // print $msg->Body;
 
 }
 elseif ( $msg->hasMso()) {

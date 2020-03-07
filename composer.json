@@ -6,7 +6,7 @@
 	"prefer-stable": true,
 	"homepage": "http://brayworth.com",
 	"type": "library",
-	"license": "cc-by-4.0",
+	"license": "MIT",
 	"authors": [{
 		"name": "Brave Dave",
 		"email": "david@brayworth.com.au",

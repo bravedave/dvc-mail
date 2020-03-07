@@ -1,12 +1,12 @@
 <?php
 /*
-	David Bray
-	BrayWorth Pty Ltd
-	e. david@brayworth.com.au
-
-	This work is licensed under a Creative Commons Attribution 4.0 International Public License.
-		http://creativecommons.org/licenses/by/4.0/
-	*/
+ * David Bray
+ * BrayWorth Pty Ltd
+ * e. david@brayworth.com.au
+ *
+ * MIT License
+ *
+*/
 
 	$keyLastFolders = sprintf('%s-lastfolders', $this->route);
 	$activeMessage = 'open-message';
@@ -532,14 +532,14 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 		};
 
-		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col"><h6 class="pt-1">folders</h6></div></div>');
-		$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-refresh" /></button>')
+		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 d-inline-flex mb-1">folders</h6></div></div>');
+		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto" style="margin: -.25rem 0;"><i class="fa fa-refresh" /></button>')
 		.on('click', function( e) {
 			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
 			$(document).trigger( 'mail-folderlist-reload');
 
 		})
-		.prependTo( '#<?= $uidFolders ?> > div > div.col');
+		.appendTo( '#<?= $uidFolders ?> > div > div.col');
 
 		$('#<?= $uidFolders ?>').on( 'spin', function( e) {
 			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
@@ -1683,15 +1683,15 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let page = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
 		let heading = $('<div class="row bg-light text-muted" />');
 		( function( col) {
-			let primary = $('<div />').appendTo( col);
+			let primary = $('<div class="d-flex" />').appendTo( col);
 			let search = $('<div class="py-1 input-group d-none" />').appendTo( col);
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
-			let h = $('<h6 class="text-truncate pt-1" />').html( location).appendTo( primary);
+			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1" />').html( location).appendTo( primary);
 
-			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-search" /></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto" style="margin: -.25rem 0;"><i class="fa fa-fw fa-search" /></button>')
 			.attr( 'title', _brayworth_.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
-			.prependTo( primary)
+			.appendTo( primary)
 			.on('click', function(e) {
 				if ( e.ctrlKey) {
 
@@ -1713,8 +1713,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
-			.prependTo( primary)
+			$('<button type="button" class="btn btn-sm d-inline-flex" style="margin: -.25rem 0;"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
+			.appendTo( primary)
 			.on('click', function(e) {
 				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
 				if ( v > 0) {
@@ -1731,11 +1731,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			});
 
 			if ( page > 0) {
-				$('<span class="badge badge-pill badge-light pull-right mt-2 px-0" />').html('#' + (page+1)).prependTo( primary);
+				$('<span class="d-inline-flex small pt-1" />').html(page+1).appendTo( primary);
 
 			}
-			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
-			.prependTo( primary)
+			$('<button type="button" class="btn btn-sm d-inline-flex" style="margin: -.25rem 0;"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
+			.appendTo( primary)
 			.on('click', function(e) {
 				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
 				v ++;
@@ -1748,8 +1748,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('<button type="button" class="btn btn-sm pull-right"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
-			.prependTo( primary)
+			$('<button type="button" class="btn btn-sm d-inline-flex" style="margin: -.25rem 0;"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
+			.appendTo( primary)
 			.on('click', function(e) {
 				if ( !!folder)
 					$(document).trigger('mail-messages', folder);
