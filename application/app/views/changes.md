@@ -1,4 +1,4 @@
-###### 7/03/2020
+###### 9/03/2020
 1. Better checking for plain text email and simplier display
 2. License updated to MIT
 

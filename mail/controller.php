@@ -419,29 +419,21 @@ class controller extends \Controller {
 
 			];
 
-			if ( 'text' == strtolower( $msg->BodyType)) {
-				Response::text_headers();
-				$this->load( 'plaintext');
+			$this->render([
+				'css' => [
+					sprintf('<link type="text/css" rel="stylesheet" media="all" href="%s" />',
+						strings::url( $this->route . '/normalizecss')
 
-			}
-			else {
-				$this->render([
-					'css' => [
-						sprintf('<link type="text/css" rel="stylesheet" media="all" href="%s" />',
-							strings::url( $this->route . '/normalizecss')
+					)
 
-						)
+				],
+				'title' => $this->title = $msg->Subject,
+				'template' => 'dvc\mail\pages\minimal',
+				'content' => ['message'],
+				'navbar' => [],
+				'charset' => $msg->CharSet,
 
-					],
-					'title' => $this->title = $msg->Subject,
-					'template' => 'dvc\mail\pages\minimal',
-					'content' => 'message',
-					'navbar' => [],
-					'charset' => $msg->CharSet,
-
-				]);
-
-			}
+			]);
 
 			// $msg->Body = strings::htmlSanitize( $msg->Body);
 			// Json::ack( $action)->add( 'message', $msg);

@@ -20,9 +20,22 @@ $msg = $this->data->message;
 
 $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
-    // $msgHtml = sprintf( '<pre>%s</pre>', htmlspecialchars( $msg->Body));
-    $msgHtml = sprintf( '<pre>%s</pre>', $msg->Body);
-    // print $msg->Body;
+
+    $encoding = mb_detect_encoding($msg->Body);
+    if ( 'utf-8' == strtolower( $encoding)) {
+        $_msg = mb_convert_encoding( $msg->Body, 'UTF-8', 'HTML-ENTITIES');
+
+    }
+    elseif ( 'ascii' == strtolower( $encoding)) {
+        $_msg = mb_convert_encoding( $msg->Body, 'ASCII', 'HTML-ENTITIES');
+
+    }
+    else {
+        $_msg = sprintf( "Encoding: %s\n", $encoding, $msg->Body);
+
+    }
+
+    $msgHtml = str_replace( "\n", '<br />', $_msg);
 
 }
 elseif ( $msg->hasMso()) {
