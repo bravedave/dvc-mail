@@ -32,7 +32,7 @@ class RawMessage {
 
 	function __construct( $stream, $email_number, $plainText = self::HTML ) {
 		$debug = false;
-		$debug = true;
+		// $debug = true;
 
 		$this->plainText = $plainText;
 
