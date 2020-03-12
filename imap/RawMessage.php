@@ -30,20 +30,28 @@ class RawMessage {
 	const HTML = 0;
 	const PLAINTEXT = 1;
 
+	// $debug = true;
+	protected $debug = false;
+	// protected $debug = true;
+
 	function __construct( $stream, $email_number, $plainText = self::HTML ) {
-		$debug = false;
+		$debug = $this->debug;
 		// $debug = true;
 
 		$this->plainText = $plainText;
 
 		// BODY
 		$s = imap_fetchstructure( $stream, $email_number );
-		if ( !isset( $s->parts ) || !$s->parts )  // simple
+		if ( !isset( $s->parts ) || !$s->parts ) { // simple
 			$this->getpart( $stream, $email_number, $s, 0 );  // pass 0 as part-number
 
+		}
 		else {  // multipart: cycle through each part
 			// sys::logger( sprintf('get parts :s: %s', __METHOD__));
 			foreach ($s->parts as $partno0 => $p) {
+				if ( $debug) \sys::logger( sprintf('<%s> %s', $p->type, __METHOD__));
+				// \sys::dump( $p);
+
 				// if ( self::PLAINTEXT == $plainText ) {
 				// 	if ( 0 == $p->type) {
 				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
@@ -71,8 +79,9 @@ class RawMessage {
 			}
 
 			if ( $debug) {
-				sys::logger( sprintf('get parts :e: %s', __METHOD__));
-				sys::trace( sprintf('exit : %s', __METHOD__));
+				\sys::logger( sprintf('get parts :e: %s', __METHOD__));
+				\sys::trace( sprintf('exit : %s', __METHOD__));
+				// \sys::dump( $this);
 
 			}
 
@@ -83,8 +92,7 @@ class RawMessage {
 	}
 
 	protected function getpart( $mbox, $mid, $p, $partno ) {
-		$debug = false;
-		// $debug = true;
+		$debug = $this->debug;
 		$debugPart = $debug;
 		// $debugPart = true;
 
@@ -132,11 +140,12 @@ class RawMessage {
 
 		}
 		else {
-			if ( $debug) sys::logger( sprintf('other encoding : %s', $p->encoding, __METHOD__));
+			$data = quoted_printable_decode( $data);
+			if ( $debug) sys::logger( sprintf('other encoding : %s (%d)', $p->encoding, \strlen($data), __METHOD__));
+			// \sys::dump( $data);
 			// if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, print_r( $p, true), __METHOD__));
 			// if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $data, __METHOD__));
 			// die( quoted_printable_decode( $data));
-			$data = quoted_printable_decode( $data);
 
 		}
 
@@ -343,13 +352,12 @@ class RawMessage {
 
 			}
 
-			// SUBPART RECURSION
-			if ( isset( $p->parts )) {
-				if ( $p->parts ) {
-					foreach ($p->parts as $partno0=>$p2) {
-						$this->getpart( $mbox, $mid, $p2, $partno.'.'.($partno0+1));  // 1.2, 1.2.1, etc.
-
-					}
+			if ( isset( $p->parts ) && $p->parts ) { // SUBPART RECURSION
+				foreach ($p->parts as $partno0=>$p2) {
+					// \sys::logger( sprintf('<%s -----------------------------------------------------------------------------> %s', $p2->type, __METHOD__));
+					// \sys::dump( $p2);
+					$this->getpart( $mbox, $mid, $p2, $partno.'.'.($partno0+1));  // 1.2, 1.2.1, etc.
+					// \sys::logger( sprintf('</%s -----------------------------------------------------------------------------> %s', $p2->type, __METHOD__));
 
 				}
 
