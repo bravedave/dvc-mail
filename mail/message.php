@@ -221,11 +221,14 @@ class message {
 			if ( $debug) sys::logger( sprintf('no encoding on string :: %s', __METHOD__));
 			// die( $_string . '<br />die...');
 			$_string = str_replace( '&rsquo;', chr(146), $_string);
-			$_string = str_replace( '&nbsp;', chr(194).chr(160), $_string);
+			$_string = str_replace( '&nbsp;', '__hardspace__', $_string);
 			$_string = str_replace( '&rsquo;', '’', $_string);
 			$_string = str_replace( chr(150), '-', $_string);
-			$_string = str_replace( '<o:', '<o_namespace_', $_string);
-			$_string = str_replace( '</o:', '</o_namespace_', $_string);
+			// $_string = str_replace( 'style="mso-fareast-language:EN-US"', '', $_string);
+			// $_string = str_replace( '<o:p>', '<div style="p">', $_string);
+			// $_string = str_replace( '</o:p>', '</div style="p">', $_string);
+			// $_string = str_replace( '<o:', '<div namespace="o" ', $_string);
+			// $_string = str_replace( '</o:', '</div namespace="o" ', $_string);
 
 		}
 
@@ -242,9 +245,20 @@ class message {
 		$doc = new \DOMDocument;
 		// ini_set ('error_reporting', "5");
 		libxml_use_internal_errors(true);
-		$doc->loadHTML( $_string);
+		$doc->loadHTML( $_string, LIBXML_NOWARNING);
+		// $doc->loadHTML( $_string, LIBXML_NOWARNING);
 		libxml_clear_errors();
 		// ini_set ('error_reporting', "6143");
+		if ( $debug) {
+			$f = sprintf('%s/temp-just-after.html', \config::dataPath());
+			if ( \file_exists($f)) unlink( $f);
+			$doc->saveHTMLfile( $f);
+			// print $doc->saveHTML();
+			// print '<hr />';
+			// print $_string;
+			// die();
+
+		}
 
 		$unsets = [];
 
@@ -464,13 +478,22 @@ class message {
 
 		}
 
-		$html = str_replace( '<o_namespace_', '<o:', $html);
-		$html = str_replace( '</o_namespace_', '</o:', $html);
+		if ( $debug) {
+			$f = sprintf('%s/temp-middle-1.html', \config::dataPath());
+			if ( \file_exists($f)) unlink( $f);
+			\file_put_contents( $f, $html);
+
+		}
+
+		// $html = str_replace( '<div style="p">', '<o:p>', $html);
+		// $html = str_replace( '</div style="p">', '</o:p>', $html);
+		// $html = str_replace( '<div namespace="o" ', '<o:', $html);
+		// $html = str_replace( '</div namespace="o" ', '</o:', $html);
 		// sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
 		$html = preg_replace(
 			[
 				sprintf( '@%s@', chr(146)),
-				sprintf( '@%s%s@', chr(194), chr(160)),
+				'@__hardspace__@',
 				'@’@',
 			],
 			[
@@ -483,7 +506,7 @@ class message {
 		// $html = str_replace( chr(160), '&nbsp;', $html);
 
 		if ( $debug) {
-			$f = sprintf('%s/temp-middle.html', \config::dataPath());
+			$f = sprintf('%s/temp-middle-2.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $html);
 
