@@ -1,6 +1,9 @@
 ###### 9/03/2020
-1. Better checking for plain text email and simplier display
-2. License updated to MIT
+* Added attachment name and contentn id to images so they can be extracted as attachments from the email
+
+###### 9/03/2020
+* Better checking for plain text email and simplier display
+* License updated to MIT
 
 ###### 21/02/2020
 1. imap_sort seems to struggle with large mailbox, particularly sent items

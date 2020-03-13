@@ -342,6 +342,8 @@ class message {
 								];
 
 								$img->setAttribute('src', $_uid );
+								$img->setAttribute('data-name', $data->Name );
+								$img->setAttribute('data-contentid', $data->ContentId );
 								$img->removeAttribute('data-safe-src');
 								if ( $debug) \sys::logger( sprintf( 'process gif ..... %s, %s : %s', $src, $name, __METHOD__));
 
@@ -355,6 +357,8 @@ class message {
 								];
 
 								$img->setAttribute('src', $_uid );
+								$img->setAttribute('data-name', $data->Name );
+								$img->setAttribute('data-contentid', $data->ContentId );
 								$img->removeAttribute('data-safe-src');
 								if ( $debug) \sys::logger( sprintf( 'process jpg ..... %s, %s : %s', $src, $name, __METHOD__));
 
@@ -368,6 +372,8 @@ class message {
 								];
 
 								$img->setAttribute('src', $_uid );
+								$img->setAttribute('data-name', $data->Name );
+								$img->setAttribute('data-contentid', $data->ContentId );
 								$img->removeAttribute('data-safe-src');
 								if ( $debug) \sys::logger( sprintf( 'process png ..... %s, %s : %s', $src, $name, __METHOD__));
 
@@ -385,6 +391,8 @@ class message {
 									];
 
 									$img->setAttribute('src', $_uid );
+									$img->setAttribute('data-name', $data->Name );
+									$img->setAttribute('data-contentid', $data->ContentId );
 									$img->removeAttribute('data-safe-src');
 									if ( $debug) \sys::logger( sprintf( 'processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
 
@@ -398,6 +406,8 @@ class message {
 									];
 
 									$img->setAttribute('src', $_uid );
+									$img->setAttribute('data-name', $data->Name );
+									$img->setAttribute('data-contentid', $data->ContentId );
 									$img->removeAttribute('data-safe-src');
 									if ( $debug) \sys::logger( sprintf( 'processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
 
@@ -411,6 +421,8 @@ class message {
 									];
 
 									$img->setAttribute('src', $_uid );
+									$img->setAttribute('data-name', $data->Name );
+									$img->setAttribute('data-contentid', $data->ContentId );
 									$img->removeAttribute('data-safe-src');
 									if ( $debug) \sys::logger( sprintf( 'processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
 
