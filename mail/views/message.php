@@ -209,7 +209,7 @@ html, body { font-family: sans-serif; }
     <tbody>
         <tr><td style="padding: 0;">
 <table style="width: 100%;" cellpadding="2">
-    <tbody>
+    <tbody data-role="attachment-toolbar">
 
 <?php
     $iMsg = 0;
