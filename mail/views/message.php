@@ -91,7 +91,7 @@ html, body { font-family: sans-serif; }
 pre {
     display: block;
     padding: 8px;
-    margin: 0 1rem;
+    margin: 0 0 1rem;
     font-size: .875rem;
     line-height: 1.3em;
     word-break: normal;
