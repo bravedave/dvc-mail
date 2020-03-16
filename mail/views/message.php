@@ -90,9 +90,9 @@ html, body { font-family: sans-serif; }
 }
 pre {
     display: block;
-    padding: 9.5px;
-    margin: 0 0 10px;
-    font-size: 13px;
+    padding: 8px;
+    margin: 0 1rem;
+    font-size: .875rem;
     line-height: 1.3em;
     word-break: normal;
     word-wrap: break-word;

@@ -2158,12 +2158,15 @@ $(document).on( 'mail-view-message-list', function( e) {
 });
 
 $(document).on( 'mail-view-message-set-url', function( e, url) {
-	if ( !!history.state) {
-		history.replaceState({ view : 'message'}, 'message', url);
+	if ( _brayworth_.browser.isMobileDevice) {
+		if ( !!history.state) {
+			history.replaceState({ view : 'message'}, 'message', url);
 
-	}
-	else {
-		history.pushState({ view : 'message'}, 'message', url);
+		}
+		else {
+			history.pushState({ view : 'message'}, 'message', url);
+
+		}
 
 	}
 
@@ -2180,7 +2183,7 @@ window.onpopstate = function( e) {
 
 	}
 	else {
-			$(document).trigger('mail-view-message-list');
+		$(document).trigger('mail-view-message-list');
 
 	}
 

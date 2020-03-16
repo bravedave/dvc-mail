@@ -1,3 +1,6 @@
+###### 16/03/2020
+* restrict the use of popstate to just mobiles where it assist navigation
+
 ###### 9/03/2020
 * Added attachment name and contentn id to images so they can be extracted as attachments from the email
 
