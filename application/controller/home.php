@@ -4,10 +4,9 @@
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- * 		http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
- * */
+*/
 
 use dvc\imap\account;
 use dvc\mail\credentials;
@@ -30,50 +29,50 @@ class home extends dvc\mail\controller {
 
 	}
 
-	// protected function before() {
-	// 	parent::before();
+	protected function before() {
+		parent::before();
 
-    //     /**
-    //      * in the development environment this
-    //      * establishes a local account
-    //      *
-    //      * use this area to establish an account
-    //      *
-    //      */
+        /**
+         * in the development environment this
+         * establishes a local account
+         *
+         * use this area to establish an account
+         *
+         */
 
-	// 	if ( dvc\mail\config::$ENABLED) {
+		if ( dvc\mail\config::$ENABLED) {
 
-	// 		if ( 'ews' == dvc\mail\config::$MODE) {
-	// 			$this->creds = currentUser::exchangeAuth();
+			if ( 'ews' == dvc\mail\config::$MODE) {
+				$this->creds = currentUser::exchangeAuth();
 
-	// 		}
-	// 		elseif ( 'imap' == dvc\mail\config::$MODE) {
-	// 			if ( dvc\imap\account::$ENABLED) {
-	// 				$this->creds = new credentials(
-	// 					dvc\imap\account::$USERNAME,
-	// 					dvc\imap\account::$PASSWORD,
-	// 					dvc\imap\account::$SERVER
+			}
+			elseif ( 'imap' == dvc\mail\config::$MODE) {
+				if ( dvc\imap\account::$ENABLED) {
+					$this->creds = new credentials(
+						dvc\imap\account::$USERNAME,
+						dvc\imap\account::$PASSWORD,
+						dvc\imap\account::$SERVER
 
-	// 				);
+					);
 
-	// 				$this->creds->interface = dvc\mail\credentials::imap;
-	// 				if ( 'exchange' == dvc\imap\account::$TYPE) {
-	// 					dvc\imap\folders::$delimiter = '/';									// for exchange server
-	// 					dvc\imap\folders::$default_folders['Trash'] = 'Deleted Items';		// for exchange server
-	// 					dvc\imap\folders::$default_folders['Sent'] = 'Sent Items';			// for exchange server
-	// 					dvc\imap\folders::$type = dvc\imap\account::$TYPE;					// for exchange server
+					$this->creds->interface = dvc\mail\credentials::imap;
+					if ( 'exchange' == dvc\imap\account::$TYPE) {
+						dvc\imap\folders::$delimiter = '/';									// for exchange server
+						dvc\imap\folders::$default_folders['Trash'] = 'Deleted Items';		// for exchange server
+						dvc\imap\folders::$default_folders['Sent'] = 'Sent Items';			// for exchange server
+						dvc\imap\folders::$type = dvc\imap\account::$TYPE;					// for exchange server
 
-	// 				}
+					}
 
-	// 				// sys::dump( $this->creds);
+					// sys::dump( $this->creds);
 
-	// 			}
+				}
 
-	// 		}
+			}
 
-	// 	}
+		}
 
-	// }
+	}
 
 	protected function postHandler() {
 		$action = $this->getPost('action');
@@ -94,21 +93,21 @@ class home extends dvc\mail\controller {
 			Response::redirect( strings::url());
 
 		}
-		// elseif ( 'save-to-file' == $action) {
-		// 	if ( $itemID = $this->getPost('id')) {
-		// 		if ( $folder = $this->getPost('folder')) {
-		// 			$inbox = dvc\mail\inbox::instance( $this->creds);
-		// 			if ( $msg = $inbox->GetItemByMessageID( $itemID, true, $folder)) {
-		// 				$inbox->SaveToFile( $msg, \config::MESSAGE_STORE() . trim( $msg->MessageID, ' ><'));
-		// 				Json::ack( $action);
+		elseif ( 'save-to-file' == $action) {
+			if ( $itemID = $this->getPost('id')) {
+				if ( $folder = $this->getPost('folder')) {
+					$inbox = dvc\mail\inbox::instance( $this->creds);
+					if ( $msg = $inbox->GetItemByMessageID( $itemID, true, $folder)) {
+						$inbox->SaveToFile( $msg, \config::MESSAGE_STORE() . trim( $msg->MessageID, ' ><'));
+						Json::ack( $action);
 
-		// 			} else { Json::nak( $action); }
+					} else { Json::nak( $action); }
 
-		// 		} else { Json::nak( sprintf( 'missing folder : %s', $action)); }
+				} else { Json::nak( sprintf( 'missing folder : %s', $action)); }
 
-		// 	} else { Json::nak( sprintf( 'missing id : %s', $action)); }
+			} else { Json::nak( sprintf( 'missing id : %s', $action)); }
 
-		// }
+		}
 		elseif ( 'set-option' == $action) {
 			if ( $key = $this->getPost('key')) {
 				if ( in_array( $key, self::allowedOptions)) {
@@ -134,6 +133,16 @@ class home extends dvc\mail\controller {
 			'secondary' =>'index'
 
 		]);
+
+	}
+
+	public function fileload() {
+		// $msgID = 'CANptC-Wn6zZWLSc63b13g7FLWXiNviJrZeZ9if6yTQkYOzY7RQ@mail.gmail.com';
+		// $msgID = 'CANptC-U-5mc8qXfSzj2E9xpr6GNG=TCyor2Bf6S_ae9grXcbqA@mail.gmail.com';
+		// $msgID = '39748623a5c3225e833f08b4eec3fbb3@cmss.darcy.com.au';
+		$msgID = 'BEBACA374AC3834BA15CE0AF411051F0099B8254@w2008k.ashgrove.darcy.com.au';
+		$inbox = dvc\mail\inbox::instance( $this->creds);
+		sys::dump( $inbox->ReadFromFile( \config::MESSAGE_STORE() . $msgID));
 
 	}
 
@@ -198,14 +207,6 @@ class home extends dvc\mail\controller {
 
 	}
 
-	public function message() {
-		$this->_view([
-			'msg' => '<D4BB1C8D1A502348BC4DACAC06A932050BB5D723@w2008k.ashgrove.darcy.com.au>'
-
-		]);
-
-	}
-
 	public function options() {
 		$this->render([
 			'title' => $this->title = 'Global Options',
@@ -244,14 +245,24 @@ class home extends dvc\mail\controller {
 			phpinfo();
 
 		}
-		elseif ( 'messages' == $test) {
-			sys::dump( $this->_messages([
-				'folder' => 'Inbox'
-				]),
-				sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
-				false
+		elseif ( 'message' == $test) {
+			$this->_view([
+				'msg' => '<20200314172947.B05C7637C8@v3.internal>'
 
-			);
+			]);
+
+		}
+		elseif ( 'messages' == $test) {
+			Response::text_headers();
+
+			print_r([
+				sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
+				$this->_messages([
+					'folder' => 'Inbox'
+
+				])
+
+			]);
 			// sys::dump( $this->_messages([
 			// 	'folder' => 'Deleted Items',
 			// 	'page' => 2
@@ -281,5 +292,10 @@ class home extends dvc\mail\controller {
 		}
 
 	}
+
+	public function webmail() {
+		$this->_webmail( $this->creds);
+
+    }
 
 }

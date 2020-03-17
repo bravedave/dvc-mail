@@ -1,13 +1,13 @@
 <?php
 /*
-	David Bray
-	BrayWorth Pty Ltd
-	e. david@brayworth.com.au
+ * David Bray
+ * BrayWorth Pty Ltd
+ * e. david@brayworth.com.au
+ *
+ * MIT License
+ *
+*/
 
-	This work is licensed under a Creative Commons Attribution 4.0 International Public License.
-		http://creativecommons.org/licenses/by/4.0/
-
-	*/
 namespace dvc\imap;
 
 use dvc\mail\credentials;
@@ -182,7 +182,7 @@ class client {
 
 	protected function _getmessage( $msgno, $overview = false ) : \dvc\mail\message {
 		$debug = false;
-		// $debug = true;
+		$debug = true;
 
 		// HEADER
 		// https://www.php.net/manual/en/function.imap-headerinfo.php#98809
@@ -190,11 +190,12 @@ class client {
 		$_headers_rfc822 = imap_rfc822_parse_headers( $_headers);
 		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', false);
 		$_headerInfo = imap_headerinfo( $this->_stream, $msgno);
-		// sys::dump( $_headerInfo, 'imap_headerinfo', true);
-		// sys::dump( $headers, 'headers');
-		// sys::dump( $overview, 'overview');
+		// sys::dump( $_headerInfo, 'imap_headerinfo', false);
+		// sys::dump( $_headers, 'headers', false);
 		// sys::dump( imap_fetch_overview( $this->_stream, $msgno ,0 ), 'imap_fetch_overview');
-		// sys::dump( imap_headerinfo( $this->_stream, $msgno ,1 ), 'imap_headerinfo');
+		// \Response::text_headers();
+		// print_r( imap_headerinfo( $this->_stream, $msgno ,1 ));
+		// die();
 		// sys::dump( imap_fetchstructure( $this->_stream, $msgno ), 'imap_fetchstructure');
 		$mess = new RawMessage( $this->_stream, $msgno );
 
@@ -202,6 +203,7 @@ class client {
 			$overview = $this->_Overview( $msgno);
 
 		}
+		// sys::dump( $overview, 'overview');
 
 		$overview = (object)$overview;
 
@@ -431,9 +433,9 @@ class client {
 
 	}
 
-	/**
-	 * get information for this specific email
-	 * */
+	/*
+	* get information for this specific email
+	*/
 	protected function _overview( $email_number = -1 ) : \dvc\mail\message {
 		$debug = false;
 		// $debug = true;
@@ -448,11 +450,24 @@ class client {
 		$uid = imap_uid( $this->_stream, $email_number);
 		if ( $debug) \sys::logger( sprintf('<%s> [%s:%s] %s', \application::timer()->elapsed(), $email_number, $uid, __METHOD__));
 
+		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
 		$_cache = $this->_cache_path( $uid);
 		if ( \file_exists( $_cache)) {
 			$ret->fromJson( \file_get_contents( $_cache));
 			// if ( isset( $headers->Unseen)) sys::logger( sprintf('seen <%s> : %s', $headers->Unseen, __METHOD__));
-			if ( isset( $headers->Unseen)) $ret->seen = 'U' == $headers->Unseen ? 'no' : 'yes';
+			if ( isset( $headers->Unseen)) {
+				$ret->seen = ( 'U' == $headers->Unseen ? 'no' : 'yes');
+
+			}
+
+			if ( isset( $headers->Answered)) {
+				$ret->answered = ( 'A' == $headers->Answered ? 'yes' : 'no');
+
+			}
+
+			// $forwarded = imap_fetchflag_full($this->_stream, $email_number, '$Forwarded');
+			// \sys::logger( sprintf('<%s> %s', $forwarded, __METHOD__));
+
 
 			// sys::logger( sprintf('seen <%s> : %s', $ret->seen, __METHOD__));
 			if ( $debug) \sys::logger( sprintf('<cache:%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
@@ -460,7 +475,7 @@ class client {
 
 		}
 
-		$headers = imap_headerinfo( $this->_stream, $email_number, 1);
+		// $headers = imap_headerinfo( $this->_stream, $email_number, 1);
 		if ( $headers) {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
@@ -556,7 +571,7 @@ class client {
 		$_headers = imap_fetchheader( $this->_stream, $email_number);
 		$headerLines = explode( "\n", $_headers);
 		foreach ( $headerLines as $l) {
-			//~ sys::logger($l);
+			// sys::logger($l);
 			if ( preg_match( '/^Message-ID/', $l)) {
 				/**
 				 * I'm sure this is to cope with a one time bug ...
