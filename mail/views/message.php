@@ -90,28 +90,12 @@ html, body { font-family: sans-serif; }
 }
 pre {
     display: block;
-    padding: 8px;
-    margin: 0 0 1rem;
     font-size: .875rem;
     line-height: 1.3em;
     word-break: normal;
     word-wrap: break-word;
     white-space: pre-wrap;
     font-family: Monaco,Menlo,Consolas,'Courier New',monospace;
-
-}
-pex {
-    white-space: pre;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    border: 1px solid rgba(0,0,0,.15);
-    background-color: #f5f5f5;
-    word-break: break-all;
-    margin: 0;
-    padding: 0;
-    background: #fff;
-    border: none;
-    display: block;
 
 }
 </style>
@@ -382,7 +366,7 @@ pex {
     // }
     // sys::dump( $msg);
     // sys::dump( $msg->attachments);
-    printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msgHtml);
+    printf( '<div message style="overflow-x: auto; padding: 8px; margin: 0 0 1rem;">%s</div>', $msgHtml);
 
     // if ( 'text' == strtolower( $msg->BodyType)) {
     //     printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
