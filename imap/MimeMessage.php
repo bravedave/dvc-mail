@@ -4,8 +4,7 @@
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- *      http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
 */
 
@@ -15,17 +14,7 @@ use sys;
 class MimeMessage {
     protected $msg;
     protected $original;
-
-    function __construct( string $var) {
-        $this->original = $var;
-        $this->msg = new \MimeMessage( "var", $var);
-
-    }
-
-    function getHeaders() {
-        return $this->msg->extract_headers( MAILPARSE_EXTRACT_RETURN);
-
-    }
+	protected $_headers = [];
 
     protected function _getMessage( $msg) {
         /**
@@ -45,7 +34,47 @@ class MimeMessage {
 
     }
 
-    function getMessage() {
+    public function __construct( string $var) {
+        $this->original = $var;
+        $this->msg = new \MimeMessage( "var", $var);
+
+    }
+
+	public function getHeader( string $header) : string {
+		if ( !$this->_headers) {
+			$this->_headers = explode( PHP_EOL, $this->getHeaders());
+
+		}
+
+		if ( $this->_headers) {
+			foreach ( $this->_headers as $_header) {
+				$_strpos = strpos( $_header, ':');
+				if ( false !== $_strpos) {
+					$k = substr($_header, 0, ($_strpos));
+					$v = substr($_header, ($_strpos + 1));
+					//~ \sys::logger( sprintf( '<%s => %s> : %s', $k, $v, __METHOD__));
+
+					if ( strtolower( $header) == strtolower( $k)) {
+						return trim( (string)$v);
+
+					}
+
+				}
+
+			}
+
+		}
+
+		return '';
+
+	}
+
+    public function getHeaders() {
+        return $this->msg->extract_headers( MAILPARSE_EXTRACT_RETURN);
+
+    }
+
+    public function getMessage() {
         $n = $this->msg->get_child_count();
 
         if ($n == 0) {
@@ -66,7 +95,7 @@ class MimeMessage {
 
     }
 
-    function xgetMessage() {
+    public function xgetMessage() {
         /* parse the message and return a mime message resource */
 
         /**
@@ -114,9 +143,8 @@ class MimeMessage {
 
     }
 
-
     // Little function to display things
-    function display_part_info( $caption) {
+    public function display_part_info( $caption) {
         echo "Message part: $caption\n";
 
         /**
@@ -190,5 +218,77 @@ class MimeMessage {
         }
 
     }
+
+	public function SaveToFile( \PHPMailer $message, $msgStore, array $files = []) {
+		$debug = false;
+		//~ $debug = true;
+
+		if ( !is_dir( $msgStore)) {
+			mkdir( $msgStore, 0777);
+			chmod( $msgStore, 0777);
+
+		}
+
+		if ( !is_writable($msgStore)) throw new \dvc\Exceptions\DirNotWritable( $msgStore);
+
+		$attachmentPath = sprintf( '%s/attachments', $msgStore);
+		if ( !file_exists( $attachmentPath)) {
+			mkdir( $attachmentPath, 0777);
+			chmod( $attachmentPath, 0777);
+
+		}
+
+		if ( !is_writable( $attachmentPath)) throw new \dvc\Exceptions\DirNotWritable( $attachmentPath);
+
+		$from = $this->getHeader( 'From');
+		$em = new \dvc\EmailAddress( $from);
+
+		$j = [
+			'fromName' => $em->name,
+			'fromEmail' => $em->email,
+			'time' => $this->getHeader( 'date'),
+			'Body' => $message->Body,
+			'Folder' => 'Sent',
+			'From' => $from,
+			'MessageID' => $this->getHeader( 'message-id'),
+			'Recieved' => '',
+			'Subject' => $this->getHeader( 'subject'),
+			'To' => $this->getHeader( 'to'),
+
+		];
+
+		$file = sprintf( '%s/msg.json', $msgStore);
+		if ( file_exists( $file)) {
+			if ( $debug) \sys::logger( sprintf( 'msg exists : %s :: %s', $file, __METHOD__));
+
+		}
+		else {
+			file_put_contents( $file, json_encode( $j, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+			if ( $debug) \sys::logger( sprintf( 'save msg : %s :: %s', $file, __METHOD__));
+
+		}
+
+		foreach ( $files as $file) {
+			$_file = sprintf( '%s/%s', $attachmentPath, $file->Name);
+			if ( $debug) \sys::logger( sprintf( '<%s> : %s', $_file, __METHOD__));
+			if ( file_exists( $_file)) {
+				if ( $debug) \sys::logger( sprintf( 'attachment exists : %s :: %s', $_file, __METHOD__));
+
+			}
+			else {
+				if ( !link( $file->Path, $_file)) {
+					copy( $file->Path, $_file);	// takes up more space
+
+				}
+
+				if ( $debug) \sys::logger( sprintf( 'saved attachment : %s :: %s', $_file, __METHOD__));
+
+			}
+
+		}
+
+		// Make sure the destination directory exists and is writeable.
+
+	}
 
 }
