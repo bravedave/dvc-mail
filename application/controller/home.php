@@ -141,8 +141,7 @@ class home extends dvc\mail\controller {
 		// $msgID = 'CANptC-U-5mc8qXfSzj2E9xpr6GNG=TCyor2Bf6S_ae9grXcbqA@mail.gmail.com';
 		// $msgID = '39748623a5c3225e833f08b4eec3fbb3@cmss.darcy.com.au';
 		$msgID = 'BEBACA374AC3834BA15CE0AF411051F0099B8254@w2008k.ashgrove.darcy.com.au';
-		$inbox = dvc\mail\inbox::instance( $this->creds);
-		sys::dump( $inbox->ReadFromFile( \config::MESSAGE_STORE() . $msgID));
+		sys::dump( dvc\mail\inbox::ReadFromFile( \config::MESSAGE_STORE() . $msgID));
 
 	}
 

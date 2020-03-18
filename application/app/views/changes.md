@@ -1,5 +1,8 @@
+###### 18/03/2020
+* abstracted dvc\mail\inbox::ReadFromFile
+
 ###### 17/03/2020
-*better display of forarded flag
+* better display of forarded flag
 
 ###### 16/03/2020
 * restrict the use of popstate to just mobiles where it assist navigation

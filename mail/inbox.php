@@ -12,7 +12,7 @@
 namespace dvc\mail;
 
 abstract class inbox {
-    static function instance( credentials $creds) {
+    static public function instance( credentials $creds) {
         switch ($creds->interface) {
             case credentials::imap :
                 return new \dvc\imap\inbox( $creds);
@@ -33,7 +33,7 @@ abstract class inbox {
 
     }
 
-    static function default_folders( $creds) : array {
+    static public function default_folders( $creds) : array {
         switch ($creds->interface) {
             case credentials::imap :
                 return \dvc\imap\client::default_folders();
@@ -48,5 +48,34 @@ abstract class inbox {
         return false;
 
     }
+
+	static public function ReadFromFile( $msgStore) {
+		$debug = false;
+		//~ $debug = true;
+
+		$attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
+
+		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
+		if ( file_exists( $file)) {
+			$j = json_decode( file_get_contents( $file));
+			$j->attachments = [];
+
+			$it = new \FilesystemIterator( $attachmentPath);
+			foreach ($it as $fileinfo) {
+				$j->attachments[] = (object)[
+					'name' => $fileinfo->getFilename(),
+					'path' => $fileinfo->getPathname()
+
+				];
+
+			}
+
+			return $j;
+
+		}
+
+		return false;
+
+	}
 
 }

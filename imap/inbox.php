@@ -184,34 +184,34 @@ class inbox {
 
 	}
 
-	public function ReadFromFile( $msgStore) {
-		$debug = false;
-		//~ $debug = true;
+	// public function ReadFromFile( $msgStore) {
+	// 	$debug = false;
+	// 	//~ $debug = true;
 
-		$attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
+	// 	$attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
 
-		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
-		if ( file_exists( $file)) {
-			$j = json_decode( file_get_contents( $file));
-			$j->attachments = [];
+	// 	$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
+	// 	if ( file_exists( $file)) {
+	// 		$j = json_decode( file_get_contents( $file));
+	// 		$j->attachments = [];
 
-			$it = new \FilesystemIterator( $attachmentPath);
-			foreach ($it as $fileinfo) {
-				$j->attachments[] = (object)[
-					'name' => $fileinfo->getFilename(),
-					'path' => $fileinfo->getPathname()
+	// 		$it = new \FilesystemIterator( $attachmentPath);
+	// 		foreach ($it as $fileinfo) {
+	// 			$j->attachments[] = (object)[
+	// 				'name' => $fileinfo->getFilename(),
+	// 				'path' => $fileinfo->getPathname()
 
-				];
+	// 			];
 
-			}
+	// 		}
 
-			return $j;
+	// 		return $j;
 
-		}
+	// 	}
 
-		return false;
+	// 	return false;
 
-	}
+	// }
 
 	public function SaveToFile( $message, $msgStore) {
 		$debug = false;
