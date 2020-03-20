@@ -142,6 +142,12 @@ class inbox {
 
 	}
 
+	public function Info( $folder = 'default' ) {
+		$ret = $this->_client->Info( $folder);
+		return $ret;
+
+	}
+
 	public function MoveItem(
 		string $itemID,
 		string $folder = "default",

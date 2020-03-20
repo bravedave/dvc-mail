@@ -687,6 +687,12 @@ class client {
 
 	}
 
+	public function empty_trash() {
+		$total = imap_num_msg( $this->_stream );
+		return imap_delete( $this->_stream, "1:{$total}", 0);	// returns true
+
+	}
+
 	public function finditems( array $params) : array {
 		$debug = false;
 		// $debug = true;
@@ -843,9 +849,19 @@ class client {
 
 	}
 
-	public function empty_trash() {
-		$total = imap_num_msg( $this->_stream );
-		return imap_delete( $this->_stream, "1:{$total}", 0);	// returns true
+	public function Info( $folder = "default") {
+		$ret = false;
+		if ( $this->open( true, $folder )) {
+			$ret = imap_mailboxmsginfo( $this->_stream);
+			$this->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+		}
+
+		return ( $ret );
 
 	}
 

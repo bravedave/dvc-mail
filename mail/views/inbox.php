@@ -2198,7 +2198,21 @@ window.onpopstate = function( e) {
 
 };
 
+$(document).on( 'mail-info', function( e, func) {
+	_brayworth_.post({
+		url : _brayworth_.url('<?= $this->route ?>'),
+		data : {
+			action : 'get-info'
+		},
 
+	}).then( function( d) {
+		_brayworth_.growl( d);
+		console.log( d);
+		if ( 'function' == typeof func) func( d);
+
+	});
+
+});
 
 $(document).on( 'mail-view-message', function( e) {
 	$(document).data('focus', 'message-view');

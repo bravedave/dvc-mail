@@ -78,7 +78,6 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'get-messages' == $action) {
-			// todo: creds
 			$params = [
 				'creds' => $this->creds,
 				'folder' => $this->getPost('folder', 'default'),
@@ -90,6 +89,14 @@ class controller extends \Controller {
 			Json::ack( $action)
 				->add( 'folder', $params['folder'])
 				->add( 'messages', $this->_messages( $params));
+
+		}
+		elseif ( 'get-info' == $action) {
+			$folder = $this->getPost('folder', 'default');
+			$inbox = inbox::instance( $this->creds);
+			Json::ack( $action)
+				->add( 'folder', $folder)
+				->add( 'messages', $inbox->Info( $folder));
 
 		}
 		elseif ( 'mark-seen' == $action || 'mark-unseen' == $action) {

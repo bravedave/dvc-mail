@@ -1,5 +1,5 @@
-###### 18/03/2020
-* abstracted dvc\mail\inbox::ReadFromFile
+###### 20/03/2020
+* added mail info trigger
 
 ###### 17/03/2020
 * better display of forarded flag
