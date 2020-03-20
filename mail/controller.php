@@ -20,6 +20,7 @@ use sys;
 
 class controller extends \Controller {
 	protected $creds = null;	// credentials
+	protected $label = 'webmail';
 
 	protected function postHandler() {
 		$action = $this->getPost('action');
@@ -492,7 +493,7 @@ class controller extends \Controller {
 
 			\dvc\pages\_page::$momentJS = true;
 			$this->render([
-				'title' => $this->title = 'mail',
+				'title' => $this->title = $this->label,
 				'scripts' => [
 					strings::url( sprintf( '%s/localjs', $this->route)),
 					strings::url( sprintf( '%s/mailjs', $this->route))
