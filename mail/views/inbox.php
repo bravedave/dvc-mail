@@ -788,7 +788,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 	};
 
 	let _list_message_row = function( msg) {
-		console.table( msg);
+		// console.table( msg);
 		let defaultFolders = $(document).data('default_folders');
 
 		let email = msg.from;
