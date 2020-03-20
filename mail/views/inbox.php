@@ -211,7 +211,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 	let _list = function( folders, cacheData) {
 		// console.log( folders);
 
-		let ul = $('<ul class="list-unstyled" />');
+		let ul = $('<ul class="list-unstyled small" />');
 		let searchUL = $('<ul class="list-unstyled" />');
 
 		let keys = {};

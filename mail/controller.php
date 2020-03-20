@@ -334,6 +334,11 @@ class controller extends \Controller {
 
 	}
 
+	protected function _index() {
+		$this->_webmail( $this->creds);
+
+	}
+
 	protected function _messages( array $params = []) : array {
 
 		$options = array_merge([
