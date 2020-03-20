@@ -2206,8 +2206,6 @@ $(document).on( 'mail-info', function( e, func) {
 		},
 
 	}).then( function( d) {
-		_brayworth_.growl( d);
-		console.log( d);
 		if ( 'function' == typeof func) func( d);
 
 	});

@@ -96,7 +96,7 @@ class controller extends \Controller {
 			$inbox = inbox::instance( $this->creds);
 			Json::ack( $action)
 				->add( 'folder', $folder)
-				->add( 'messages', $inbox->Info( $folder));
+				->add( 'data', $inbox->Info( $folder));
 
 		}
 		elseif ( 'mark-seen' == $action || 'mark-unseen' == $action) {
