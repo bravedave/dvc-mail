@@ -1503,7 +1503,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				let _me = $(this);
 				let _data = _me.data();
 
-				// console.log( params);
 				/**
 				* All these action remove the item from this folder
 				* and simultaneously:
@@ -1518,7 +1517,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				let data = frm.serializeFormJSON();
 				data.folder = _data.folder;
 				data.uid = _data.message.uid;
-				data.targetFolder = folder;
+				// console.log( params, _data);
+				data.targetFolder = params.folder;
 
 				$.extend( data, params);
 
