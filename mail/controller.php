@@ -357,6 +357,7 @@ class controller extends \Controller {
 
 		], $params);
 
+		// \sys::logger( sprintf('<%s(%s)> %s', $options['folder'], $options['page'], __METHOD__));
 		$inbox = inbox::instance( $options['creds']);
 		// \sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
 		$messages = (array)$inbox->finditems( $options);

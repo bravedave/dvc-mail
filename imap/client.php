@@ -714,8 +714,10 @@ class client {
 
 		$ret = [];
 
+		// \sys::logger( sprintf('<msgCount:%s> %s', $data['msgCount'], __METHOD__));
 		if ( $data['msgCount'] > 500) {
-			$emails = \range( $data['msgCount'], max( $data['msgCount'] - $options->pageSize, 0), -1 );
+			$start = max( $data['msgCount'] - ((int)$options->page * (int)$options->pageSize) - ((int)$options->page > 0 ? 1 : 0), 0);
+			$emails = \range( $start, max( $start - $options->pageSize, 0), -1 );
 			foreach ($emails as $email_number) {
 				// \sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
 
@@ -733,6 +735,8 @@ class client {
 				// sys::dump( $emails);
 				$start = $i = 0;
 				$_start = (int)$options->page * (int)$options->pageSize;
+				// \sys::logger( sprintf('<%s/%s> %s', $start, $_start, __METHOD__));
+
 				foreach( $emails as $email_number) {
 					if ( $debug) \sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
 
