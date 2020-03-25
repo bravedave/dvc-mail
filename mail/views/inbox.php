@@ -823,14 +823,12 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		.data( 'folder', msg.folder)
 		.data( 'message', msg)
 		.addClass( 'pointer')
-		.on( 'view', function( e) {
+		.on( 'set-next', function( e) {
 			let _me = $(this);
-			let _data = _me.data();
-			let msg = _data.message;
-
 			let _next = _me.next();
 			if ( _next.length > 0) {
-				$('#<?= $uidViewer ?>').data('next', _next.attr('id'))
+				$('#<?= $uidViewer ?>').data('next', _next.attr('uid'))
+				// console.log( 'next =', _next.attr('uid'));
 
 			}
 			else {
@@ -838,15 +836,26 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			}
 
+		})
+		.on( 'set-previous', function( e) {
+			let _me = $(this);
 			let _prev = _me.prev();
 			if ( _prev.length > 0) {
-				$('#<?= $uidViewer ?>').data('prev', _prev.attr('id'))
+				$('#<?= $uidViewer ?>').data('prev', _prev.attr('uid'))
 
 			}
 			else {
 				$('#<?= $uidViewer ?>').removeData('prev');
 
 			}
+
+		})
+		.on( 'view', function( e) {
+			let _me = $(this);
+			let _data = _me.data();
+			let msg = _data.message;
+
+			_me.trigger('set-next').trigger('set-previous');
 
 			$(document).trigger('mail-view-message');
 			if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
@@ -1386,10 +1395,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			// msg.folder ==
 			row = _list_message_row( msg);
 			let rowID = row.attr( 'id');
-			if ( 'undefined' == typeof $('#<?= $uidViewer ?>').data('first')) {
-				$('#<?= $uidViewer ?>').data('first', rowID);
-
-			}
 
 			/**
 			*	find the next location to insert
@@ -1483,6 +1488,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				let defaultFolders = $(document).data('default_folders');
 
 				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
+					_row.trigger('set-next').trigger('set-previous');
 					_row.trigger('execute-action', {
 						action : 'move-message',
 						targetFolder : defaultFolders.Trash
@@ -1917,7 +1923,10 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		data.key = '<?= $this->route ?>-lastmessages-';
 		if ( 'undefined' != typeof data.folder) {
-			data.key += data.folder + '-';
+			if ( 'inbox' != String(data.folder).toLowerCase()) {
+				data.key += data.folder + '-';
+
+			}
 
 		}
 
@@ -2235,31 +2244,31 @@ $(document).on( 'mail-message-load-first', function() {
 
 });
 
-$(document).on( 'mail-message-load-next', function() {
-	let nid = $('#<?= $uidViewer ?>').data('next');
-	if ( 'undefined' != typeof nid) {
+$(document).on( 'mail-message-load-next', function(e) {
+	let uid = $('#<?= $uidViewer ?>').data('next');
+	if ( 'undefined' != typeof uid) {
 		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
-		// console.log( 'nid', nid);
-		let _row = $('#' + nid);
-		if ( _row.length > 0) {
-			_row.trigger('view');
+		// console.log( 'mail-message-load-next - nid', nid);
+		$('> [uid="' + uid + '"]', '#<?= $uidMsgs ?>').trigger('view');
 
-		}
+	}
+	else {
+		$(document).trigger( 'mail-message-load-first');
 
 	}
 
 });
 
 $(document).on( 'mail-message-load-prev', function() {
-	let nid = $('#<?= $uidViewer ?>').data('prev');
-	if ( 'undefined' != typeof nid) {
+	let uid = $('#<?= $uidViewer ?>').data('prev');
+	if ( 'undefined' != typeof uid) {
 		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
 		// console.log( 'nid', nid);
-		let _row = $('#' + nid);
-		if ( _row.length > 0) {
-			_row.trigger('view');
+		$('> [uid="' + uid + '"]', '#<?= $uidMsgs ?>').trigger('view');
 
-		}
+	}
+	else {
+		$(document).trigger( 'mail-message-load-first');
 
 	}
 
@@ -2309,8 +2318,8 @@ if ( !_brayworth_.browser.isMobileDevice) {
 			if ( $( 'body').hasClass('modal-open')) return;
 
 			e.stopPropagation();
+			console.log( e.keyCode, 'mail-message-load-next');
 			$(document).trigger( 'mail-message-load-next');
-			// console.log( e.keyCode, 'mail-message-load-next');
 
 		}
 		else if ( 39 == e.keyCode) {
@@ -2333,7 +2342,6 @@ if ( !_brayworth_.browser.isMobileDevice) {
 
 				if ( 'undefined' != typeof data.uid) {
 					$('> [uid="'+data.uid+'"]', '#<?= $uidMsgs ?>').first().trigger('delete');
-
 
 				}
 
