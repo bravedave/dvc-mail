@@ -69,7 +69,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 </script>
 
 
-<div class="row h-100 pb-3">
+<div class="row h-100">
 	<div class="d-none" id="<?= $uidSearchAll = strings::rand() ?>" style="overflow: auto;" data-role="mail-search-all">
 		<form id="<?= $uidSearchAll ?>_form">
 			<input type="hidden" name="action" value="search-all-messages" />
