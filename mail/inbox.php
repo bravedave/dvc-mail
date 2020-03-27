@@ -49,30 +49,35 @@ abstract class inbox {
 
     }
 
-	static public function ReadFromFile( $msgStore) {
-		$debug = false;
-		//~ $debug = true;
-
-		$attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
-
+	static public function FileExists( $msgStore) {
 		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
-		if ( file_exists( $file)) {
-			$j = json_decode( file_get_contents( $file));
-			$j->attachments = [];
+		return file_exists( $file);
 
-			$it = new \FilesystemIterator( $attachmentPath);
-			foreach ($it as $fileinfo) {
-				$j->attachments[] = (object)[
-					'name' => $fileinfo->getFilename(),
-					'path' => $fileinfo->getPathname()
+	}
 
-				];
+	static public function ReadFromFile( $msgStore) {
+        if ( self::FileExists( $msgStore)) {
+            $debug = false;
+            //~ $debug = true;
 
-			}
+            $file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
+            $j = json_decode( file_get_contents( $file));
+            $j->attachments = [];
 
-			return $j;
+            $attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
+            $it = new \FilesystemIterator( $attachmentPath);
+            foreach ($it as $fileinfo) {
+                $j->attachments[] = (object)[
+                    'name' => $fileinfo->getFilename(),
+                    'path' => $fileinfo->getPathname()
 
-		}
+                ];
+
+            }
+
+            return $j;
+
+        }
 
 		return false;
 
