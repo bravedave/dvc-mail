@@ -98,6 +98,10 @@ pre {
     font-family: Monaco,Menlo,Consolas,'Courier New',monospace;
 
 }
+
+div[message] { overflow-x: auto; padding: 8px; margin: 0 0 1rem; }
+div[message] > div[data-x_type="body"] { margin: -8px; padding: 8px; }
+
 </style>
 <div class="grid-container">
     <div class="grid-item">
@@ -356,30 +360,6 @@ pre {
 
 </table>
 
-<?php   }   // if ( count( $msg->attachments))  ?>
+<?php   }   // if ( count( $msg->attachments))
 
-<?php
-    // unset( $msg->src);
-    // foreach ( $msg->attachments as $attachment) {
-    //     unset( $attachment->Content);
-
-    // }
-    // sys::dump( $msg);
-    // sys::dump( $msg->attachments);
-    printf( '<div message style="overflow-x: auto; padding: 8px; margin: 0 0 1rem;">%s</div>', $msgHtml);
-
-    // if ( 'text' == strtolower( $msg->BodyType)) {
-    //     printf( '<div message style="max-width: 100%%; overflow-x: auto;"><pre>%s</pre></div>', $msg->Body);
-
-    // }
-    // elseif ( $msg->hasMso()) {
-    //     printf( '<div message style="max-width: 100%%; overflow-x: auto;">%s %s %s</div>',
-    //         '<style>p { margin: 0; }</style>',
-    //         $msg->getMso(),
-    //         $msg->safehtml());
-
-    // }
-    // else {
-    //     printf( '<div message style="width: 100%%; overflow-x: auto;">%s</div>', $msg->safehtml());
-
-    // }
+    printf( '<div message>%s</div>', $msgHtml);

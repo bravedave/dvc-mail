@@ -262,6 +262,23 @@ class message {
 		$unsets = [];
 
 		if ( $debug) \sys::logger( "processing ..." );
+		foreach($doc->getElementsByTagName('body') as $el) {
+			if ( $el->hasAttribute('bgcolor')) {
+				$bgcolor = $el->getAttribute('bgcolor');
+				$el->removeAttribute('bgcolor');
+
+				$css = 'background-color: ' . $bgcolor . ';';
+				if ( $el->hasAttribute('style')) {
+					$css .= $el->getAttribute('style');
+
+				}
+
+				$el->setAttribute('style', $css);
+
+			}
+
+		}
+
 		foreach($doc->getElementsByTagName('a') as $img)
 			$img->setAttribute('target', '_blank');
 
