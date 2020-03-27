@@ -49,14 +49,14 @@ abstract class inbox {
 
     }
 
-	static public function FileExists( $msgStore) {
+	static public function FiledMessageExists( $msgStore) {
 		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
 		return file_exists( $file);
 
 	}
 
 	static public function ReadFromFile( $msgStore) {
-        if ( self::FileExists( $msgStore)) {
+        if ( self::FiledMessageExists( $msgStore)) {
             $debug = false;
             //~ $debug = true;
 
