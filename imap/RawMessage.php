@@ -43,44 +43,20 @@ class RawMessage {
 		// BODY
 		$s = imap_fetchstructure( $stream, $email_number );
 		if ( !isset( $s->parts ) || !$s->parts ) { // simple
+			if ( $debug) sys::logger( sprintf('simple : %s', __METHOD__));
 			$this->getpart( $stream, $email_number, $s, 0 );  // pass 0 as part-number
 
 		}
 		else {  // multipart: cycle through each part
-			// sys::logger( sprintf('get parts :s: %s', __METHOD__));
 			foreach ($s->parts as $partno0 => $p) {
 				if ( $debug) \sys::logger( sprintf('<%s> %s', $p->type, __METHOD__));
-				// \sys::dump( $p);
-
-				// if ( self::PLAINTEXT == $plainText ) {
-				// 	if ( 0 == $p->type) {
-				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
-
-				// 	}
-				// 	elseif ( isset( $p->subtype) && 'plain' == strtolower( $p->subtype)) {
-				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
-
-				// 	}
-				// 	elseif ( isset( $p->subtype) && 'alternative' == strtolower( $p->subtype)) {
-				// 		$this->getpart( $stream, $email_number, $p, $partno0+1 );
-
-				// 	}
-				// 	else {
-				// 		\sys::logger( sprintf('<%s:%s> %s', $email_number, $p->subtype, __METHOD__));
-
-				// 	}
-
-				// }
-				// else {
 				$this->getpart( $stream, $email_number, $p, $partno0+1 );
-
-				// }
 
 			}
 
 			if ( $debug) {
 				\sys::logger( sprintf('get parts :e: %s', __METHOD__));
-				\sys::trace( sprintf('exit : %s', __METHOD__));
+				// \sys::trace( sprintf('exit : %s', __METHOD__));
 				// \sys::dump( $this);
 
 			}
@@ -95,6 +71,7 @@ class RawMessage {
 		$debug = $this->debug;
 		$debugPart = $debug;
 		// $debugPart = true;
+		// $debug = 0 == $p->type;
 
 		// if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
 
@@ -183,9 +160,14 @@ class RawMessage {
 		 */
 		if ( self::PLAINTEXT != $this->plainText) {
 
+			if ( $debug) \sys::logger( sprintf('<%s> %s', 'plaintext', __METHOD__));
+
 			if ( strlen( $data ) > 0 ) {
 
 				if ( isset( $params['filename'] )) {
+
+					if ( $debug) \sys::logger( sprintf('<%s> :plaintext: %s', $params['filename'], __METHOD__));
+
 					$filename = $params['filename'];
 					$attach = new attachment;
 					$attach->Name = $attach->ContentId = $filename;
@@ -198,6 +180,9 @@ class RawMessage {
 
 				}
 				elseif ( isset( $params['name'])) {
+
+					if ( $debug) \sys::logger( sprintf('<%s> :plaintext: %s', $params['name'], __METHOD__));
+
 					$filename = $params['name'];
 					$attach = new attachment;
 					$attach->Name = $attach->ContentId = $filename;
@@ -211,6 +196,9 @@ class RawMessage {
 
 				}
 				elseif ( $p->type == 5 && $data && isset( $p->id)) {
+
+					if ( $debug) \sys::logger( sprintf('<%s> :plaintext: %s', 'type 5', __METHOD__));
+
 					$id = preg_replace( array( "@(<|>)@" ), "", $p->id );
 					$attach = new attachment;
 					$attach->Name = $attach->ContentId = $id;
@@ -247,17 +235,23 @@ class RawMessage {
 			//~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
 			if ( strtolower($p->subtype)=='plain') {
+				if ( $debug) \sys::logger( sprintf('<%s> %s', 'plaintext - plain', __METHOD__));
+
 				$this->messageType = 'text';
-				$tplus = quoted_printable_decode( trim( $data));
-				// $tplus = \str_replace( chr(146), "'", $tplus);
-				// \file_put_contents( \config::dataPath() . 'output.txt', $data);
-				// $tplus = trim( $data);
-				// $this->message .= strings::replaceWordCharacters( $tplus) . "\n\n";
-				$this->message .= $tplus . "\n\n";
-				if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s',
-					mb_detect_encoding( $data),
-					\strlen(  $tplus), __METHOD__ ));
-				// die( $tplus);
+				$this->message .= $data;	// . "\n\n";
+
+				// $f = sprintf('%s/temp-0-rawmessage.txt', \config::dataPath());
+		        // if ( \file_exists($f)) unlink( $f);
+        		// \file_put_contents( $f, $data);
+
+				// $tplus = quoted_printable_decode( trim( $data));
+
+				// \file_put_contents( $f, $tplus);
+
+				// $this->message .= $tplus . "\n\n";
+				// if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s',
+				// 	mb_detect_encoding( $data),
+				// 	\strlen(  $tplus), __METHOD__ ));
 
 			}
 			elseif ( strtolower($p->subtype)=='rfc822-headers')

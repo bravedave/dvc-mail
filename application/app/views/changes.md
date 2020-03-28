@@ -1,5 +1,9 @@
+###### 29/03/2020
+* remove decoding plain text messages
+
 ###### 20/03/2020
 * fixed bug large mailboxes (> 500 msgs) would not go to page above 0
+
 ###### 20/03/2020
 * added mail info trigger
 

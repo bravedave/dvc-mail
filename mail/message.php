@@ -180,7 +180,7 @@ class message {
 		}
 
 		if ( $debug) {
-			$f = sprintf('%s/temp-start-0.html', \config::dataPath());
+			$f = sprintf('%s/temp-0-start.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $this->Body);
 
@@ -232,7 +232,7 @@ class message {
 		}
 
 		if ( $debug) {
-			$f = sprintf('%s/temp-start.html', \config::dataPath());
+			$f = sprintf('%s/temp-1-start.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $_string);
 			// $_string = \file_get_contents( $f);
@@ -507,7 +507,7 @@ class message {
 		}
 
 		if ( $debug) {
-			$f = sprintf('%s/temp-middle-1.html', \config::dataPath());
+			$f = sprintf('%s/temp-2-middle-1.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $html);
 
@@ -534,7 +534,7 @@ class message {
 		// $html = str_replace( chr(160), '&nbsp;', $html);
 
 		if ( $debug) {
-			$f = sprintf('%s/temp-middle-2.html', \config::dataPath());
+			$f = sprintf('%s/temp-3-middle.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $html);
 
@@ -557,7 +557,7 @@ class message {
 		$_html = \strings::htmlSanitize( $html);
 
 		if ( $debug) {
-			$f = sprintf('%s/temp-late.html', \config::dataPath());
+			$f = sprintf('%s/temp-4-late.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			\file_put_contents( $f, $_html);
 

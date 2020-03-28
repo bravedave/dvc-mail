@@ -95,7 +95,7 @@ class MimeMessage {
 
     }
 
-    public function xgetMessage() {
+    protected function xgetMessage() {
         /* parse the message and return a mime message resource */
 
         /**

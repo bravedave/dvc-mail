@@ -182,7 +182,7 @@ class client {
 
 	protected function _getmessage( $msgno, $overview = false ) : \dvc\mail\message {
 		$debug = false;
-		$debug = true;
+		// $debug = true;
 
 		// HEADER
 		// https://www.php.net/manual/en/function.imap-headerinfo.php#98809
