@@ -49,13 +49,14 @@ class RawMessage {
 		}
 		else {  // multipart: cycle through each part
 			foreach ($s->parts as $partno0 => $p) {
-				if ( $debug) \sys::logger( sprintf('<%s> %s', $p->type, __METHOD__));
+				if ( $debug) \sys::logger( sprintf('<type %s> %s', $p->type, __METHOD__));
 				$this->getpart( $stream, $email_number, $p, $partno0+1 );
 
 			}
 
 			if ( $debug) {
 				\sys::logger( sprintf('get parts :e: %s', __METHOD__));
+				\sys::logger( sprintf('exit : %s : %s', $this->messageType, __METHOD__));
 				// \sys::trace( sprintf('exit : %s', __METHOD__));
 				// \sys::dump( $this);
 
@@ -72,8 +73,9 @@ class RawMessage {
 		$debugPart = $debug;
 		// $debugPart = true;
 		// $debug = 0 == $p->type;
+		// $debug = true;
 
-		// if ( $debug) sys::logger( sprintf( '%s, %s, $p, %s',  $mbox, $mid, $partno));
+		if ( $debug) sys::logger( sprintf( '%s, %s, %s, %s',  $mbox, $mid, $p->type, $partno));
 
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 
@@ -86,11 +88,23 @@ class RawMessage {
 		//~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
 		// Any part may be encoded, even plain text messages, so check everything.
-		if ( $p->encoding==4) {
+		if ( 4 == $p->encoding) {
 			if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s', __METHOD__));
 			// if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s : %s', print_r( $p, true), __METHOD__));
+
+			// \sys::logger( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
+			// $f = sprintf('%s/temp-0-rawmessage.txt', \config::dataPath());
+			// if ( \file_exists($f)) unlink( $f);
+			// \file_put_contents( $f, $data);
+
+			if ( $debug) \sys::logger( sprintf('<%s> %s', $this->plainText ? 'text' : 'html', __METHOD__));
+
 			$data = quoted_printable_decode( $data);
 
+			// \sys::logger( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
+			// $f = sprintf('%s/temp-1-rawmessage.txt', \config::dataPath());
+			// if ( \file_exists($f)) unlink( $f);
+			// \file_put_contents( $f, $data);
 
 		}
 		elseif ( $p->encoding==3) {
@@ -160,7 +174,7 @@ class RawMessage {
 		 */
 		if ( self::PLAINTEXT != $this->plainText) {
 
-			if ( $debug) \sys::logger( sprintf('<%s> %s', 'plaintext', __METHOD__));
+			if ( $debug) \sys::logger( sprintf('<%s> %s', 'not plaintext', __METHOD__));
 
 			if ( strlen( $data ) > 0 ) {
 
@@ -241,8 +255,8 @@ class RawMessage {
 				$this->message .= $data;	// . "\n\n";
 
 				// $f = sprintf('%s/temp-0-rawmessage.txt', \config::dataPath());
-		        // if ( \file_exists($f)) unlink( $f);
-        		// \file_put_contents( $f, $data);
+				// if ( \file_exists($f)) unlink( $f);
+				// \file_put_contents( $f, $data);
 
 				// $tplus = quoted_printable_decode( trim( $data));
 

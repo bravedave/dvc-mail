@@ -1,5 +1,6 @@
 ###### 29/03/2020
-* remove decoding plain text messages
+* correctly handle message display when there is NO encoding
+* remove decoding on plain text messages
 
 ###### 20/03/2020
 * fixed bug large mailboxes (> 500 msgs) would not go to page above 0
