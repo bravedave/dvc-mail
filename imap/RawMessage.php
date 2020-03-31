@@ -4,11 +4,9 @@
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- *      http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
  * https://www.electrictoolbox.com/php-imap-message-body-attachments/
- *
 */
 
 namespace dvc\imap;
@@ -45,6 +43,7 @@ class RawMessage {
 		if ( !isset( $s->parts ) || !$s->parts ) { // simple
 			if ( $debug) sys::logger( sprintf('simple : %s', __METHOD__));
 			$this->getpart( $stream, $email_number, $s, 0 );  // pass 0 as part-number
+			if ( $debug) \sys::logger( sprintf('exit : %s : %s', $this->messageType, __METHOD__));
 
 		}
 		else {  // multipart: cycle through each part
@@ -108,11 +107,15 @@ class RawMessage {
 
 		}
 		elseif ( $p->encoding==3) {
-			if ( $debug) sys::logger( sprintf('imap_base64 :s: %s', __METHOD__));
+			// if ( $debug) sys::logger( sprintf('imap_base64 :s: %s', __METHOD__));
 			// $data = imap_base64( $data);
 			$data = base64_decode( $data);
+			if ( $debug) sys::logger( sprintf('base64_decode :e: %s', __METHOD__));
+
+			// $f = sprintf('%s/temp-1-base64_decode.txt', \config::dataPath());
+			// if ( \file_exists($f)) unlink( $f);
+			// \file_put_contents( $f, $data);
 			// die( $data);
-			if ( $debug) sys::logger( sprintf('imap_base64 :e: %s', __METHOD__));
 
 		}
 		elseif ( $p->encoding == 1) {
@@ -174,8 +177,6 @@ class RawMessage {
 		 */
 		if ( self::PLAINTEXT != $this->plainText) {
 
-			if ( $debug) \sys::logger( sprintf('<%s> %s', 'not plaintext', __METHOD__));
-
 			if ( strlen( $data ) > 0 ) {
 
 				if ( isset( $params['filename'] )) {
@@ -221,6 +222,10 @@ class RawMessage {
 
 
 				}
+				else {
+					if ( $debug) \sys::logger( sprintf('<%s> %s', 'not plaintext attachment', __METHOD__));
+
+				}
 
 			}
 			elseif ( $debug) {
@@ -248,7 +253,7 @@ class RawMessage {
 			// if ( $debug) sys::logger( sprintf( 'encoding : %s : %s',  $p->encoding, $data));
 			//~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
-			if ( strtolower($p->subtype)=='plain') {
+			if ( 'plain' == strtolower($p->subtype)) {
 				if ( $debug) \sys::logger( sprintf('<%s> %s', 'plaintext - plain', __METHOD__));
 
 				$this->messageType = 'text';
@@ -263,9 +268,7 @@ class RawMessage {
 				// \file_put_contents( $f, $tplus);
 
 				// $this->message .= $tplus . "\n\n";
-				// if ( $debugPart) sys::logger( sprintf( 'plain text : %s : %s',
-				// 	mb_detect_encoding( $data),
-				// 	\strlen(  $tplus), __METHOD__ ));
+				if ( $debug) sys::logger( sprintf( 'plain text : %s : %s', mb_detect_encoding( $data), __METHOD__ ));
 
 			}
 			elseif ( strtolower($p->subtype)=='rfc822-headers')

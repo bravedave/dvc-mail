@@ -353,7 +353,8 @@ class message {
 								$_uid = strings::rand();
 								$cidContent[] = (object)[
 									'refer' => $_uid,
-									'content' => 'data:image/gif;base64,' . base64_encode( $data->Content )
+									'content' => 'data:image/gif;base64,' . base64_encode( $data->Content ),
+									'cache' => preg_replace( '@[^a-zA-Z0-9]@', '_', implode( [ trim( $this->MessageID, '<> '), $data->ContentId]))
 
 								];
 
@@ -368,7 +369,8 @@ class message {
 								$_uid = strings::rand();
 								$cidContent[] = (object)[
 									'refer' => $_uid,
-									'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content )
+									'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content ),
+									'cache' => preg_replace( '@[^a-zA-Z0-9]@', '_', implode( [ trim( $this->MessageID, '<> '), $data->ContentId]))
 
 								];
 
@@ -383,7 +385,8 @@ class message {
 								$_uid = strings::rand();
 								$cidContent[] = (object)[
 									'refer' => $_uid,
-									'content' => 'data:image/png;base64,' . base64_encode( $data->Content )
+									'content' => 'data:image/png;base64,' . base64_encode( $data->Content ),
+									'cache' => preg_replace( '@[^a-zA-Z0-9]@', '_', implode( [ trim( $this->MessageID, '<> '), $data->ContentId]))
 
 								];
 
@@ -402,7 +405,9 @@ class message {
 									$_uid = strings::rand();
 									$cidContent[] = (object)[
 										'refer' => $_uid,
-										'content' => 'data:image/gif;base64,' . base64_encode( $data->Content )
+										'content' => 'data:image/gif;base64,' . base64_encode( $data->Content ),
+										'cache' => preg_replace( '@[^a-zA-Z0-9]@', '_', implode( [ trim( $this->MessageID, '<> '), $data->ContentId]))
+
 
 									];
 
@@ -417,7 +422,8 @@ class message {
 									$_uid = strings::rand();
 									$cidContent[] = (object)[
 										'refer' => $_uid,
-										'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content )
+										'content' => 'data:image/jpeg;base64,' . base64_encode( $data->Content ),
+										'cache' => preg_replace( '@[^a-zA-Z0-9]@', '_', implode( [ trim( $this->MessageID, '<> '), $data->ContentId]))
 
 									];
 
@@ -432,7 +438,8 @@ class message {
 									$_uid = strings::rand();
 									$cidContent[] = (object)[
 										'refer' => $_uid,
-										'content' => 'data:image/png;base64,' . base64_encode( $data->Content )
+										'content' => 'data:image/png;base64,' . base64_encode( $data->Content ),
+										'cache' => preg_replace( '@[^a-zA-Z0-9]@', '_', implode( [ trim( $this->MessageID, '<> '), $data->ContentId]))
 
 									];
 
@@ -501,7 +508,8 @@ class message {
 
 		foreach ( $cidContent as $cid) {
 			$html = \str_replace( $cid->refer, $cid->content, $html);
-			// \sys::logger( sprintf('<%s> %s', $cid->refer, __METHOD__));
+			// $cache = implode([ \dvc\imap\config::IMAP_CACHE(), $cid->cache]);
+			// \sys::logger( sprintf('<%s> %s', $cache, __METHOD__));
 
 
 		}

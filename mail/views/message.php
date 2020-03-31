@@ -22,12 +22,22 @@ $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
 
     $encoding = mb_detect_encoding($msg->Body);
+
     if ( 'utf-8' == strtolower( $encoding)) {
-        $_msg = mb_convert_encoding( $msg->Body, 'UTF-8', 'HTML-ENTITIES');
+        // \sys::logger( sprintf('<%s> %s', $encoding, __METHOD__));
+        // $f = sprintf('%s/temp-0-utf8-message.txt', \config::dataPath());
+        // if ( \file_exists($f)) unlink( $f);
+        // \file_put_contents( $f, $msg->Body);
+
+        $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', 'UTF-8');
+
+        // $f = sprintf('%s/temp-1-utf8-message.txt', \config::dataPath());
+        // if ( \file_exists($f)) unlink( $f);
+        // \file_put_contents( $f, $_msg);
 
     }
     elseif ( 'ascii' == strtolower( $encoding)) {
-        $_msg = mb_convert_encoding( $msg->Body, 'ASCII', 'HTML-ENTITIES');
+        $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', 'ASCII');
         // $_msg = $msg->Body;
         // \sys::logger( sprintf('<%s> %s', 'no conversion', __METHOD__));
         // $f = sprintf('%s/temp-4-message.txt', \config::dataPath());

@@ -190,14 +190,6 @@ class client {
 		$_headers_rfc822 = imap_rfc822_parse_headers( $_headers);
 		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', false);
 		$_headerInfo = imap_headerinfo( $this->_stream, $msgno);
-		// sys::dump( $_headerInfo, 'imap_headerinfo', false);
-		// sys::dump( $_headers, 'headers', false);
-		// sys::dump( imap_fetch_overview( $this->_stream, $msgno ,0 ), 'imap_fetch_overview');
-		// \Response::text_headers();
-		// print_r( imap_headerinfo( $this->_stream, $msgno ,1 ));
-		// die();
-		// sys::dump( imap_fetchstructure( $this->_stream, $msgno ), 'imap_fetchstructure');
-		$mess = new RawMessage( $this->_stream, $msgno );
 
 		if ( !$overview) {
 			$overview = $this->_Overview( $msgno);
@@ -319,39 +311,29 @@ class client {
 		// sys::dump( $_headers, 'imap_fetchheader', true);
 		$ret->MSGNo = $_headerInfo->Msgno;
 		$ret->Uid = imap_uid( $this->_stream, $_headerInfo->Msgno);
-		$ret->CharSet = $mess->charset;
 		$ret->answered = $_headerInfo->Answered == "A" ? 'yes' : 'no';
 		$ret->seen = $_headerInfo->Unseen == "U" ? 'no' : 'yes';
 		$ret->references = '';
+
+		if ( isset($overview->in_reply_to)) $ret->in_reply_to = $overview->in_reply_to;
+		if ( isset($overview->references)) $ret->references = $overview->references;
+		if ( isset($overview->{'X-CMS-Draft'})) $ret->{'X-CMS-Draft'} = $overview->{'X-CMS-Draft'};
+
+		$mess = new RawMessage( $this->_stream, $msgno );
+		$ret->CharSet = $mess->charset;
+
 		if ( $mess->messageHTML) {
-			// sys::logger( sprintf('has messageHTML(%s) : %s', strlen( $mess->messageHTML), __METHOD__));
-			// $ret->Body = utf8_decode( $mess->messageHTML);
-			// die( \htmlentities( $mess->messageHTML));
 			$ret->Body = $mess->messageHTML;
-			// die( $ret->Body);
-
-		}
-		// else {
-		// 	sys::logger('no messageHTML');
-
-		// }
-
-		if ( $ret->Body) {
 			$ret->BodyType = 'HTML';
 
 		}
 		else {
 			$ret->BodyType = 'text';
-			// $ret->Body = utf8_decode( $mess->message);
 			$ret->Body = $mess->message;
 
 		}
 		$ret->attachments = $mess->attachments;
 		$ret->cids = $mess->cids;
-
-		if ( isset($overview->in_reply_to)) $ret->in_reply_to = $overview->in_reply_to;
-		if ( isset($overview->references)) $ret->references = $overview->references;
-		if ( isset($overview->{'X-CMS-Draft'})) $ret->{'X-CMS-Draft'} = $overview->{'X-CMS-Draft'};
 
 		//~ if ( \currentUser::isDavid()) \sys::dump( $ret);
 		if ( $debug) sys::logger( sprintf('exit : %s', __METHOD__));
