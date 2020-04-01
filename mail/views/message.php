@@ -112,6 +112,12 @@ html, body { font-family: sans-serif; }
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.mail-text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+}
 pre {
     display: block;
     font-size: .875rem;
@@ -165,7 +171,7 @@ div[message] > div[data-x_type="body"] { margin: -8px; padding: 8px; }
     </div>
 
 <?php   if ( $this->data->default_folders['Sent'] != $msg->Folder) {    ?>
-    <div class="grid-item" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+    <div class="grid-item mail-text-truncate" data-role="recipients">
         <small>to&nbsp;</small>
         <?php
 
