@@ -172,7 +172,7 @@ div[message] > div[data-x_type="body"] { margin: -8px; padding: 8px; }
 
 <?php   if ( $this->data->default_folders['Sent'] != $msg->Folder) {    ?>
     <div class="grid-item mail-text-truncate" data-role="recipients">
-        <small>to&nbsp;</small>
+        <small label>to&nbsp;</small>
         <?php
 
 
