@@ -497,7 +497,14 @@ class client {
 
 					}
 					else {
-						$a[] = sprintf('%s@%s', $to->mailbox, $to->host);
+						if ( isset( $to->host)) {
+							$a[] = sprintf('%s@%s', $to->mailbox, $to->host);
+
+						}
+						else {
+							$a[] = $to->mailbox;
+
+						}
 						// sys::dump( $to);
 
 					}
