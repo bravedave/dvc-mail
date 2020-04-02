@@ -78,9 +78,9 @@ abstract class inbox {
 
                 }
 
-            }
+                return $j;
 
-            return $j;
+            }
 
         }
 
