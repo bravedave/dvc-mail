@@ -62,6 +62,8 @@ abstract class inbox {
 
             $file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
             $j = json_decode( file_get_contents( $file));
+            \sys::logger( sprintf('<%s / %s> %s', $file, gettype( $j), __METHOD__));
+
             $j->attachments = [];
 
             $attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
