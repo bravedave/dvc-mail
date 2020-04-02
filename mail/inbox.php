@@ -51,7 +51,12 @@ abstract class inbox {
 
 	static public function FiledMessageExists( $msgStore) {
 		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
-		return file_exists( $file);
+		if ( file_exists( $file)) {
+            return ( \filesize( $file) > 1024);
+
+        }
+
+        return false;
 
 	}
 
@@ -61,26 +66,24 @@ abstract class inbox {
             //~ $debug = true;
 
             $file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
-            if ( \filesize( $file) > 1024) {
-                $j = json_decode( file_get_contents( $file));
-                // \sys::logger( sprintf('<%s / %s> %s', $file, gettype( $j), __METHOD__));
+            $j = json_decode( file_get_contents( $file));
+            // \sys::logger( sprintf('<%s / %s> %s', $file, gettype( $j), __METHOD__));
 
-                $j->attachments = [];
+            $j->attachments = [];
 
-                $attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
-                $it = new \FilesystemIterator( $attachmentPath);
-                foreach ($it as $fileinfo) {
-                    $j->attachments[] = (object)[
-                        'name' => $fileinfo->getFilename(),
-                        'path' => $fileinfo->getPathname()
+            $attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
+            $it = new \FilesystemIterator( $attachmentPath);
 
-                    ];
+            foreach ($it as $fileinfo) {
+                $j->attachments[] = (object)[
+                    'name' => $fileinfo->getFilename(),
+                    'path' => $fileinfo->getPathname()
 
-                }
-
-                return $j;
+                ];
 
             }
+
+            return $j;
 
         }
 
