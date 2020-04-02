@@ -61,19 +61,22 @@ abstract class inbox {
             //~ $debug = true;
 
             $file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
-            $j = json_decode( file_get_contents( $file));
-            \sys::logger( sprintf('<%s / %s> %s', $file, gettype( $j), __METHOD__));
+            if ( \filesize( $file) > 1024) {
+                $j = json_decode( file_get_contents( $file));
+                // \sys::logger( sprintf('<%s / %s> %s', $file, gettype( $j), __METHOD__));
 
-            $j->attachments = [];
+                $j->attachments = [];
 
-            $attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
-            $it = new \FilesystemIterator( $attachmentPath);
-            foreach ($it as $fileinfo) {
-                $j->attachments[] = (object)[
-                    'name' => $fileinfo->getFilename(),
-                    'path' => $fileinfo->getPathname()
+                $attachmentPath = implode([$msgStore, DIRECTORY_SEPARATOR, 'attachments']);
+                $it = new \FilesystemIterator( $attachmentPath);
+                foreach ($it as $fileinfo) {
+                    $j->attachments[] = (object)[
+                        'name' => $fileinfo->getFilename(),
+                        'path' => $fileinfo->getPathname()
 
-                ];
+                    ];
+
+                }
 
             }
 
