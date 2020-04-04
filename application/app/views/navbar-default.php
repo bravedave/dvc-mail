@@ -35,31 +35,30 @@
 		});
 		</script>
 
-		<li class="nav-item">
-			<a id="<?= $uid = strings::rand() ?>"
-				class="btn btn-light"
+		<li class="nav-item px-1">
+			<button id="<?= $uid = strings::rand() ?>"
+				class="btn btn-light rounded-circle""
 				href="#">
 				<i class="fa fa-envelope"></i>
 
-			</a>
+			</button>
 
 		</li>
 		<script>
 		$(document).ready( function() {
 			// headerClass : '',
 			// beforeOpen : function() {},
-			// onClose : function() {},
+			// onClose : function() {}
 			// onSuccess : function() {},
 			$('#<?= $uid ?>').on( 'click', function( e) {
-				e.stopPropagation();e.preventDefault();
+				let btn = $(this)
+				btn.prop('disabled', true);
+				setTimeout(() => {
+					btn.prop('disabled', false);
 
-				let url = _brayworth_.url('home/compose');
+				}, 2000);
 				// console.log( url);
-
-				_brayworth_.loadModal({
-					url : url
-
-				});
+				_brayworth_.loadModal({ url : _brayworth_.url('home/compose') });
 
 			});
 
