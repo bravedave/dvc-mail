@@ -1,3 +1,6 @@
+###### 5/04/2020
+* adding ability to upload attachments to message - incomplete (don't use it yet !)
+
 ###### 29/03/2020
 * correctly handle message display when there is NO encoding
 * remove decoding on plain text messages
