@@ -501,7 +501,7 @@ class client {
 							$a[] = sprintf('%s@%s', $to->mailbox, $to->host);
 
 						}
-						else {
+						elseif ( isset( $to->mailbox)) {
 							$a[] = $to->mailbox;
 
 						}
