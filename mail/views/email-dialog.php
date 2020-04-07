@@ -9,6 +9,12 @@
 */	?>
 <form class="form" id="<?= $form = strings::rand() ?>">
 	<input type="hidden" name="action" value="send email" />
+	<input type="hidden" name="tmpdir" value="" />
+	<div class="progress mb-2 d-none">
+  		<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+
+	</div>
+
 	<div class="form-group row">
 		<div class="col">
 			<div class="input-group">
@@ -128,6 +134,123 @@ $(document).ready( function() {
 		return false;
 
 	});
+
+	form.on( 'get-attachments', function( e) {
+		let _form = $(this);
+		let _data = _form.serializeFormJSON();
+
+		if ( '' == _data.tmpdir) return;
+
+		console.log( _data.tmpdir, '<?= $this->route ?>');
+
+		_brayworth_.post({
+			url : _brayworth_.url('<?= $this->route ?>'),
+			data : {
+				action : 'attachments-get',
+				tmpdir : _data.tmpdir
+
+			},
+
+		}).then( function( d) {
+			_brayworth_.growl( d);
+			console.log( 'attachments', d);
+
+		});
+
+	});
+
+	( ( form) => {
+		if ( _brayworth_.browser.isMobileDevice) return;	// chain
+
+		// console.log( form[0]);
+		// console.log( $('input[name="tmdir"]', form));
+
+		let isAdvancedUpload = ( () => {
+			let div = document.createElement('div');
+			return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+		})();
+
+		if ( isAdvancedUpload) {
+			form.parent()
+			.addClass('has-advanced-upload')
+			.on('drag dragstart dragend dragover dragenter dragleave drop', (e) => {
+				e.preventDefault(); e.stopPropagation();
+			})
+			.on('dragover dragenter', function( e) {
+				$(this).addClass('is-dragover');
+			})
+			.on('dragleave dragend drop', function( e) {
+				$(this).removeClass('is-dragover');
+
+			})
+			.on('drop', function(e) {
+				e.preventDefault();
+				let droppedFiles = e.originalEvent.dataTransfer.files;
+				//~ console.log( droppedFiles);
+
+				if (droppedFiles) {
+					//~ console.log( 'droppedFiles');
+
+					let data = new FormData();
+					data.append('action', 'attachments-upload');
+					data.append('tmpdir', $('input[name="tmpdir"]', form).val());
+					$.each( droppedFiles, function(i, file) {
+						//~ console.log( file);
+						data.append('files-'+i, file);
+
+					});
+
+					let progressBar = $('.progress-bar', form);
+					progressBar.css('width','0');
+					$('.progress', form).removeClass('d-none');
+
+					_brayworth_.post({
+						url: _brayworth_.url('<?= $this->route ?>'),
+						data: data,
+						dataType: 'json',
+						cache: false,
+						contentType: false,
+						processData: false,
+						xhr: function() {
+							var xhr = new window.XMLHttpRequest();
+							xhr.upload.addEventListener("progress", function (e) {
+								if (e.lengthComputable) {
+									let pc = parseInt( e.loaded / e.total * 100);
+									progressBar
+									.css('width', pc + '%')
+									.attr( 'aria-valuenow', pc);
+
+								}
+
+							})
+
+							return xhr;
+
+						}
+
+					})
+					.done( function( r) {
+						_brayworth_.growl( r);
+						$('input[name="tmpdir"]', form).val( r.tmpdir);
+						form.trigger( 'get-attachments');
+
+					})
+					.always( ( r) => {
+						setTimeout(() => {
+							$('.progress', form).addClass('d-none');
+
+						}, 1000);
+
+					})
+					.fail( function( r) { alert('there was an error uploading the attachments'); });
+
+				}
+
+			});
+
+		}	// if (isAdvancedUpload && !_me.attachmentContainer.hasClass('has-advanced-upload'))
+
+	})( form);
 
 });
 </script>

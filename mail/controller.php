@@ -22,10 +22,144 @@ class controller extends \Controller {
 	protected $creds = null;	// credentials
 	protected $label = 'webmail';
 
+	protected static function formatBytes($bytes, $precision = 2) {
+		$units = ['b', 'kb', 'mb', 'gb', 'tb'];
+
+		$bytes = max($bytes, 0);
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+
+		$bytes /= pow(1024, $pow);
+
+		return round($bytes, $precision) . ' ' . $units[$pow];
+
+	}
+
 	protected function postHandler() {
 		$action = $this->getPost('action');
 
-		if ( 'create-folder' == $action) {
+		if ( 'attachments-get' == $action) {
+			if ( $tmpdir = $this->getPost( 'tmpdir' )) {
+				$dir = \config::tempdir() . $tmpdir;
+				if ( \is_dir( $dir)) {
+					$iterator = new \Globiterator( $dir);
+					$a = [];
+					foreach ( $iterator as $attachment) {
+						$a[] = (object)[
+							'name' => $attachment->getFilename(),
+							'size' => self::formatBytes( $attachment->getSize())
+
+						];
+
+					}
+
+					Json::ack( $action)
+						->add( 'attachments', $a);
+
+				}
+				else {
+					Json::ack( $action)
+						->add( 'attachments', []);
+
+				}
+
+			}
+			else {
+				Json::nak( $action);
+
+			}
+
+		}
+		elseif ( 'attachments-upload' == $action) {
+			$debug = true;
+
+			/*--- ---[uploads]--- ---*/
+			$j = Json::ack( $action);
+
+			if ( !( $tmpdir = $this->getPost( 'tmpdir' )))
+				$tmpdir = "email_" . time();
+
+			$j->add( 'tmpdir', $tmpdir);
+
+			$UploadDir = \config::tempdir() . $tmpdir;
+			if ( !is_dir( $UploadDir )) {
+				mkdir( $UploadDir);
+				chmod( $UploadDir, 0777 );
+
+			}
+
+			if ( $debug) sys::logger( sprintf('%s : %s', $UploadDir, __METHOD__));
+
+			$good = [];
+			$bad = [];
+
+			foreach ( $_FILES as $file ) {
+				if ( $debug) sys::logger( sprintf('%s : %s', $file['name'], __METHOD__));
+				if ( is_uploaded_file( $file['tmp_name'] )) {
+					$strType = $file['type'];
+					if ( $debug) sys::logger( sprintf('%s (%s) : %s', $file['name'], $strType, __METHOD__));
+
+					$ok = true;
+					$accept = [
+						'image/png',
+						'image/x-png',
+						'image/jpeg',
+						'image/pjpeg',
+						'image/tiff',
+						'image/gif',
+						'text/plain',
+						'application/pdf',
+						'application/x-zip-compressed',
+						'application/msword',
+						'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+						'application/vnd.ms-excel',
+						'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+					];
+
+					if ( in_array( $strType, $accept)) {
+						$source = $file['tmp_name'];
+						$target = sprintf( '%s/%s', $UploadDir, $file['name']);
+
+						if ( file_exists( $target )) unlink( $target );
+						if ( move_uploaded_file( $source, $target)) {
+							chmod( $target, 0666 );
+							$good[] = [ 'name' => $file['name'], 'result' => 'uploaded'];
+
+						}
+						else {
+							$bad[] = [ 'name' => $file['name'], 'result' => 'nak'];
+
+						}
+
+					}
+					elseif ( !$strType) {
+						sys::logger( sprintf('%s invalid file type : %s', $file['name'], __METHOD__));
+						$bad[] = [ 'name' => $file['name'], 'result' => 'invalid file type'];
+
+					}
+					else {
+						sys::logger( sprintf('%s invalid file type - %s : %s', $file['name'], $strType, __METHOD__));
+						$bad[] = [ 'name' => $file['name'], 'result' => 'invalid file type : ' . $strType];
+
+					}
+
+				}
+				elseif ( UPLOAD_ERR_INI_SIZE == $file['error']) {
+					sys::logger( sprintf('%s size exceeds ini size', $file['name'], __METHOD__));
+					$bad[] = [ 'name' => $file['name'], 'result' => 'size exceeds ini size'];
+
+				}
+				else {
+					sys::logger( sprintf('is not an uploaded file ? : %s : %s', $file['name'], __METHOD__));
+
+				}
+
+			}
+			/*--- ---[uploads]--- ---*/
+
+		}
+		elseif ( 'create-folder' == $action) {
 			if ( $folder = (string)$this->getPost( 'folder')) {
 				$parent = (string)$this->getPost( 'parent');
 				$folders = folders::instance( $this->creds);
