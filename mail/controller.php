@@ -16,6 +16,8 @@ use Json;
 use Response;
 use strings;
 use sys;
+use dvc\cssmin;
+use dvc\jslib;
 // use url;
 
 class controller extends \Controller {
@@ -725,10 +727,10 @@ class controller extends \Controller {
 
 	public function mailjs() {
 		// 'leadKey' => '00.js',
-		\jslib::viewjs([
+		jslib::viewjs([
 			'debug' => false,
 			'libName' => 'mailjs',
-			'jsFiles' => sprintf( '%s//js/*.js', __DIR__ ),
+			'jsFiles' => sprintf( '%s/js/*.js', __DIR__ ),
 			'libFile' => \config::tempdir()  . '_mailjs_tmp.js'
 
 		]);
@@ -736,10 +738,10 @@ class controller extends \Controller {
 	}
 
 	public function normalizecss() {
-		\cssmin::viewcss([
+		cssmin::viewcss([
 			'debug' => false,
 			'libName' => 'mail/normalise',
-			'cssFiles' => [__DIR__ . '/normalize.css'],
+			'cssFiles' => [ __DIR__ . '/normalize.css'],
 			'libFile' => \config::tempdir()  . '_mail_normalize.css'
 
 		]);
