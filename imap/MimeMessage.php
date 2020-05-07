@@ -220,6 +220,13 @@ class MimeMessage {
     }
 
 	public function SaveToFile( \PHPMailer $message, $msgStore, array $files = []) {
+        /**
+         * this message can be restored with
+         *
+         * $msg = dvc\mail\inbox::ReadFromFile( $path);
+         *
+         */
+
 		$debug = false;
 		//~ $debug = true;
 
