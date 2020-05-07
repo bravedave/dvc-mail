@@ -189,7 +189,6 @@ class client {
 		$_headers = imap_fetchheader( $this->_stream, $msgno, 0);
 		$_headers_rfc822 = imap_rfc822_parse_headers( $_headers);
 		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', false);
-		$_headerInfo = imap_headerinfo( $this->_stream, $msgno);
 
 		if ( !$overview) {
 			$overview = $this->_Overview( $msgno);
@@ -305,14 +304,17 @@ class client {
 		$ret->CC = self::decodeMimeStr((string)$cc);
 		$ret->MessageID = $_headers_rfc822->message_id;
 		$ret->Recieved = $headerDate;
-		$ret->headers = $_headerInfo;
+
+		if ( $ret->headers = imap_headerinfo( $this->_stream, $msgno)) {
+			$ret->MSGNo = $ret->headers->Msgno;
+			$ret->Uid = imap_uid( $this->_stream, $ret->headers->Msgno);
+			$ret->answered = $ret->headers->Answered == "A" ? 'yes' : 'no';
+			$ret->seen = $ret->headers->Unseen == "U" ? 'no' : 'yes';
+
+		}
 
 		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', true);
 		// sys::dump( $_headers, 'imap_fetchheader', true);
-		$ret->MSGNo = $_headerInfo->Msgno;
-		$ret->Uid = imap_uid( $this->_stream, $_headerInfo->Msgno);
-		$ret->answered = $_headerInfo->Answered == "A" ? 'yes' : 'no';
-		$ret->seen = $_headerInfo->Unseen == "U" ? 'no' : 'yes';
 		$ret->references = '';
 
 		if ( isset($overview->in_reply_to)) $ret->in_reply_to = $overview->in_reply_to;
@@ -457,7 +459,6 @@ class client {
 
 		}
 
-		// $headers = imap_headerinfo( $this->_stream, $email_number, 1);
 		if ( $headers) {
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
