@@ -13,7 +13,7 @@
 	$unseen = '<span class="pull-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
 	// $unseen = '<i class="fa fa-circle text-primary" style="margin-left: -14px;" unseen></i>';
 
-	$answered = '<i class="fa fa-reply pull-right text-muted" title="you have replied to this message" answered />';
+	$answered = '<i class="fa fa-reply pull-right text-muted" title="you have replied to this message" answered></i>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -49,16 +49,16 @@
 <style id="<?= $uid = strings::rand() ?>"></style>
 <script>
 $(document).on('resize-main-content-wrapper', function( e) {
-	let i = $('body > nav').height() + $('body > footer').height();
+	let i = $('body > nav').outerHeight() + $('body > footer').outerHeight();
 
 	let css = [
 		'@media (max-width: 575px) {',
-		'	body:not(.hide-nav-bar) div[data-role="main-content-wrapper"] { height : calc( 100% - ' + i + 'px) }',
-		'	body.hide-nav-bar div[data-role="main-content-wrapper"] { height : 100% }',
+		'	body:not(.hide-nav-bar) div[data-role="main-content-wrapper"] { height : calc( 100vh - ' + i + 'px) }',
+		'	body.hide-nav-bar div[data-role="main-content-wrapper"] { height : 100vh }',
 		'}',
 
 		'@media (min-width: 576px) {',
-		'	body div[data-role="main-content-wrapper"] { height : calc( 100% - ' + i + 'px) }',
+		'	body div[data-role="main-content-wrapper"] { height : calc( 100vh - ' + i + 'px) }',
 		'}'
 
 	];
@@ -221,13 +221,13 @@ $(document).on( 'mail-clear-reloader', function( e) {
 		let _list_subfolders = function( i, fldr) {
 			// console.log( fldr);
 
-			let ctrl = $('<div class="text-truncate" />').html( fldr.name);
-			let searchCtrl = $('<div class="form-check" />');
+			let ctrl = $('<div class="text-truncate"></div>').html( fldr.name);
+			let searchCtrl = $('<div class="form-check"></div>');
 			let chkId = '<?= $uidSearchAll ?>_chk_' + String( ++uidx);
 			searchCtrl.append( $('<input type="checkbox" class="form-check-input" name="path" checked />')
 				.attr( 'id', chkId)
 				.data( 'folder', fldr.fullname));
-			searchCtrl.append( $('<label class="form-check-label" />').attr( 'for', chkId));
+			searchCtrl.append( $('<label class="form-check-label"></label>').attr( 'for', chkId));
 
 			$('label', searchCtrl).html( fldr.name);
 
@@ -251,7 +251,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 						let folderState = localStorage.getItem('mailFolderState');
 						folderState = !!folderState ? JSON.parse( folderState) : {};
 
-						let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right" />');
+						let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right"></i>');
 						caret.on( 'click', function( e) {
 							e.stopPropagation();
 							// console.log( 'ckic');
@@ -424,7 +424,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 				};
 
 				if ( _data.folder == docData.default_folders.Trash) {
-					_context.append( $('<a href="#"><i class="fa fa-trash" />empty trash</a>').on( 'click', function( e) {
+					_context.append( $('<a href="#"><i class="fa fa-trash"></i>empty trash</a>').on( 'click', function( e) {
 						e.preventDefault();
 
 						let frm = $('#<?= $uidFrm ?>');
@@ -454,7 +454,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 				}
 				else if ( !fldrCheck.default( _data.folder)) {
-					_context.append( $('<a href="#"><i class="fa fa-trash" />delete folder</a>').on( 'click', function( e) {
+					_context.append( $('<a href="#"><i class="fa fa-trash"></i>delete folder</a>').on( 'click', function( e) {
 						e.preventDefault();
 
 						let frm = $('#<?= $uidFrm ?>');
@@ -532,7 +532,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 		};
 
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 d-inline-flex mb-1">folders</h6></div></div>');
-		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto" style="margin: -.25rem 0;"><i class="fa fa-refresh" /></button>')
+		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="fa fa-refresh"></i></button>')
 		.on('click', function( e) {
 			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
 			$(document).trigger( 'mail-folderlist-reload');
@@ -630,7 +630,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let _document = frame[0].contentDocument;
 		let _body = $('div[message]', _document);
 
-		let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;" />');
+		let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;"></div>');
 			_wrap.html( _body.clone().html());
 
 			$('p', _wrap).each(function() {
@@ -776,7 +776,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		return;
 
-		let wrap = $('<div />');
+		let wrap = $('<div></div>');
 		if ( $(this).data('role') == 'reply-fast')
 			wrap.append('<p>' + $('#reply-fast-response').val() + '</p>');
 
@@ -792,12 +792,12 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		let email = msg.from;
 		if ( msg.folder == defaultFolders.Sent) email = msg.to;
-		let from = $('<div class="col text-truncate font-weight-bold" from />').html( email).attr('title', email);
+		let from = $('<div class="col text-truncate font-weight-bold" from></div>').html( email).attr('title', email);
 		if ( 'yes' == msg.answered) $('<?= $answered ?>').prependTo( from);
 		if ( 'no' == msg.seen) $('<?= $unseen ?>').prependTo( from);
 
-		let received = $('<div class="col-3 pl-0 text-right text-truncate small" />');
-		let subject = $('<div class="col-9 text-truncate" subject />').html( msg.subject).attr( 'title', msg.subject);
+		let received = $('<div class="col-3 pl-0 text-right text-truncate small"></div>');
+		let subject = $('<div class="col-9 text-truncate" subject></div>').html( msg.subject).attr( 'title', msg.subject);
 
 		let time = _brayworth_.moment( msg.received);
 		let stime = time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD') ? time.format('LT') : time.format('l')
@@ -805,7 +805,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		received.html( stime);
 
 		let rowID = 'uid_' + String( seed) + '_' + String(seed * seedI++);
-		row = $('<div class="row border-bottom border-light py-2" />');
+		row = $('<div class="row border-bottom border-light py-2"></div>');
 		row
 		.attr('id', rowID)
 		.attr('uid', msg.uid)
@@ -813,11 +813,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		.data('read', msg.seen)
 		.data('received', time.format( 'YYYYMMDDHHmmss'));
 
-		$('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="fa fa-trash mt-2" /></div>').appendTo( row);
-		let cell = $('<div class="col" message-control/>').appendTo( row);
+		$('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="fa fa-trash mt-2"></i></div>').appendTo( row);
+		let cell = $('<div class="col" message-control></div>').appendTo( row);
 
-		$('<div class="row" />').append( from).appendTo( cell);
-		$('<div class="row" />').append( subject).append( received).appendTo( cell);
+		$('<div class="row"></div>').append( from).appendTo( cell);
+		$('<div class="row"></div>').append( subject).append( received).appendTo( cell);
 
 		row
 		.data( 'folder', msg.folder)
@@ -889,11 +889,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				let _frame = this;
 				let params = {
 					message : _data.message,
-					toolbar : $( '<div class="btn-group flex-grow-1 btn-group-sm" />'),
+					toolbar : $( '<div class="btn-group flex-grow-1 btn-group-sm"></div>'),
 					btnClass : 'btn btn-secondary px-3'
 
 				};
-				params.toolbar = $( '<div class="btn-group btn-group-sm" />'),
+				params.toolbar = $( '<div class="btn-group btn-group-sm"></div>'),
 				params.btnClass = 'btn btn-secondary px-3';
 				if ( Number( user_id) > 0) {
 					params.user_id = user_id;
@@ -927,7 +927,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				( function() {
 					if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
-						let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="fa fa-trash" /></button>');
+						let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="fa fa-trash"></i></button>');
 						btn
 						.attr('title', 'move to '+defaultFolders.Trash)
 						.addClass( params.btnClass)
@@ -961,7 +961,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
 					// console.log( key, lastFolders);
 					if ( !!lastFolders) {
-						let btn = $('<button type="button" data-role="move"><i class="fa fa-flip-horizontal fa-share-square-o" /></button>');
+						let btn = $('<button type="button" data-role="move"><i class="fa fa-flip-horizontal fa-share-square-o"></i></button>');
 						btn
 						.attr('title', 'move ')
 						.addClass( params.btnClass)
@@ -1000,11 +1000,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 							$.each( JSON.parse( lastFolders), _list_subfolders);
 
-							let ig = $('<div class="input-group input-group-sm" />');
+							let ig = $('<div class="input-group input-group-sm"></div>');
 							select.appendTo( ig);
 
 							let btn = $('<button type="button" class="btn btn-primary">move</button>');
-							$('<div class="input-group-prepend" />').append( btn).prependTo( ig);
+							$('<div class="input-group-prepend"></div>').append( btn).prependTo( ig);
 
 							// console.log( _data.message);
 
@@ -1041,7 +1041,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
-					let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply" /></button>');
+					let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1052,7 +1052,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				( function() {
 					if ( _brayworth_.browser.isMobileDevice) return;
-					let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all" /></button>');
+					let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1062,7 +1062,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
-					let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward" /></button>');
+					let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1074,7 +1074,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				(function() {
 					if ( _brayworth_.browser.isMobileDevice) return;
 
-					let btn = $('<button type="button"><i class="fa fa-external-link" /></button>');
+					let btn = $('<button type="button"><i class="fa fa-external-link"></i></button>');
 
 					btn
 					.attr('title', 'pop out')
@@ -1097,7 +1097,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				( function() {
 					if ( _brayworth_.browser.isMobileDevice) return;
 
-					let btn = $('<button type="button"><i class="fa fa-print" /></button>');
+					let btn = $('<button type="button"><i class="fa fa-print"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
@@ -1144,7 +1144,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				let imgs = $('img[data-safe-src]', _frame.contentDocument);
 				if ( imgs.length > 0) {
-					let btn = $('<button type="button"><i class="fa fa-file-image-o" /></button>');
+					let btn = $('<button type="button"><i class="fa fa-file-image-o"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
@@ -1169,8 +1169,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				(function( toolbar) {
 					if ( _brayworth_.browser.isMobileDevice) {
-						let row = $('<div class="row" />').prependTo( '#<?= $uidViewer ?>');
-						$('<div class="col bg-secondary" />').appendTo( row).append( toolbar);
+						let row = $('<div class="row"></div>').prependTo( '#<?= $uidViewer ?>');
+						$('<div class="col bg-secondary"></div>').appendTo( row).append( toolbar);
 
 					}
 					else {
@@ -1179,7 +1179,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					}
 
 
-				})( $('<div class="btn-toolbar" role="toolbar" aria-label="Mail Toolbar" />').append( params.toolbar));
+				})( $('<div class="btn-toolbar" role="toolbar" aria-label="Mail Toolbar"></div>').append( params.toolbar));
 
 				// let h = params.toolbar.height();
 				// let f = $('body>footer');
@@ -1237,8 +1237,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						/**---------------------------------------------------------------------------- */
 
 						let form = $('<form />').appendTo( '#<?= $uidViewer ?>');
-						let row = $('<div class="row mx-0" />').appendTo( form);
-						let col = $('<div class="col position-relative" />').appendTo( row);
+						let row = $('<div class="row mx-0"></div>').appendTo( form);
+						let col = $('<div class="col position-relative"></div>').appendTo( row);
 						let ta = $('<textarea class="form-control pt-2" rows="3" required />').appendTo(col);
 
 						let ig = $('<div class="input-group input-group-sm position-absolute" style="top: -1.2rem; left: 27px; width: 360px; opacity: .7"><div class="input-group-prepend"><div class="input-group-text">to</div></div></div>')
@@ -1252,10 +1252,10 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 						ta.attr( 'placeholder', 'quick reply not enabled yet');
 
-						let btn = $('<button type="submit" class="btn btn-light btn-sm position-absolute rounded-circle" style="top: -1.2rem; right: 27px;"><i class="fa fa-paper-plane-o" /></button>');
+						let btn = $('<button type="submit" class="btn btn-light btn-sm position-absolute rounded-circle" style="top: -1.2rem; right: 27px;"><i class="fa fa-paper-plane-o"></i></button>');
 						form.on( 'submit', function( e) {
 
-							let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;" />');
+							let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;"></div>');
 								_wrap.html( _body.clone().html());
 
 								$('p', _wrap).each(function() {
@@ -1294,7 +1294,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 							frmData.in_reply_to_msg = _data.message.uid;
 							frmData.in_reply_to_folder = _data.message.folder;
 
-							let _m = $('<div />').append( $('<p />').text( ta.val())).append( _wrap);
+							let _m = $('<div></div>').append( $('<p></p>').text( ta.val())).append( _wrap);
 							frmData.message = _m.html();
 
 							/**------------------- */
@@ -1318,7 +1318,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			frame.attr('src', url);
 
-			// let frameWrap = $('<div class="pl-sm-1 h-100" />').append( frame);
+			// let frameWrap = $('<div class="pl-sm-1 h-100"></div>').append( frame);
 
 
 			$('#<?= $uidViewer ?>')
@@ -1462,7 +1462,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				}
 
 				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-					_context.append( $('<a href="#"><i class="fa fa-trash" />move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
+					_context.append( $('<a href="#"><i class="fa fa-trash"></i>move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
 							e.stopPropagation();e.preventDefault();
 
 							_row.trigger('delete');
@@ -1530,7 +1530,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				// console.log( _data);
 
-				let ctrl = $('<i class="fa fa-spin fa-spinner pull-right" />');
+				let ctrl = $('<i class="fa fa-spin fa-spinner pull-right"></i>');
 				ctrl.appendTo( $('[from]', _me));
 
 				_me.addClass( 'font-italic');
@@ -1746,15 +1746,15 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		// console.log( folder, data);
 
 		let page = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
-		let heading = $('<div class="row bg-light text-muted" />');
+		let heading = $('<div class="row bg-light text-muted"></div>');
 		( (col) => {
-			let primary = $('<div class="d-flex" />').appendTo( col);
-			let search = $('<div class="py-1 input-group d-none" />').appendTo( col);
+			let primary = $('<div class="d-flex"></div>').appendTo( col);
+			let search = $('<div class="py-1 input-group d-none"></div>').appendTo( col);
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
-			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1" />').html( location).appendTo( primary);
+			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1"></h6>').html( location).appendTo( primary);
 
-			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto" style="margin: -.25rem 0;"><i class="fa fa-fw fa-search" /></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="fa fa-fw fa-search"></i></button>')
 			.attr( 'title', _brayworth_.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.appendTo( primary)
 			.on('click', function(e) {
@@ -1778,7 +1778,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex" style="margin: -.25rem 0;"><i class="fa fa-fw fa-angle-left" title="previous page" /></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="fa fa-fw fa-angle-left" title="previous page"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
@@ -1799,7 +1799,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				$('<span class="d-inline-flex small pt-1" />').html(page).appendTo( primary);
 
 			}
-			$('<button type="button" class="btn btn-sm d-inline-flex" style="margin: -.25rem 0;"><i class="fa fa-fw fa-angle-right" title="next page" /></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="fa fa-fw fa-angle-right" title="next page"></i></button>')
 			.appendTo( primary)
 			.on('click', (e) => {
 				let _page = $('input[name="page"]','#<?= $uidFrm ?>');
@@ -1820,7 +1820,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex" style="margin: -.25rem 0;"><i class="fa fa-fw fa-spinner fa-spin" /></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="fa fa-fw fa-spinner fa-spin"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				if ( !!folder)
@@ -1861,7 +1861,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
-				$('button[search-activate]', search).html('').append('<i class="fa fa-spinner fa-spin" />').prop( 'disabled', true);
+				$('button[search-activate]', search).html('').append('<i class="fa fa-spinner fa-spin"></i>').prop( 'disabled', true);
 				fldSearch.prop( 'disabled', true);
 
 				if ( !!folder) { data.folder = folder; }
@@ -1877,11 +1877,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 					if ( 'ack' == d.response) {
 						// DONE : Clear message list before loading search results
-						let heading = $('<div class="row bg-light text-muted" />');
-						let col = $('<div class="col" />').appendTo( heading);
-						let h = $('<h6 class="text-truncate pt-1" />')
+						let heading = $('<div class="row bg-light text-muted"></div>');
+						let col = $('<div class="col"></div>').appendTo( heading);
+						let h = $('<h6 class="text-truncate pt-1"></h6>')
 							.html( data.term)
-							.prepend('<i class="fa fa-search pull-right" />')
+							.prepend('<i class="fa fa-search pull-right"></i>')
 							.appendTo( col);
 
 						$('#<?= $uidMsgs ?>').html('').append( heading);
@@ -1900,12 +1900,12 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			})
 			;
 
-			let iga = $('<div class="input-group-append" />').appendTo( search);
-			$('<button type="button" class="btn btn-outline-secondary px-2" search-activate><i class="fa fa-reply fa-flip-vertical" /></button>')
+			let iga = $('<div class="input-group-append"></div>').appendTo( search);
+			$('<button type="button" class="btn btn-outline-secondary px-2" search-activate><i class="fa fa-reply fa-flip-vertical"></i></button>')
 			.on( 'click', function( e) { fldSearch.trigger( 'search'); })
 			.appendTo( iga);
 
-			iga = $('<div class="input-group-append" />').appendTo( search);
+			iga = $('<div class="input-group-append"></div>').appendTo( search);
 			$('<button type="button" class="btn btn-outline-secondary px-2" title="advanced search">A</button>')
 			.on( 'click', function( e) {
 				$('input[name="term"]','#<?= $uidSearchAll ?>').val( fldSearch.val());
@@ -1917,7 +1917,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			})
 			.appendTo( iga);
 
-		})( $('<div class="col" />').appendTo( heading));
+		})( $('<div class="col"></div>').appendTo( heading));
 
 		$('#<?= $uidMsgs ?>').html('').append( heading);
 
@@ -1968,16 +1968,16 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		$('button', _form)
 		.html('')
-		.append('<i class="fa fa-spinner fa-spin" />')
+		.append('<i class="fa fa-spinner fa-spin"></i>')
 		.prop( 'disabled', true);
 
 		$( 'input[type="search"], input[type="data"]', _form).prop( 'disabled', true);
 
-		let heading = $('<div class="row bg-light text-muted" />');
-		let col = $('<div class="col" />').appendTo( heading);
-		let h = $('<h6 class="text-truncate pt-1" />')
+		let heading = $('<div class="row bg-light text-muted"></div>');
+		let col = $('<div class="col"></div>').appendTo( heading);
+		let h = $('<h6 class="text-truncate pt-1"></h6>')
 			.html( _data.term)
-			.prepend('<i class="fa fa-search pull-right" />')
+			.prepend('<i class="fa fa-search pull-right"></i>')
 			.insertBefore( '#<?= $uidSearchAll ?>_form');
 
 		/**
@@ -2004,7 +2004,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			let data = $.extend( _el.data(), gData);
 
-			let spinner = $('<i class="fa fa-fw fa-spinner fa-spin" />')
+			let spinner = $('<i class="fa fa-fw fa-spinner fa-spin"></i>')
 			spinner.insertAfter( this);
 			_el.addClass( 'd-none');
 
@@ -2023,7 +2023,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				if ( 'ack' == d.response) {
 					// 	$('#<?= $uidMsgs ?>').html('').append( heading);
 					let fc = _el.closest('div.form-check');
-					let container = $('<div />');
+					let container = $('<div></div>');
 					container.insertAfter( fc);
 					$.each( d.messages, function( i, el ) {
 						let row = _list_message_row( el);
@@ -2032,7 +2032,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					});
 
 					spinner.remove();
-					let badge = $('<div class="badge badge-pill badge-secondary pull-right" />').html( d.messages.length);
+					let badge = $('<div class="badge badge-pill badge-secondary pull-right"></div>').html( d.messages.length);
 
 					fc
 					.removeClass('form-check')
@@ -2279,7 +2279,7 @@ $('#<?= $uidViewer ?>').on('clear', function( e) {
 	.html('')
 	.removeData('message')
 	.removeData('uid')
-	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x" /></div>');
+	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x"></i></div>');
 
 	$(document).trigger('mail-view-message-set-url', _brayworth_.url('<?= $this->route ?>'));
 

@@ -574,7 +574,7 @@ class message {
 		if ( $this->hasMso()) {
 			// experimental empty <p></p>
 			$_html = preg_replace( '@<p></p>@', '', $_html);
-			// sys::logger( sprintf('%s : %s', 'remove empty <p /> tags', __METHOD__));
+			// sys::logger( sprintf('%s : %s', 'remove empty <p></p> tags', __METHOD__));
 
 
 		}
