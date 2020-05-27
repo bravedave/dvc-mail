@@ -751,7 +751,13 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		}
 
 		if ( _brayworth_.email) {
-			_brayworth_.email.activate( j);
+			( (ec) => {
+				if ( 'function' == typeof ec.onActivate) {
+					ec.onActivate();
+
+				}
+
+			}) (_brayworth_.email.activate( j));
 
 		}
 		else {
