@@ -6,7 +6,6 @@
  *
  * MIT License
  *
- * https://www.electrictoolbox.com/php-imap-message-body-attachments/
 */
 
 namespace dvc\imap;
@@ -14,6 +13,8 @@ namespace dvc\imap;
 use dvc\mail\attachment;
 use strings;
 use sys;
+
+use Sabre\VObject;
 
 class RawMessage {
 	public $charset = '',
@@ -282,10 +283,30 @@ class RawMessage {
 
 			}
 			else {
-				$this->messageType = 'html';
-				$this->messageHTML .= \str_replace( chr(146), "'", $data);	// . "<br /><br />";
-				if ( $debugPart) sys::logger( sprintf( 'html(%s) : %s', strlen( $data), __METHOD__ ));
-				// die( $this->messageHTML);
+				if ( 'directory' == strtolower( $p->subtype) && 'BEGIN:VCARD' == substr( $data, 0, 11)) {
+					$v = VObject\Reader::read( $data);
+					if ( $debugPart) sys::logger( sprintf( '<%s> : %s', $data, __METHOD__ ));
+					if ( isset( $v->FN)) {
+						$a = [
+							'<div style="width: 1.2em; display: inline-block; text-align: center; border-top: 3px solid silver;">n.</div>' . $v->FN
+						];
+						if ( isset( $v->TEL)) $a[] = '<div style="width: 1.2em; display: inline-block; text-align: center;">t.</div>' . $v->TEL;
+						if ( isset( $v->EMAIL)) $a[] = '<div style="width: 1.2em; display: inline-block; text-align: center;">e.</div>' . $v->EMAIL;
+						$a[] = '';
+
+						$this->messageType = 'html';
+						$this->messageHTML .= implode( '<br />', $a);
+
+					}
+
+				}
+				else {
+					$this->messageType = 'html';
+					$this->messageHTML .= \str_replace( chr(146), "'", $data);	// . "<br /><br />";
+					if ( $debugPart) sys::logger( sprintf( 'html(%s)[%s] : %s', strlen( $data), $p->subtype, __METHOD__ ));
+					// die( $this->messageHTML);
+
+				}
 
 			}
 
