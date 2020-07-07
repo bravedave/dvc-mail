@@ -129,7 +129,7 @@ pre {
 
 }
 
-div[message] { overflow-x: auto; padding: 8px; margin: 0 0 1rem; }
+div[message] { padding: 8px; margin: 0 0 1rem; }
 div[message] > div[data-x_type="body"] { margin: -8px; padding: 8px; }
 
 </style>
