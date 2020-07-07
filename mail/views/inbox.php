@@ -896,11 +896,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				let params = {
 					message : _data.message,
 					toolbar : $( '<div class="btn-group flex-grow-1 btn-group-sm"></div>'),
-					btnClass : 'btn btn-secondary px-3'
+					btnClass : 'btn btn-light px-3'
 
 				};
-				params.toolbar = $( '<div class="btn-group btn-group-sm"></div>'),
-				params.btnClass = 'btn btn-secondary px-3';
+				params.toolbar = $( '<div class="btn-group btn-group-sm"></div>');
+				// params.btnClass = 'btn btn-secondary px-3';
 				if ( Number( user_id) > 0) {
 					params.user_id = user_id;
 
@@ -1209,7 +1209,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				}
 				else {
 
-					frame.css('height','calc(100% - 3rem)');
+					frame.css('height','calc(100% - 2.3rem)');
 
 					$(_frame.contentDocument).on('keydown', function( e) {
 						if ( 27 == e.keyCode) {
