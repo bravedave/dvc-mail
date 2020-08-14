@@ -45,24 +45,17 @@
 
 		</li>
 		<script>
-		$(document).ready( function() {
-			// headerClass : '',
-			// beforeOpen : function() {},
-			// onClose : function() {}
-			// onSuccess : function() {},
+		( _ => {
 			$('#<?= $uid ?>').on( 'click', function( e) {
 				let btn = $(this)
 				btn.prop('disabled', true);
-				setTimeout(() => {
-					btn.prop('disabled', false);
 
-				}, 2000);
-				// console.log( url);
-				_brayworth_.loadModal({ url : _brayworth_.url('home/compose') });
+				_.get.modal( _.url('home/compose'))
+					.then( modal => btn.prop('disabled', false));
 
 			});
 
-		});
+		}) (_brayworth_);
 		</script>
 
 	</ul>

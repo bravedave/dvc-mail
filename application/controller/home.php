@@ -19,7 +19,7 @@ class home extends dvc\mail\controller {
 
 	];
 
-    protected function _index() {
+	protected function _index() {
 		$this->render([
 			'title' => $this->title = $this->label,
 			'primary' => 'blank',

@@ -44,12 +44,16 @@ class controller extends \Controller {
 			if ( $tmpdir = $this->getPost( 'tmpdir' )) {
 				$dir = \config::tempdir() . $tmpdir;
 				if ( \is_dir( $dir)) {
-					$iterator = new \Globiterator( $dir);
+
+					// \sys::logger( sprintf('<%s> %s', $dir, __METHOD__));
+
+					$iterator = new \Globiterator( $dir . DIRECTORY_SEPARATOR . '*');
 					$a = [];
 					foreach ( $iterator as $attachment) {
+						// \sys::logger( sprintf('<%s> %s', $attachment->getFilename(), __METHOD__));
 						$a[] = (object)[
 							'name' => $attachment->getFilename(),
-							'size' => self::formatBytes( $attachment->getSize())
+							'size' => self::formatBytes( $attachment->getSize(), 0)
 
 						];
 
@@ -73,7 +77,8 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'attachments-upload' == $action) {
-			$debug = true;
+			// $debug = true;
+			$debug = false;
 
 			/*--- ---[uploads]--- ---*/
 			$j = Json::ack( $action);
@@ -670,17 +675,13 @@ class controller extends \Controller {
 
 	public function compose() {
 		$this->data = (object)[
+			'title' => $this->title = 'Email',
 			'to' => '',
 			'subject' => '',
 			'message' => '',
 		];
 
-		$this->modal([
-			'title' => $this->title = 'Email',
-			'class' => 'modal-lg',
-			'load' => 'email-dialog'
-
-		]);
+		$this->load('email-dialog');
 
 	}
 
