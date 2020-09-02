@@ -23,7 +23,7 @@
 		}
 	],
 	"require": {
-		"bravedave/dvc": "dev-master",
+		"bravedave/dvc": "*",
 		"ext-mailparse": "*",
 		"ext-imap": "*",
 		"sabre/vobject": "^4.2"
