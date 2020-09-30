@@ -206,12 +206,12 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 });
 
-(() => {
+(_ => {
 	let _list = ( folders, cacheData) => {
 		// console.log( folders);
 
-		let ul = $('<ul class="list-unstyled small" />');
-		let searchUL = $('<ul class="list-unstyled" />');
+		let ul = $('<ul class="nav flex-column" />');
+		let searchUL = $('<ul class="nav flex-column" />');
 
 		let keys = {};
 		let searchKeys = {};
@@ -231,7 +231,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 			$('label', searchCtrl).html( fldr.name);
 
-			let li = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo( ul).append( ctrl);
+			let li = $('<li class="nav-item pointer" />').appendTo( ul).append( ctrl);
 			let searchLI = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo( searchUL).append( searchCtrl);
 
 			keys[ fldr.fullname] = li;
@@ -567,7 +567,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 	});
 
-	$(document).on( 'mail-folderlist-reload', function( e) {
+	$(document).on( 'mail-folderlist-reload', e => {
 		let frm = $('#<?= $uidFrm ?>');
 		let data = frm.serializeFormJSON();
 		data.action = 'get-folders';
@@ -575,8 +575,8 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 		$('#<?= $uidFolders ?>').trigger('spin');
 
-		_brayworth_.post({
-			url : _brayworth_.url('<?= $this->route ?>'),
+		_.post({
+			url : _.url('<?= $this->route ?>'),
 			data : data,
 
 		}).then( function( d) {
@@ -587,7 +587,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 			}
 			else {
 				console.log( d);
-				_brayworth_.growl( d);
+				_.growl( d);
 
 			}
 
@@ -595,7 +595,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 	});
 
-})();
+})( _brayworth_ );
 
 $(document).on( 'mail-messages-reload', function( e, folder) {
 	let key = '<?= $this->route ?>-lastmessages-';
@@ -1885,9 +1885,12 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						// DONE : Clear message list before loading search results
 						let heading = $('<div class="row bg-light text-muted"></div>');
 						let col = $('<div class="col"></div>').appendTo( heading);
+            let close = $('<i class="fa fa-times pull-right pointer"></i>');
+            close.on( 'click', e => $(document).trigger('mail-messages'));
+
 						let h = $('<h6 class="text-truncate pt-1"></h6>')
 							.html( data.term)
-							.prepend('<i class="fa fa-search pull-right"></i>')
+							.prepend(close)
 							.appendTo( col);
 
 						$('#<?= $uidMsgs ?>').html('').append( heading);
@@ -1981,20 +1984,27 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		let heading = $('<div class="row bg-light text-muted"></div>');
 		let col = $('<div class="col"></div>').appendTo( heading);
+    let close = $('<i class="fa fa-times pull-right pointer"></i>');
+    close.on( 'click', function( e) {
+      e.stopPropagation();e.preventDefault();
+      $(document).trigger( 'mail-default-view');
+
+    });
+
 		let h = $('<h6 class="text-truncate pt-1"></h6>')
 			.html( _data.term)
-			.prepend('<i class="fa fa-search pull-right"></i>')
+			.prepend(close)
 			.insertBefore( '#<?= $uidSearchAll ?>_form');
 
-		/**
-		 * button to return us to the default mail view
-		 * */
-		$('<button type="button" class="btn btn-light pull-right pr-0" style="margin-top: -1rem;">&times;</button>')
-			.on( 'click', function( e) {
-				$(document).trigger( 'mail-default-view');
+		// /**
+		//  * button to return us to the default mail view
+		//  * */
+		// $('<button type="button" class="btn btn-light pull-right pr-0" style="margin-top: -1rem;">&times;</button>')
+		// 	.on( 'click', function( e) {
+		// 		$(document).trigger( 'mail-default-view');
 
-			})
-			.insertBefore( h);
+		// 	})
+		// 	.insertBefore( h);
 
 
 		$('#<?= $uidSearchAll ?>_form').addClass( 'd-none');

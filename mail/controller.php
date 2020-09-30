@@ -22,7 +22,8 @@ use dvc\jslib;
 
 class controller extends \Controller {
 	protected $creds = null;	// credentials
-	protected $label = 'webmail';
+  protected $label = 'webmail';
+  protected $viewPath = __DIR__ . '/views';
 
 	protected static function formatBytes($bytes, $precision = 2) {
 		$units = ['b', 'kb', 'mb', 'gb', 'tb'];
@@ -661,15 +662,6 @@ class controller extends \Controller {
 		}
 
 		return ( $p);
-
-	}
-
-	protected function getView( $viewName = 'index', $controller = null, $logMissingView = true) {
-		$view = sprintf( '%s/views/%s.php', __DIR__, $viewName );		// php
-		if ( file_exists( $view))
-			return ( $view);
-
-		return parent::getView( $viewName, $controller, $logMissingView);
 
 	}
 
