@@ -17,7 +17,7 @@ use Response;
 use strings;
 use sys;
 use dvc\cssmin;
-use dvc\jslib;
+use userAgent;
 // use url;
 
 class controller extends \Controller {
@@ -104,11 +104,13 @@ class controller extends \Controller {
 			foreach ( $_FILES as $file ) {
 				if ( $debug) sys::logger( sprintf('%s : %s', $file['name'], __METHOD__));
 				if ( is_uploaded_file( $file['tmp_name'] )) {
-					$strType = $file['type'];
+          // $strType = $file['type'];
+          $strType = mime_content_type ( $file['tmp_name']);
 					if ( $debug) sys::logger( sprintf('%s (%s) : %s', $file['name'], $strType, __METHOD__));
 
 					$ok = true;
 					$accept = [
+						'image/heic',
 						'image/png',
 						'image/x-png',
 						'image/jpeg',
@@ -166,21 +168,40 @@ class controller extends \Controller {
 			}
 			/*--- ---[uploads]--- ---*/
 
-		}
+    }
+    elseif ( 'cleanup-temp' == $action) {
+      if ( $tmpdir = $this->getPost( 'tmpdir')) {
+				$dir = \config::tempdir() . $tmpdir;
+				if ( \is_dir( $dir)) {
+          $it = new \FilesystemIterator($dir);
+          foreach ($it as $fileinfo) {
+            unlink( $fileinfo->getRealPath());
+
+          }
+
+          rmdir( $dir);
+
+        }
+
+        Json::ack( $action);
+
+      } else { Json::nak( $action); }
+
+    }
 		elseif ( 'create-folder' == $action) {
 			if ( $folder = (string)$this->getPost( 'folder')) {
 				$parent = (string)$this->getPost( 'parent');
 				$folders = folders::instance( $this->creds);
 				if ( $folders->create( $folder, $parent)) {
-					\Json::ack( $action);
+					Json::ack( $action);
 
 				}
 				else {
-					\Json::nak( $action);
+					Json::nak( $action);
 
 				}
 
-			} else { \Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
+			} else { Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
 
 		}
 		elseif ( 'delete-folder' == $action) {
@@ -336,10 +357,23 @@ class controller extends \Controller {
 
 			$mail->Subject  = $subject;
 
-			// $mail->CharSet = 'UTF-8';
-			// $mail->Encoding = 'quoted-printable';
-			// $mail->msgHTML( $message);
-			$mail->Body = $message;
+			$mail->CharSet = 'UTF-8';
+			$mail->Encoding = 'quoted-printable';
+			$mail->msgHTML( $message);
+      // $mail->Body = $message;
+
+      if ( $tmpdir = (string)$this->getPost( 'tmpdir')) {
+        $tmpdir = \config::tempdir()  . $tmpdir;
+        if ( is_dir( $tmpdir)) {
+          $it = new \FilesystemIterator($tmpdir);
+          foreach ($it as $fileinfo) {
+            $mail->AddAttachment( $fileinfo->getRealPath());             // attachment
+
+          }
+
+        }
+
+      }
 
 			if ( $mail->send()) {
 				Json::ack( $action);
@@ -651,6 +685,10 @@ class controller extends \Controller {
 	}
 
 	protected function page( $params) {
+
+    if ( !isset( $params['latescripts'])) $params['latescripts'] = [];
+    $params['latescripts'][] = sprintf( '<script type="text/javascript" src="%s" defer></script>', strings::url( 'js/tinymce5/'));
+
 		$p = parent::page( $params);
 		if (  isset( $params['charset'])) {
 			if (  $params['charset']) {
@@ -712,6 +750,33 @@ class controller extends \Controller {
 		}
 
 	}
+
+	public function js( string $lib = '') {
+		if ( in_array( $lib, ['tinymce','tinymce5']))  {
+			if ( preg_match( '/(content\.min\.css|content\.css)$/', $uri = $this->Request->getUri())) {
+        parent::js( $lib);
+
+			}
+			else {
+
+        if ( userAgent::isMobileDevice()) {
+          jslib::tinyserve( 'tiny-imap-mobile', 'autolink,lists');
+
+        }
+        else {
+          jslib::tinyserve( 'tiny-imap', 'autolink,paste,lists,table,image,imagetools,link,spellchecker');
+
+        }
+
+			}
+
+    }
+    else {
+      parent::js( $lib);
+
+    }
+
+  }
 
 	public function localjs() {
 		print '/* placeholder for local scripts */';

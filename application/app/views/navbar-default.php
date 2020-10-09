@@ -51,7 +51,7 @@
 				btn.prop('disabled', true);
 
 				_.get.modal( _.url('home/compose'))
-					.then( modal => btn.prop('disabled', false));
+        .then( modal => btn.prop('disabled', false));
 
 			});
 

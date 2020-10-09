@@ -1,7 +1,6 @@
 {
 	"name": "bravedave/dvc-mail",
 	"description": "Mail Interfaces for DVC",
-	"version": "0.0.1",
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"homepage": "http://brayworth.com",
