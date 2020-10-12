@@ -11,26 +11,26 @@
 namespace dvc\mail;
 
 abstract class inbox {
-    static public function instance( credentials $creds) {
-        switch ($creds->interface) {
-            case credentials::imap :
-                return new \dvc\imap\inbox( $creds);
-                break;
+  static public function instance( credentials $creds) {
+    switch ($creds->interface) {
+      case credentials::imap :
+        return new \dvc\imap\inbox( $creds);
+        break;
 
-            case credentials::ews :
-                // self::$_defaults = (object)[
-                //     'inbox' => 'INBOX'
+      case credentials::ews :
+        // self::$_defaults = (object)[
+        //     'inbox' => 'INBOX'
 
-                // ];
-                return new \dvc\ews\inbox( $creds);
-                break;
+        // ];
+        return new \dvc\ews\inbox( $creds);
+        break;
 
-
-        }
-
-        return false;
 
     }
+
+    return false;
+
+  }
 
     static public function default_folders( $creds) : array {
         switch ($creds->interface) {

@@ -4,13 +4,14 @@
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- * 		http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
- * */
+*/
 
 use dvc\bCrypt;
 use dvc\imap\account;
+use dvc\imap\folders;
+
 use dvc\mail\credentials;
 
 class imap extends dvc\imap\controller {
@@ -28,7 +29,7 @@ class imap extends dvc\imap\controller {
 	}
 
 	protected function postHandler() {
-		$action = $this->getPost('action');
+    $action = $this->getPost('action');
 
 		if ( 'delete-profile' == $action) {
 			if ( $profile = $this->getPost('profile')) {
@@ -115,7 +116,43 @@ class imap extends dvc\imap\controller {
 			Response::redirect( strings::url( $this->route));
 
 		}
-        else { parent::postHandler(); }
+		elseif ( 'verify' == $action) {
+      $email_type = $this->getPost( 'email_type');
+      if ( !$email_type) $email_type = 'imap';
+
+      if ( \in_array( $email_type, ['imap', 'exchange'])) {
+        $email_server = $this->getPost( 'email_server');
+        $email_account = $this->getPost( 'email_account');
+        $email_password = $this->getPost( 'email_password');
+
+        if ( $email_server && $email_account && $email_password) {
+          $creds = new credentials(
+            $email_account,
+            $email_password,
+            $email_server
+
+          );
+
+          $creds->interface = credentials::imap;
+          if ( 'exchange' == $email_type) {
+            folders::changeDefaultsToExchange();
+
+          }
+
+          if ( $inbox = dvc\mail\inbox::instance( $creds)) {
+            if ( $inbox->verify()) {
+              Json::ack( $action);
+
+            } else { Json::nak( sprintf( 'fail open - %s', $action)); }
+
+          } else { Json::nak( sprintf( 'fail - %s', $action)); }
+
+        } else { Json::nak( sprintf( 'missing param %s', $action)); }
+
+      } else { Json::nak( sprintf( 'invalid type ($s) - %s', $email_type, $action)); }
+
+    }
+    else { parent::postHandler(); }
 
 	}
 

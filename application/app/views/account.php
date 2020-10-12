@@ -1,18 +1,17 @@
 <?php
-/**
+/*
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- * 		http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
- * */
+*/
 
 $account = $this->data->account;
 // sys::dump( $account);
 ?>
-<form method="POST" action="<?= strings::url( $this->route ) ?>" autocomplete="off">
+<form id="<?= $_form = strings::rand() ?>" method="POST" action="<?= strings::url( $this->route ) ?>" autocomplete="off">
 	<input type="hidden" name="action" value="save-account" />
 
 	<div class="form-group row">
@@ -91,11 +90,31 @@ $account = $this->data->account;
 
 				</div>
 
+				<div class="input-group-append">
+					<button type="button" class="btn input-group-text" disabled id="<?= $uid ?>-verify">
+						verify
+
+					</button>
+
+				</div>
+
 				<script>
 				$(document).ready( function() {
 					$('#<?= $uid ?>')
 					.attr('type','password')
-					.val('--------');
+					.val('--------')
+          .on( 'keyup', function(e) {
+            let _me = $(this);
+            if ( '' == _me.val()) {
+              $('#<?= $uid ?>-verify').prop( 'disabled', true);
+
+            }
+            else {
+              $('#<?= $uid ?>-verify').prop( 'disabled', false);
+
+            }
+
+          });
 
 				});
 				</script>
@@ -118,6 +137,47 @@ $account = $this->data->account;
 						$('.fa-eye', _me).removeClass('fa-eye').addClass('fa-eye-slash');
 
 					}
+
+				});
+
+				$('#<?= $uid ?>-verify').on( 'click', function( e) {
+					let _me = $(this);
+					let fld = $('#<?= $uid ?>');
+          let _form = $('#<?= $_form ?>');
+          let _data = _form.serializeFormJSON();
+
+          // console.log( _data);
+          let pkt = {
+            action : 'verify',
+            email_type : _data.type,
+            email_server : _data.server,
+            email_account : _data.username,
+            email_password : _data.password,
+
+          };
+
+          // console.log( pkt);
+          // return;
+
+          ( _ => {
+            _.post({
+              url : _.url('<?= $this->route ?>'),
+              data : pkt,
+
+            }).then( d => {
+              if ( 'ack' == d.response) {
+                _me.parent().append('<div class="input-group-text"><i class="fa fa-check text-success"></i></div>');
+                _me.remove();
+
+              }
+              else {
+                _.growl( d);
+
+              }
+
+            });
+
+          }) (_brayworth_);
 
 				});
 

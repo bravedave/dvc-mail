@@ -33,7 +33,17 @@ class folders {
 
 	}
 
-	static function map( $fldr, $fldrs, $level) {
+  static function changeDefaultsToExchange() {
+    // for exchange server
+
+    self::$delimiter = '/';
+    self::$default_folders['Trash'] = 'Deleted Items';
+    self::$default_folders['Sent'] = 'Sent Items';
+    self::$type = 'exchange';
+
+  }
+
+  static function map( $fldr, $fldrs, $level) {
 		foreach ( $fldrs as $f) {
 			if ( $f->id->Id == $fldr->parent_id) {
 				if ( $level > 6)
