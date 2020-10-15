@@ -47,18 +47,28 @@ class controller extends \Controller {
 				if ( \is_dir( $dir)) {
 
 					// \sys::logger( sprintf('<%s> %s', $dir, __METHOD__));
-
-					$iterator = new \Globiterator( $dir . DIRECTORY_SEPARATOR . '*');
+          $it = new \FilesystemIterator($dir);
 					$a = [];
-					foreach ( $iterator as $attachment) {
-						// \sys::logger( sprintf('<%s> %s', $attachment->getFilename(), __METHOD__));
+          foreach ($it as $attachment) {
 						$a[] = (object)[
 							'name' => $attachment->getFilename(),
 							'size' => self::formatBytes( $attachment->getSize(), 0)
 
 						];
 
-					}
+          }
+
+					// $iterator = new \Globiterator( $dir . DIRECTORY_SEPARATOR . '*');
+					// $a = [];
+					// foreach ( $iterator as $attachment) {
+					// 	// \sys::logger( sprintf('<%s> %s', $attachment->getFilename(), __METHOD__));
+					// 	$a[] = (object)[
+					// 		'name' => $attachment->getFilename(),
+					// 		'size' => self::formatBytes( $attachment->getSize(), 0)
+
+					// 	];
+
+					// }
 
 					Json::ack( $action)
 						->add( 'attachments', $a);
@@ -686,9 +696,6 @@ class controller extends \Controller {
 
 	protected function page( $params) {
 
-    if ( !isset( $params['latescripts'])) $params['latescripts'] = [];
-    $params['latescripts'][] = sprintf( '<script type="text/javascript" src="%s" defer></script>', strings::url( 'js/tinymce5/'));
-
 		$p = parent::page( $params);
 		if (  isset( $params['charset'])) {
 			if (  $params['charset']) {
@@ -697,7 +704,22 @@ class controller extends \Controller {
 
 			}
 
-		}
+    }
+
+    $mceLoaded = false;
+    foreach ($p->latescripts as $script) {
+      if ( false !== strstr( $script, 'tinymce')) {
+        $mceLoaded = true;
+        break;
+
+      }
+
+    }
+
+    if ( !$mceLoaded) {
+      $p->latescripts[] = sprintf( '<script type="text/javascript" src="%s" defer></script>', strings::url( 'js/tinymce5/'));
+
+    }
 
 		return ( $p);
 
