@@ -191,29 +191,7 @@
         tinymce.init(options);
 
       })
-      .on( 'shown.bs.modal', e => {
-        if ( !!window.tinymce) {
-          $('#<?= $_modal ?>').trigger('init-tinymce');
-
-        }
-        else {
-          ( () => {
-            let script = document.createElement( 'script');
-            script.type = 'text/javascript';
-            script.src = _.url("/js/tinymce5/");
-            script.addEventListener('load', e => {
-              console.log( 'tinymce dynamically loaded ...')
-              $('#<?= $_modal ?>').trigger('init-tinymce');
-
-            });
-
-            document.body.appendChild(script);
-
-          })();
-
-        }
-
-      })
+      .on( 'shown.bs.modal', e => _.tiny().then( () => $('#<?= $_modal ?>').trigger('init-tinymce')))
       .on( 'hide.bs.modal', e => $('#<?= $_form ?>').trigger('cleanup'));
 
       $('button[cc]', '#<?= $_form ?>').on( 'click', function( e) {
