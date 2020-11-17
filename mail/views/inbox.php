@@ -612,7 +612,8 @@ $(document).on( 'mail-messages-reload', function( e, folder) {
 
 $(document).data('default_folders', <?= json_encode( $this->data->default_folders) ?>);
 
-(function() {	// process mail messages into a list
+( _ => {
+  // process mail messages into a list
 	let seed = String( parseInt( Math.random() * 1000000));
 	let seedI = 0;
 
@@ -645,7 +646,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let _time = $('[data-role="time"]', _document).text();
 		if ( '' != String( _time)) {
 			if ( '' != String( _to)) {
-				let m = _brayworth_.moment( _time);
+				let m = _.dayjs( _time);
 				if ( m.isValid()) {
 					_time = m.format( 'll');
 
@@ -750,14 +751,14 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		}
 
-		if ( _brayworth_.email) {
-			( (ec) => {
+		if ( !!_.email && !!_.email.activate) {
+      _.email.activate( j).then( ec => {
 				if ( 'function' == typeof ec.onActivate) {
 					ec.onActivate();
 
 				}
 
-			}) (_brayworth_.email.activate( j));
+      });
 
 		}
 		else {
@@ -779,16 +780,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		}
 		// console.log( _to, _time, _body);
-
-		return;
-
-		let wrap = $('<div></div>');
-		if ( $(this).data('role') == 'reply-fast')
-			wrap.append('<p>' + $('#reply-fast-response').val() + '</p>');
-
-		$('[data-role="attachment-control"],  [data-role="tag-control"]', _wrap).each(function() {
-			$(this).remove();
-		});
 
 	};
 
@@ -2072,7 +2063,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 	});
 
-})();
+}) (_brayworth_);
+
 
 $(document).on( 'mail-set-view', function() {
 	let view = $(document).data('view');
