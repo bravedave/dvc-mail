@@ -670,7 +670,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		// console.log( _frm_data);
 
 		let j = {
-			message : _brayworth_.browser.isMobileDevice ? '' : '<br /><br />' + _wrap[0].outerHTML,
+			message : _.browser.isMobileDevice ? '' : '<br /><br />' + _wrap[0].outerHTML,
 			original : _wrap[0].outerHTML,
 			subject : _subject,
 			user_id : _frm_data.user_id
@@ -689,7 +689,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			if ( _to != undefined) {
 				let em = String( _to).getEmail();
-				if ( '' != em && em != _brayworth_.currentUser.email) {
+				if ( '' != em && em != _.currentUser.email) {
 					j.to = _to;
 
 				}
@@ -704,7 +704,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let _data = _el.data();
 
 					let em = String( _data.email).getEmail();
-					if ( '' != em && em != _brayworth_.currentUser.email && _to != em && _gots.indexOf( em) < 0) {
+					if ( '' != em && em != _.currentUser.email && _to != em && _gots.indexOf( em) < 0) {
 						// console.log( _data);
 						_gots.push( em);
 						_ccs.push( _data.email);
@@ -718,7 +718,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let _data = _el.data();
 
 					let em = String( _data.email).getEmail();
-					if ( '' != em && em != _brayworth_.currentUser.email && _to != em && _gots.indexOf( em) < 0) {
+					if ( '' != em && em != _.currentUser.email && _to != em && _gots.indexOf( em) < 0) {
 						// console.log( _data);
 						_gots.push( em);
 						_ccs.push( _data.email);
@@ -772,7 +772,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			// })( j.original);
 
 			console.table( j);
-			$('.modal-header', _brayworth_.modal({
+			$('.modal-header', _.modal({
 				title:'alert',
 				text:'no email program to run ..'
 
@@ -796,9 +796,9 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		let received = $('<div class="col-3 pl-0 text-right text-truncate small"></div>');
 		let subject = $('<div class="col-9 text-truncate" subject></div>').html( msg.subject).attr( 'title', msg.subject);
 
-		let time = _brayworth_.moment( msg.received);
-		let stime = time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD') ? time.format('LT') : time.format('l')
-		// console.log( time.format( 'YYYY-MM-DD') == _brayworth_.moment().format( 'YYYY-MM-DD'), stime);
+		let time = _.dayjs( msg.received);
+		let stime = time.format( 'YYYY-MM-DD') == _.dayjs().format( 'YYYY-MM-DD') ? time.format('LT') : time.format('l')
+		// console.log( time.format( 'YYYY-MM-DD') == _.dayjs().format( 'YYYY-MM-DD'), stime);
 		received.html( stime);
 
 		let rowID = 'uid_' + String( seed) + '_' + String(seed * seedI++);
@@ -879,7 +879,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			}
 
-			let url = _brayworth_.url('<?= $this->route ?>/view?' + params.join('&'));
+			let url = _.url('<?= $this->route ?>/view?' + params.join('&'));
 			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="height: 100%;" />');
 			frame.on( 'load', function( e) {
 				// console.log( this, e);
@@ -1048,7 +1048,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
-					if ( _brayworth_.browser.isMobileDevice) return;
+					if ( _.browser.isMobileDevice) return;
 					let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all"></i></button>');
 					btn
 					.addClass( params.btnClass)
@@ -1069,7 +1069,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				(function() {
-					if ( _brayworth_.browser.isMobileDevice) return;
+					if ( _.browser.isMobileDevice) return;
 
 					let btn = $('<button type="button"><i class="fa fa-external-link"></i></button>');
 
@@ -1092,7 +1092,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
-					if ( _brayworth_.browser.isMobileDevice) return;
+					if ( _.browser.isMobileDevice) return;
 
 					let btn = $('<button type="button"><i class="fa fa-print"></i></button>');
 					btn
@@ -1165,7 +1165,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				btns.forEach( element => { element.appendTo( params.toolbar); });
 
 				(function( toolbar) {
-					if ( _brayworth_.browser.isMobileDevice) {
+					if ( _.browser.isMobileDevice) {
 						let row = $('<div class="row"></div>').prependTo( '#<?= $uidViewer ?>');
 						$('<div class="col bg-secondary"></div>').appendTo( row).append( toolbar);
 
@@ -1181,7 +1181,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				// let h = params.toolbar.height();
 				// let f = $('body>footer');
 				// if ( f.length > 0) h += f.height();
-				if ( _brayworth_.browser.isMobileDevice) {
+				if ( _.browser.isMobileDevice) {
 					$('div[message] img', _frame.contentDocument).each( function( i, el) {
 						let _el = $(el);
 						let width = String( _el.css('width')).replace(/px$/,'');
@@ -1265,7 +1265,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 							let _time = $('[data-role="time"]', _document).text();
 							if ( '' != String( _time)) {
 								if ( '' != String( _to)) {
-									let m = _brayworth_.moment( _time);
+									let m = _.dayjs( _time);
 									if ( m.isValid()) {
 										_time = m.format( 'll');
 
@@ -1397,7 +1397,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			*	find the next location to insert
 			*	based on time
 			*/
-			let time = _brayworth_.moment( msg.received);
+			let time = _.dayjs( msg.received);
 			let nextMsg = false;
 			$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
 				// $(el).data('seen', false);
@@ -1428,11 +1428,11 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				e.stopPropagation();e.preventDefault();
 
-				_brayworth_.hideContexts();
+				_.hideContexts();
 
 				let _row = $(this);
 				let _data = _row.data();
-				let _context = _brayworth_.context();
+				let _context = _.context();
 				let defaultFolders = $(document).data('default_folders');
 
 				if ( 'yes' == String( _data.read)) {
@@ -1533,8 +1533,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				_me.addClass( 'font-italic');
 
 				// console.log( data);	// data from the form
-				_brayworth_.post({
-					url : _brayworth_.url('<?= $this->route ?>'),
+				_.post({
+					url : _.url('<?= $this->route ?>'),
 					data : data,	//
 
 				}).then( function( d) {
@@ -1551,7 +1551,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 					}
 					else {
-						_brayworth_.growl( d);
+						_.growl( d);
 
 					}
 
@@ -1571,8 +1571,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				data.action = 'mark-seen';
 
 
-				_brayworth_.post({
-					url : _brayworth_.url('<?= $this->route ?>'),
+				_.post({
+					url : _.url('<?= $this->route ?>'),
 					data : data,
 
 				}).then( function( d) {
@@ -1582,7 +1582,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 					}
 					else {
-						_brayworth_.growl( d);
+						_.growl( d);
 
 					}
 
@@ -1600,8 +1600,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				data.action = 'mark-unseen';
 
 
-				_brayworth_.post({
-					url : _brayworth_.url('<?= $this->route ?>'),
+				_.post({
+					url : _.url('<?= $this->route ?>'),
 					data : data,
 
 				}).then( function( d) {
@@ -1611,7 +1611,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 					}
 					else {
-						_brayworth_.growl( d);
+						_.growl( d);
 
 					}
 
@@ -1680,8 +1680,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		// console.log( data);
 
-		_brayworth_.post({
-			url : _brayworth_.url('<?= $this->route ?>'),
+		_.post({
+			url : _.url('<?= $this->route ?>'),
 			data : data,	// data from the form
 
 		}).then( function( d) {
@@ -1720,7 +1720,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			}
 			else {
-				_brayworth_.growl( d);
+				_.growl( d);
 				// console.log( d);
 				// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 				$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
@@ -1752,7 +1752,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1"></h6>').html( location).appendTo( primary);
 
 			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="fa fa-fw fa-search"></i></button>')
-			.attr( 'title', _brayworth_.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
+			.attr( 'title', _.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.appendTo( primary)
 			.on('click', function(e) {
 				if ( e.ctrlKey) {
@@ -1865,8 +1865,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				// DONE : Submit search
 				// console.log( data);
-				_brayworth_.post({
-					url : _brayworth_.url('<?= $this->route ?>'),
+				_.post({
+					url : _.url('<?= $this->route ?>'),
 					data : data,	// data from the form
 
 				}).then( function( d) {
@@ -1889,7 +1889,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 					}
 					else {
-						_brayworth_.growl( d);
+						_.growl( d);
 						// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 						$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
 
@@ -2019,8 +2019,8 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			// console.table( data);
 
-			_brayworth_.post({
-				url : _brayworth_.url('<?= $this->route ?>'),
+			_.post({
+				url : _.url('<?= $this->route ?>'),
 				data : data,	// data from the form
 
 			}).then( function( d) {
@@ -2047,7 +2047,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				}
 				else {
-					_brayworth_.growl( d);
+					_.growl( d);
 					// 	// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
 					// 	$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
 

@@ -678,7 +678,6 @@ class controller extends \Controller {
 
 			];
 
-			\dvc\pages\_page::$momentJS = true;
 			$this->render([
 				'title' => $this->title = $this->label,
 				'scripts' => [
