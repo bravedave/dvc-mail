@@ -135,7 +135,26 @@ class RawMessage {
 
 		}
 		else {
-			$data = quoted_printable_decode( $data);
+
+      $encoding = mb_detect_encoding($data);
+      if ( $encoding) {
+        if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
+          sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
+
+        }
+        if ( strtolower( $encoding) != 'utf-8') {
+          $data = mb_convert_encoding( $data, 'utf-8', $encoding);
+
+        }
+        $data = mb_convert_encoding( $data, 'html-entities', 'utf-8');
+
+      }
+      else {
+        // this probably should just be raw ..
+        $data = quoted_printable_decode( $data);
+
+      }
+
 			if ( $debug) sys::logger( sprintf('other encoding : %s (%d)', $p->encoding, \strlen($data), __METHOD__));
 			// \sys::dump( $data);
 			// if ( $debug) sys::logger( sprintf('other encoding : %s : %s', $p->encoding, print_r( $p, true), __METHOD__));
