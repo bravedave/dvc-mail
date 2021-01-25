@@ -14,7 +14,7 @@
 			<a id="<?= $uidFolderHide = strings::rand() ?>"
 				class="btn btn-outline-dark rounded-circle"
 				href="#">
-				<i class="fa fa-bars"></i>
+				<i class="bi bi-list"></i>
 
 			</a>
 
@@ -39,7 +39,7 @@
 			<button id="<?= $uid = strings::rand() ?>"
 				class="btn btn-light rounded-circle""
 				href="#">
-				<i class="fa fa-envelope"></i>
+				<i class="bi bi-envelope"></i>
 
 			</button>
 

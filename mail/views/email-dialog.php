@@ -106,7 +106,7 @@
 
             </div>
 
-						<button type="submit" class="btn btn-outline-primary">send <i class="fa fa-paper-plane-o"></i></button>
+						<button type="submit" class="btn btn-outline-primary">send <i class="bi bi-cursor"></i></button>
 
 					</div>
 
@@ -266,11 +266,11 @@
         let _data = _form.serializeFormJSON();
         console.log( _data);
 
-        $('i.fa-paper-plane-o', this)
-        .removeClass( 'fa-paper-plane-o')
-        .addClass('fa-spinner fa-spin');
+        $('i.bi-cursor', this)
+        .removeClass( 'bi-cursor')
+        .addClass('spinner-grow spinner-grow-sm');
 
-          _form.data( 'status', 'sending');
+        _form.data( 'status', 'sending');
 
         _.post({
           url : _.url('<?= $this->route ?>'),

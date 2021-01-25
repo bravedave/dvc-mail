@@ -10,10 +10,9 @@
 
 	$keyLastFolders = sprintf('%s-lastfolders', $this->route);
 	$activeMessage = 'open-message';
-	$unseen = '<span class="pull-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
-	// $unseen = '<i class="fa fa-circle text-primary" style="margin-left: -14px;" unseen></i>';
+	$unseen = '<span class="float-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
 
-	$answered = '<i class="fa fa-reply pull-right text-muted" title="you have replied to this message" answered></i>';
+	$answered = '<i class="bi bi-reply float-right text-muted" title="you have replied to this message" answered></i>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -251,7 +250,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 						let folderState = localStorage.getItem('mailFolderState');
 						folderState = !!folderState ? JSON.parse( folderState) : {};
 
-						let caret = $('<i class="fa fa-caret-left fa-fw pointer pull-right"></i>');
+						let caret = $('<i class="bi bi-caret-left pointer float-right"></i>');
 						caret.on( 'click', function( e) {
 							e.stopPropagation();
 							// console.log( 'ckic');
@@ -260,14 +259,14 @@ $(document).on( 'mail-clear-reloader', function( e) {
 							let sublist = _me.siblings('ul');
 							if ( sublist.length > 0) {
 								// console.log( sublist);
-								if ( _me.hasClass('fa-caret-left')) {
-									_me.removeClass('fa-caret-left').addClass( 'fa-caret-down');
+								if ( _me.hasClass('bi-caret-left')) {
+									_me.removeClass('bi-caret-left').addClass( 'bi-caret-down');
 									sublist.removeClass( 'd-none');
 									folderState[fldr.fullname] = true;
 
 								}
 								else {
-									_me.removeClass('fa-caret-down').addClass( 'fa-caret-left');
+									_me.removeClass('bi-caret-down').addClass( 'bi-caret-left');
 									sublist.addClass( 'd-none');
 									folderState[fldr.fullname] = false;
 
@@ -283,7 +282,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 						_ul = $('<ul class="list-unstyled pl-2" />').appendTo( keys[realPath]);
 						if ( !!folderState[fldr.fullname]) {
-							caret.removeClass('fa-caret-left').addClass( 'fa-caret-down');
+							caret.removeClass('bi-caret-left').addClass( 'bi-caret-down');
 
 						}
 						else {
@@ -424,7 +423,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 				};
 
 				if ( _data.folder == docData.default_folders.Trash) {
-					_context.append( $('<a href="#"><i class="fa fa-trash"></i>empty trash</a>').on( 'click', function( e) {
+					_context.append( $('<a href="#"><i class="bi bi-trash"></i>empty trash</a>').on( 'click', function( e) {
 						e.preventDefault();
 
 						let frm = $('#<?= $uidFrm ?>');
@@ -454,7 +453,7 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 				}
 				else if ( !fldrCheck.default( _data.folder)) {
-					_context.append( $('<a href="#"><i class="fa fa-trash"></i>delete folder</a>').on( 'click', function( e) {
+					_context.append( $('<a href="#"><i class="bi bi-trash"></i>delete folder</a>').on( 'click', function( e) {
 						e.preventDefault();
 
 						let frm = $('#<?= $uidFrm ?>');
@@ -532,16 +531,16 @@ $(document).on( 'mail-clear-reloader', function( e) {
 		};
 
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 d-inline-flex mb-1">folders</h6></div></div>');
-		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="fa fa-refresh"></i></button>')
+		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="bi bi-arrow-repeat"></i></button>')
 		.on('click', function( e) {
-			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+			$('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm');
 			$(document).trigger( 'mail-folderlist-reload');
 
 		})
 		.appendTo( '#<?= $uidFolders ?> > div > div.col');
 
 		$('#<?= $uidFolders ?>').on( 'spin', function( e) {
-			$('i.fa-refresh', this).removeClass('fa-refresh').addClass('fa-spinner fa-spin');
+			$('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm');
 
 		});
 
@@ -810,7 +809,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		.data('read', msg.seen)
 		.data('received', time.format( 'YYYYMMDDHHmmss'));
 
-		$('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="fa fa-trash mt-2"></i></div>').appendTo( row);
+		$('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="bi bi-trash mt-2"></i></div>').appendTo( row);
 		let cell = $('<div class="col" message-control></div>').appendTo( row);
 
 		$('<div class="row"></div>').append( from).appendTo( cell);
@@ -924,7 +923,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				( function() {
 					if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
-						let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="fa fa-trash"></i></button>');
+						let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="bi bi-trash"></i></button>');
 						btn
 						.attr('title', 'move to '+defaultFolders.Trash)
 						.addClass( params.btnClass)
@@ -958,7 +957,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
 					// console.log( key, lastFolders);
 					if ( !!lastFolders) {
-						let btn = $('<button type="button" data-role="move"><i class="fa fa-flip-horizontal fa-share-square-o"></i></button>');
+						let btn = $('<button type="button" data-role="move"><i class="bi bi-folder-symlink"></i></button>');
 						btn
 						.attr('title', 'move ')
 						.addClass( params.btnClass)
@@ -1038,7 +1037,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
-					let btn = $('<button type="button" data-role="reply"><i class="fa fa-mail-reply"></i></button>');
+					let btn = $('<button type="button" data-role="reply"><i class="bi bi-reply"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1049,7 +1048,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				( function() {
 					if ( _.browser.isMobileDevice) return;
-					let btn = $('<button type="button" data-role="reply-all"><i class="fa fa-mail-reply-all"></i></button>');
+					let btn = $('<button type="button" data-role="reply-all"><i class="bi bi-reply-all"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1059,7 +1058,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				})();
 
 				( function() {
-					let btn = $('<button type="button" data-role="forward"><i class="fa fa-mail-forward"></i></button>');
+					let btn = $('<button type="button" data-role="forward"><i class="bi bi-forward"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1071,7 +1070,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				(function() {
 					if ( _.browser.isMobileDevice) return;
 
-					let btn = $('<button type="button"><i class="fa fa-external-link"></i></button>');
+					let btn = $('<button type="button"><i class="bi bi-box-arrow-up-right"></i></button>');
 
 					btn
 					.attr('title', 'pop out')
@@ -1094,7 +1093,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				( function() {
 					if ( _.browser.isMobileDevice) return;
 
-					let btn = $('<button type="button"><i class="fa fa-print"></i></button>');
+					let btn = $('<button type="button"><i class="bi bi-print"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
@@ -1141,7 +1140,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				let imgs = $('img[data-safe-src]', _frame.contentDocument);
 				if ( imgs.length > 0) {
-					let btn = $('<button type="button"><i class="fa fa-file-image-o"></i></button>');
+					let btn = $('<button type="button"><i class="bi bi-file-image"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
@@ -1249,7 +1248,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 						ta.attr( 'placeholder', 'quick reply not enabled yet');
 
-						let btn = $('<button type="submit" class="btn btn-light btn-sm position-absolute rounded-circle" style="top: -1.2rem; right: 27px;"><i class="fa fa-paper-plane-o"></i></button>');
+						let btn = $('<button type="submit" class="btn btn-light btn-sm position-absolute rounded-circle" style="top: -1.2rem; right: 27px;"><i class="bi bi-cursor"></i></button>');
 						form.on( 'submit', function( e) {
 
 							let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;"></div>');
@@ -1459,7 +1458,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				}
 
 				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-					_context.append( $('<a href="#"><i class="fa fa-trash"></i>move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
+					_context.append( $('<a href="#"><i class="bi bi-trash"></i>move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
 							e.stopPropagation();e.preventDefault();
 
 							_row.trigger('delete');
@@ -1527,7 +1526,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 				// console.log( _data);
 
-				let ctrl = $('<i class="fa fa-spin fa-spinner pull-right"></i>');
+				let ctrl = $('<i class="spinner-grow spinner-grow-sm float-right"></i>');
 				ctrl.appendTo( $('[from]', _me));
 
 				_me.addClass( 'font-italic');
@@ -1673,9 +1672,9 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 	$(document).on('mail-messages-loader', (e, data) => {
 
-		$('i.fa-refresh', '#<?= $uidMsgs ?>')
-			.removeClass('fa-refresh')
-			.addClass('fa-spinner fa-spin');
+		$('i.bi-arrow-repeat', '#<?= $uidMsgs ?>')
+			.removeClass('bi-arrow-repeat')
+			.addClass('spinner-grow spinner-grow-sm');
 		$(document).trigger( 'mail-clear-reloader');
 
 		// console.log( data);
@@ -1702,7 +1701,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				if ( fldrs.data == fldrs.current) {
 					if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
 						_list_messages( d.messages);
-						$('i.fa-spinner', '#<?= $uidMsgs ?>').addClass('fa-refresh').removeClass('fa-spinner fa-spin');
+						$('i.spinner-grow', '#<?= $uidMsgs ?>').addClass('bi-arrow-repeat').removeClass('spinner-grow spinner-grow-sm');
 
 						if ( 0 == data.page) {
 							$(document).trigger( 'mail-clear-reloader');
@@ -1721,9 +1720,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			}
 			else {
 				_.growl( d);
-				// console.log( d);
-				// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
-				$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
+				$('i.spinner-grow', '#<?= $uidMsgs ?>').removeClass('spinner-grow spinner-grow-sm').addClass('bi-arrow-repeat');
 
 			}
 
@@ -1751,7 +1748,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1"></h6>').html( location).appendTo( primary);
 
-			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="fa fa-fw fa-search"></i></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="bi bi-search"></i></button>')
 			.attr( 'title', _.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.appendTo( primary)
 			.on('click', function(e) {
@@ -1775,7 +1772,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="fa fa-fw fa-angle-left" title="previous page"></i></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="bi bi-chevron-left" title="previous page"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
@@ -1796,7 +1793,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				$('<span class="d-inline-flex small pt-1" />').html(page).appendTo( primary);
 
 			}
-			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="fa fa-fw fa-angle-right" title="next page"></i></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="bi bi-chevron-right" title="next page"></i></button>')
 			.appendTo( primary)
 			.on('click', (e) => {
 				let _page = $('input[name="page"]','#<?= $uidFrm ?>');
@@ -1817,7 +1814,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="fa fa-fw fa-spinner fa-spin"></i></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="spinner-grow spinner-grow-sm"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				if ( !!folder)
@@ -1858,7 +1855,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
-				$('button[search-activate]', search).html('').append('<i class="fa fa-spinner fa-spin"></i>').prop( 'disabled', true);
+				$('button[search-activate]', search).html('').append('<i class="spinner-grow spinner-grow-sm"></i>').prop( 'disabled', true);
 				fldSearch.prop( 'disabled', true);
 
 				if ( !!folder) { data.folder = folder; }
@@ -1876,7 +1873,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 						// DONE : Clear message list before loading search results
 						let heading = $('<div class="row bg-light text-muted"></div>');
 						let col = $('<div class="col"></div>').appendTo( heading);
-            let close = $('<i class="fa fa-times pull-right pointer"></i>');
+            let close = $('<i class="bi bi-x float-right pointer"></i>');
             close.on( 'click', e => $(document).trigger('mail-messages'));
 
 						let h = $('<h6 class="text-truncate pt-1"></h6>')
@@ -1890,8 +1887,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					}
 					else {
 						_.growl( d);
-						// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
-						$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
+						$('i.spinner-grow', '#<?= $uidMsgs ?>').removeClass('spinner-grow spinner-grow-sm').addClass('bi-arrow-repeat');
 
 					}
 
@@ -1901,7 +1897,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 			;
 
 			let iga = $('<div class="input-group-append"></div>').appendTo( search);
-			$('<button type="button" class="btn btn-outline-secondary px-2" search-activate><i class="fa fa-reply fa-flip-vertical"></i></button>')
+			$('<button type="button" class="btn btn-outline-secondary px-2" search-activate><i class="bi bi-arrow-return-left"></i></button>')
 			.on( 'click', function( e) { fldSearch.trigger( 'search'); })
 			.appendTo( iga);
 
@@ -1968,14 +1964,14 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 		$('button', _form)
 		.html('')
-		.append('<i class="fa fa-spinner fa-spin"></i>')
+		.append('<i class="spinner-grow spinner-grow-sm"></i>')
 		.prop( 'disabled', true);
 
 		$( 'input[type="search"], input[type="data"]', _form).prop( 'disabled', true);
 
 		let heading = $('<div class="row bg-light text-muted"></div>');
 		let col = $('<div class="col"></div>').appendTo( heading);
-    let close = $('<i class="fa fa-times pull-right pointer"></i>');
+    let close = $('<i class="bi bi-x float-right pointer"></i>');
     close.on( 'click', function( e) {
       e.stopPropagation();e.preventDefault();
       $(document).trigger( 'mail-default-view');
@@ -1990,7 +1986,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 		// /**
 		//  * button to return us to the default mail view
 		//  * */
-		// $('<button type="button" class="btn btn-light pull-right pr-0" style="margin-top: -1rem;">&times;</button>')
+		// $('<button type="button" class="btn btn-light float-right pr-0" style="margin-top: -1rem;">&times;</button>')
 		// 	.on( 'click', function( e) {
 		// 		$(document).trigger( 'mail-default-view');
 
@@ -2011,7 +2007,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 			let data = $.extend( _el.data(), gData);
 
-			let spinner = $('<i class="fa fa-fw fa-spinner fa-spin"></i>')
+			let spinner = $('<i class="spinner-grow spinner-grow-sm"></i>')
 			spinner.insertAfter( this);
 			_el.addClass( 'd-none');
 
@@ -2039,7 +2035,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 					});
 
 					spinner.remove();
-					let badge = $('<div class="badge badge-pill badge-secondary pull-right"></div>').html( d.messages.length);
+					let badge = $('<div class="badge badge-pill badge-secondary float-right"></div>').html( d.messages.length);
 
 					fc
 					.removeClass('form-check')
@@ -2048,8 +2044,6 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				}
 				else {
 					_.growl( d);
-					// 	// $('i.fa-refresh', '#<?= $uidMsgs ?>').removeClass('fa-spin');
-					// 	$('i.fa-spinner', '#<?= $uidMsgs ?>').removeClass('fa-spinner fa-spin').addClass('fa-refresh');
 
 				}
 
@@ -2287,7 +2281,7 @@ $('#<?= $uidViewer ?>').on('clear', function( e) {
 	.html('')
 	.removeData('message')
 	.removeData('uid')
-	.append('<div class="text-center pt-4 mt-4"><i class="fa fa-envelope-o fa-3x"></i></div>');
+	.append('<div class="text-center pt-4 mt-4" style="font-size: 8em;"><i class="bi bi-envelope"></i></div>');
 
 	$(document).trigger('mail-view-message-set-url', _brayworth_.url('<?= $this->route ?>'));
 

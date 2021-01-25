@@ -84,7 +84,7 @@ $account = $this->data->account;
 				<input class="form-control" name="password" autocomplete="new-password" id="<?= $uid ?>" />
 				<div class="input-group-append" id="<?= $uid ?>-control">
 					<div class="input-group-text">
-						<i class="fa fa-eye"></i>
+						<i class="bi bi-eye"></i>
 
 					</div>
 
@@ -129,12 +129,12 @@ $account = $this->data->account;
 
 					if ( 'text' == fld.attr( 'type')) {
 						fld.attr( 'type', 'password');
-						$('.fa-eye-slash', _me).removeClass('fa-eye-slash').addClass('fa-eye');
+						$('.bi-eye-slash', _me).removeClass('bi-eye-slash').addClass('bi-eye');
 
 					}
 					else {
 						fld.attr( 'type', 'text');
-						$('.fa-eye', _me).removeClass('fa-eye').addClass('fa-eye-slash');
+						$('.bi-eye', _me).removeClass('bi-eye').addClass('bi-eye-slash');
 
 					}
 
@@ -166,7 +166,7 @@ $account = $this->data->account;
 
             }).then( d => {
               if ( 'ack' == d.response) {
-                _me.parent().append('<div class="input-group-text"><i class="fa fa-check text-success"></i></div>');
+                _me.parent().append('<div class="input-group-text"><i class="bi bi-check text-success"></i></div>');
                 _me.remove();
 
               }
@@ -228,7 +228,7 @@ $account = $this->data->account;
 				<input class="form-control" name="smtp_password" placeholder="smtp password" autocomplete="new-password" id="<?= $uid ?>" />
 				<div class="input-group-append" id="<?= $uid ?>-control">
 					<div class="input-group-text">
-						<i class="fa fa-eye"></i>
+						<i class="bi bi-eye"></i>
 
 					</div>
 
@@ -253,12 +253,12 @@ $account = $this->data->account;
 
 					if ( 'text' == fld.attr( 'type')) {
 						fld.attr( 'type', 'password');
-						$('.fa-eye-slash', _me).removeClass('fa-eye-slash').addClass('fa-eye');
+						$('.bi-eye-slash', _me).removeClass('bi-eye-slash').addClass('bi-eye');
 
 					}
 					else {
 						fld.attr( 'type', 'text');
-						$('.fa-eye', _me).removeClass('fa-eye').addClass('fa-eye-slash');
+						$('.bi-eye', _me).removeClass('bi-eye').addClass('bi-eye-slash');
 
 					}
 
