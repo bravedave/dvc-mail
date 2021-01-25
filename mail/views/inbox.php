@@ -909,7 +909,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				/* build a toolbar */
 				let btns = [];
 				( function() {
-					let btn = $('<button type="button" class="d-md-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 8 8"><path d="M3 0l-3 2.53 3 2.47v-2h5v-1h-5v-2z" fill="#fff" transform="translate(0 1)" /></svg></button>');
+					let btn = $('<button type="button" class="d-md-none"><i class="bi bi-arrow-left-short bi-2x"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {

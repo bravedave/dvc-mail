@@ -1,5 +1,8 @@
 #!/bin/bash
 
+php=php
+# if [[ -x /usr/bin/php8 ]]; then php=php8; fi
+
 # this script is for linux, perhaps MAC ? environments
 
 # this script will make the environment available on
@@ -8,5 +11,5 @@
 
 current_dir=`pwd`
 cd www
-php -S localhost:1080 _dvc.php
+$php -S localhost:1080 _dvc.php
 cd $current_dir
