@@ -1093,7 +1093,7 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 				( function() {
 					if ( _.browser.isMobileDevice) return;
 
-					let btn = $('<button type="button"><i class="bi bi-print"></i></button>');
+					let btn = $('<button type="button"><i class="bi bi-printer"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
