@@ -331,6 +331,7 @@ class message {
 
 					$img->removeAttribute('src');
 					$img->setAttribute('data-safe-src', $src);
+					$img->setAttribute('src', \dvc\icon::base64_data( \dvc\icon::image));
 
 					if ( $debug) \sys::logger( "processing .....$src" );
 					// $_attachments = [];

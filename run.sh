@@ -1,7 +1,7 @@
 #!/bin/bash
 
 php=php
-# if [[ -x /usr/bin/php8 ]]; then php=php8; fi
+if [[ -x /usr/bin/php8 ]]; then php=php8; fi
 
 # this script is for linux, perhaps MAC ? environments
 
