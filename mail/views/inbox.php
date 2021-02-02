@@ -166,46 +166,46 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 </div>
 <script>
-$(document).on( 'mail-change-user', function( e, id) {
-	$('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
-	$('input[name="page"]','<?= $uidFrm ?>').val( 0);
-
-	$(document)
-	.trigger('mail-messages')
-	.trigger('mail-folderlist')
-	.trigger('mail-view-message-list');
-
-	let frm = $('#<?= $uidFrm ?>');
-	let frmData = frm.serializeFormJSON();
-	frmData.action = 'get-default-folders';
-	_brayworth_.post({
-		url : _brayworth_.url('<?= $this->route ?>'),
-		data : frmData
-
-	}).then( function( d) {
-		if ( 'ack' == d.response) {
-			// console.log(d);
-			$(document).data('default_folders', d.data);
-
-		}
-
-	})
-
-});
-
-$(document).on( 'mail-clear-reloader', function( e) {
-	(function( i) {
-		if ( !!i) {
-			window.clearTimeout( i);
-			$(document).removeData( 'mail-messages-reloader');
-
-		}
-
-	})( $(document).data( 'mail-messages-reloader'));
-
-});
-
 (_ => {
+  $(document).on( 'mail-change-user', function( e, id) {
+    $('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
+    $('input[name="page"]','<?= $uidFrm ?>').val( 0);
+
+    $(document)
+    .trigger('mail-messages')
+    .trigger('mail-folderlist')
+    .trigger('mail-view-message-list');
+
+    let frm = $('#<?= $uidFrm ?>');
+    let frmData = frm.serializeFormJSON();
+    frmData.action = 'get-default-folders';
+    _.post({
+      url : _.url('<?= $this->route ?>'),
+      data : frmData
+
+    }).then( function( d) {
+      if ( 'ack' == d.response) {
+        // console.log(d);
+        $(document).data('default_folders', d.data);
+
+      }
+
+    })
+
+  });
+
+  $(document).on( 'mail-clear-reloader', function( e) {
+    (function( i) {
+      if ( !!i) {
+        window.clearTimeout( i);
+        $(document).removeData( 'mail-messages-reloader');
+
+      }
+
+    })( $(document).data( 'mail-messages-reloader'));
+
+  });
+
 	let _list = ( folders, cacheData) => {
 		// console.log( folders);
 
@@ -350,23 +350,27 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 				e.stopPropagation();e.preventDefault();
 
-				_brayworth_.hideContexts();
+				_.hideContexts();
 
 				let _me = $(this);
 				let _data = _me.data();
-				let _context = _brayworth_.context();
+				let _context = _.context();
 
 				// console.log( 'contextmenu');
 				_context.append( $('<a href="#">create subfolder</a>').on( 'click', function( e) {
 					e.preventDefault();
 
-					_brayworth_.textPrompt({
+					_.textPrompt({
 						title : 'folder name',
 						verbatim : 'create a new folder'
 
-					}).then( function( d) {
-						if ( /[^a-zA-Z0-9_]/.test(d)) {
-							_brayworth.growlError( 'invalid characters detected')
+					}).then( d => {
+						if ( /[^a-zA-Z0-9_ ]/.test(d)) {
+							_.ask.warning( {
+                title : 'warning',
+                text : 'invalid characters detected'
+
+              });
 							return;
 
 						}
@@ -385,12 +389,12 @@ $(document).on( 'mail-clear-reloader', function( e) {
 						// console.log( frmData);	// data from the form
 						$('#<?= $uidFolders ?>').trigger('spin');
 
-						_brayworth_.post({
-							url : _brayworth_.url('<?= $this->route ?>'),
+						_.post({
+							url : _.url('<?= $this->route ?>'),
 							data : frmData,
 
 						}).then( function( d) {
-							_brayworth_.growl( d);
+							_.growl( d);
 							$(document).trigger('mail-folderlist-reload');
 
 						});
@@ -433,12 +437,12 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 						$('#<?= $uidFolders ?>').trigger('spin');
 
-						_brayworth_.post({
-							url : _brayworth_.url('<?= $this->route ?>'),
+						_.post({
+							url : _.url('<?= $this->route ?>'),
 							data : frmData,
 
 						}).then( function( d) {
-							_brayworth_.growl( d);
+							_.growl( d);
 							$(document).trigger('mail-folderlist-reload');
 							if ( 'nak' == d.response) {
 								console.log( d);
@@ -463,12 +467,12 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 						$('#<?= $uidFolders ?>').trigger('spin');
 
-						_brayworth_.post({
-							url : _brayworth_.url('<?= $this->route ?>'),
+						_.post({
+							url : _.url('<?= $this->route ?>'),
 							data : frmData,
 
 						}).then( function( d) {
-							_brayworth_.growl( d);
+							_.growl( d);
 							$(document).trigger('mail-folderlist-reload');
 							if ( 'nak' == d.response) {
 								console.log( d);
@@ -594,24 +598,21 @@ $(document).on( 'mail-clear-reloader', function( e) {
 
 	});
 
-})( _brayworth_ );
+  $(document).on( 'mail-messages-reload', function( e, folder) {
+    let key = '<?= $this->route ?>-lastmessages-';
+    if ( 'undefined' != typeof folder) {
+      key += folder + '-';
 
-$(document).on( 'mail-messages-reload', function( e, folder) {
-	let key = '<?= $this->route ?>-lastmessages-';
-	if ( 'undefined' != typeof folder) {
-		key += folder + '-';
+    }
 
-	}
+    sessionStorage.removeItem( key);
 
-	sessionStorage.removeItem( key);
+    $(document).trigger( 'mail-messages', folder);
 
-	$(document).trigger( 'mail-messages', folder);
+  });
 
-});
+  $(document).data('default_folders', <?= json_encode( $this->data->default_folders) ?>);
 
-$(document).data('default_folders', <?= json_encode( $this->data->default_folders) ?>);
-
-( _ => {
   // process mail messages into a list
 	let seed = String( parseInt( Math.random() * 1000000));
 	let seedI = 0;
@@ -2057,339 +2058,335 @@ $(document).data('default_folders', <?= json_encode( $this->data->default_folder
 
 	});
 
+  $(document).on( 'mail-set-view', function() {
+    let view = $(document).data('view');
+    let focus = $(document).data('focus');
+
+    if ( 'search' == view) {
+      // console.log( 'search view');
+      $('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
+      $('#<?= $uidMsgs ?>').attr( 'class', 'd-none h-100');
+
+      $('#<?= $uidSearchAll ?>').attr( 'class', 'col-md-5 h-100');
+      $('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
+
+      $('input[type="search"]', '#<?= $uidSearchAll ?>').focus();
+      $('body').removeClass( 'hide-nav-bar');
+
+      $(document).trigger('resize-main-content-wrapper');
+
+    }
+    else if ( 'condensed' == view) {
+      $('#<?= $uidSearchAll ?>').attr( 'class', 'd-none');
+      $('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
+
+      if ('message-view' == focus) {
+        $('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
+        $('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-1');
+        $('body').addClass( 'hide-nav-bar');
+
+      }
+      else {
+        // message-list
+        $('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
+        $('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-1');
+        $('body').removeClass( 'hide-nav-bar');
+
+        $(document).trigger('resize-main-content-wrapper');
+
+      }
+
+    }
+    else if ( 'wide' == view) {
+      $('#<?= $uidSearchAll ?>').attr( 'class', 'd-none');
+      $('#<?= $uidFolders ?>').attr('class', 'd-none d-sm-block col-sm-3 col-md-2 h-100');
+
+      if ('message-view' == focus) {
+        $('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
+        $('#<?= $uidViewer ?>').attr( 'class', 'col-sm-9 col-md-7 px-1');
+        $('body').addClass( 'hide-nav-bar');
+
+      }
+      else {
+        // message-list
+        $('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
+        $('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
+        $('body').removeClass( 'hide-nav-bar');
+
+        $(document).trigger('resize-main-content-wrapper');
+
+      }
+
+    }
+
+  });
+
+  $(document).on( 'mail-view-state', function() {
+    console.table({
+      view : $(document).data('view'),
+      focus : $(document).data('focus'),
+      folders : $('#<?= $uidFolders ?>').attr('class'),
+      list : $('#<?= $uidMsgs ?>').attr('class'),
+      viewer : $('#<?= $uidViewer ?>').attr('class')
+
+    });
+
+  });
+
+  $(document).on( 'mail-default-view', function() {
+    let key = '<?= $this->route ?>-view';
+    let view = sessionStorage.getItem( key);
+
+    if ( !view) view = 'wide';
+    if ( ['condensed','wide'].indexOf(view) < 0) view = 'wide';
+
+    $(document).data('view', view);
+    $(document).trigger('mail-set-view');
+
+  });
+
+  $(document).on( 'mail-toggle-view', function() {
+    let view = $(document).data('view');
+    let key = '<?= $this->route ?>-view';
+
+    if ( 'condensed' == view) {
+      view = 'wide';
+      sessionStorage.setItem( key, view);
+    }
+    else if ( 'wide' == view) {
+      view = 'condensed';
+      sessionStorage.setItem( key, view);
+
+    }
+    else {
+      view = sessionStorage.getItem( key);
+      if ( !view) view = 'wide';
+      if ( ['condensed','wide'].indexOf(view) < 0) view = 'wide';
+
+    }
+
+    // console.log( key, $(document).data('view'), view);
+    $(document).data('view', view);
+    $(document).trigger('mail-set-view');
+
+  });
+
+  $(document).on( 'mail-view-message-list', function( e) {
+    $(document).data('focus', 'message-list');
+    $(document).trigger('mail-set-view');
+    // console.log('mail-view-message-list');
+
+  });
+
+  $(document).on( 'mail-view-message-set-url', function( e, url) {
+    if ( _.browser.isMobileDevice) {
+      if ( !!history.state) {
+        history.replaceState({ view : 'message'}, 'message', url);
+
+      }
+      else {
+        history.pushState({ view : 'message'}, 'message', url);
+
+      }
+
+    }
+
+  });
+
+  window.onpopstate = function( e) {
+    // console.log( e);
+
+    if ( !!e.state) {
+      if ( 'message' == e.state.view) {
+        $(document).trigger('mail-view-message');
+
+      }
+
+    }
+    else {
+      $(document).trigger('mail-view-message-list');
+
+    }
+
+    // else if ( Number( e.state.view) > 0) {
+    // 	$('body').trigger( 'load-application-viewer', e.state.view);
+
+    // }
+    // else {
+      // console.log( 'what about me ..', e.state);
+
+    // }
+
+  };
+
+  $(document).on( 'mail-info', function( e, func) {
+    _.post({
+      url : _.url('<?= $this->route ?>'),
+      data : {
+        action : 'get-info'
+      },
+
+    }).then( d => {
+      if ( 'function' == typeof func) func( d);
+
+    });
+
+  });
+
+  $(document).on( 'mail-view-message', function( e) {
+    $(document).data('focus', 'message-view');
+    $(document).trigger('mail-set-view');
+
+  });
+
+  $(document).on( 'mail-message-load-first', function() {
+    $('#<?= $uidMsgs ?> > div[uid]').first().trigger('view');
+
+  });
+
+  $(document).on( 'mail-message-load-next', function(e) {
+    let uid = $('#<?= $uidViewer ?>').data('next');
+    if ( 'undefined' != typeof uid) {
+      $('#<?= $uidViewer ?>').removeData('next').removeData('prev');
+      // console.log( 'mail-message-load-next - nid', nid);
+      $('> [uid="' + uid + '"]', '#<?= $uidMsgs ?>').trigger('view');
+
+    }
+    else {
+      $(document).trigger( 'mail-message-load-first');
+
+    }
+
+  });
+
+  $(document).on( 'mail-message-load-prev', function() {
+    let uid = $('#<?= $uidViewer ?>').data('prev');
+    if ( 'undefined' != typeof uid) {
+      $('#<?= $uidViewer ?>').removeData('next').removeData('prev');
+      // console.log( 'nid', nid);
+      $('> [uid="' + uid + '"]', '#<?= $uidMsgs ?>').trigger('view');
+
+    }
+    else {
+      $(document).trigger( 'mail-message-load-first');
+
+    }
+
+  });
+
+  $('#<?= $uidViewer ?>').on('clear', function( e) {
+    $(this)
+    .html('')
+    .removeData('message')
+    .removeData('uid')
+    .append('<div class="text-center pt-4 mt-4" style="font-size: 8em;"><i class="bi bi-envelope"></i></div>');
+
+    $(document).trigger('mail-view-message-set-url', _.url('<?= $this->route ?>'));
+
+    if ( !_.browser.isMobileDevice && 'yes' == $(document).data('autoloadnext')) {
+      $(document).trigger( 'mail-message-load-next');
+
+    }
+
+  });
+
+  if ( !_.browser.isMobileDevice) {
+    $(document).on('keydown', function( e) {
+      /**
+      *	arrow keys are only triggered by onkeydown, not onkeypress
+      *
+      *	keycodes are:
+      *		left = 37
+      *		up = 38
+      *		right = 39
+      *		down = 40
+      *		delete = 46
+      */
+
+      // console.log( e);
+
+      if ( 38 == e.keyCode) {
+
+        if ( $( 'body').hasClass('modal-open')) return;
+
+        e.stopPropagation();
+        $(document).trigger( 'mail-message-load-prev');
+
+      }
+      else if ( 40 == e.keyCode) {
+
+        if ( $( 'body').hasClass('modal-open')) return;
+
+        e.stopPropagation();
+        console.log( e.keyCode, 'mail-message-load-next');
+        $(document).trigger( 'mail-message-load-next');
+
+      }
+      else if ( 39 == e.keyCode) {
+
+        if ( $( 'body').hasClass('modal-open')) return;
+
+        e.stopPropagation();
+        $('iframe', '#<?= $uidViewer ?>').focus();
+
+      }
+      else if ( 46 == e.keyCode) {	// delete
+
+        if ( $( 'body').hasClass('modal-open')) return;
+
+        e.stopPropagation();
+        ( function( data) {
+
+          // console.log( data);
+          // return;
+
+          if ( 'undefined' != typeof data.uid) {
+            $('> [uid="'+data.uid+'"]', '#<?= $uidMsgs ?>').first().trigger('delete');
+
+          }
+
+        })( $('#<?= $uidViewer ?>').data());
+
+      }
+
+    });
+
+  }
+
+  $(document).on('mail-clear-viewer', function( e) {
+    $('#<?= $uidViewer ?>').trigger('clear');
+
+  });
+
+  $(document)
+  .data('route', '<?= $this->route ?>')
+  .data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
+
+  $(document).ready( function() {
+
+    $(document).trigger('resize-main-content-wrapper');
+
+    $('html, body, div[data-role="main-content-wrapper"] > .row, div[data-role="main-content-wrapper"] > .row > .col').addClass( 'h-100');
+    $('div[data-role="content"]').removeClass( 'pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
+
+    $(document)
+    .trigger('mail-messages')
+    .trigger('mail-folderlist');
+    // console.log('init');
+
+    $(document).trigger('mail-toggle-view')
+    // console.log('init-2');
+
+    $(document).trigger('mail-view-message-list');
+    // console.log('init-3');
+
+    $(document).trigger('mail-clear-viewer');
+
+    if ( !_.browser.isMobileDevice) $('#<?= $uidMsgs ?>').focus();
+
+    $(document).trigger('mail-load-complete');
+
+  });
+
 }) (_brayworth_);
-
-
-$(document).on( 'mail-set-view', function() {
-	let view = $(document).data('view');
-	let focus = $(document).data('focus');
-
-	if ( 'search' == view) {
-		// console.log( 'search view');
-		$('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
-		$('#<?= $uidMsgs ?>').attr( 'class', 'd-none h-100');
-
-		$('#<?= $uidSearchAll ?>').attr( 'class', 'col-md-5 h-100');
-		$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
-
-		$('input[type="search"]', '#<?= $uidSearchAll ?>').focus();
-		$('body').removeClass( 'hide-nav-bar');
-
-		$(document).trigger('resize-main-content-wrapper');
-
-	}
-	else if ( 'condensed' == view) {
-		$('#<?= $uidSearchAll ?>').attr( 'class', 'd-none');
-		$('#<?= $uidFolders ?>').attr('class', 'd-none h-100');
-
-		if ('message-view' == focus) {
-			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-md-9 px-1');
-			$('body').addClass( 'hide-nav-bar');
-
-		}
-		else {
-			// message-list
-			$('#<?= $uidMsgs ?>').attr( 'class', 'col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-9 px-1');
-			$('body').removeClass( 'hide-nav-bar');
-
-			$(document).trigger('resize-main-content-wrapper');
-
-		}
-
-	}
-	else if ( 'wide' == view) {
-		$('#<?= $uidSearchAll ?>').attr( 'class', 'd-none');
-		$('#<?= $uidFolders ?>').attr('class', 'd-none d-sm-block col-sm-3 col-md-2 h-100');
-
-		if ('message-view' == focus) {
-			$('#<?= $uidMsgs ?>').attr( 'class', 'd-none d-md-block col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'col-sm-9 col-md-7 px-1');
-			$('body').addClass( 'hide-nav-bar');
-
-		}
-		else {
-			// message-list
-			$('#<?= $uidMsgs ?>').attr( 'class', 'col-sm-9 col-md-3 border border-top-0 border-light h-100');
-			$('#<?= $uidViewer ?>').attr( 'class', 'd-none d-md-block col-md-7 px-1');
-			$('body').removeClass( 'hide-nav-bar');
-
-			$(document).trigger('resize-main-content-wrapper');
-
-		}
-
-	}
-
-});
-
-$(document).on( 'mail-view-state', function() {
-	console.table({
-		view : $(document).data('view'),
-		focus : $(document).data('focus'),
-		folders : $('#<?= $uidFolders ?>').attr('class'),
-		list : $('#<?= $uidMsgs ?>').attr('class'),
-		viewer : $('#<?= $uidViewer ?>').attr('class')
-
-	});
-
-});
-
-$(document).on( 'mail-default-view', function() {
-	let key = '<?= $this->route ?>-view';
-	let view = sessionStorage.getItem( key);
-
-	if ( !view) view = 'wide';
-	if ( ['condensed','wide'].indexOf(view) < 0) view = 'wide';
-
-	$(document).data('view', view);
-	$(document).trigger('mail-set-view');
-
-});
-
-$(document).on( 'mail-toggle-view', function() {
-	let view = $(document).data('view');
-	let key = '<?= $this->route ?>-view';
-
-	if ( 'condensed' == view) {
-		view = 'wide';
-		sessionStorage.setItem( key, view);
-	}
-	else if ( 'wide' == view) {
-		view = 'condensed';
-		sessionStorage.setItem( key, view);
-
-	}
-	else {
-		view = sessionStorage.getItem( key);
-		if ( !view) view = 'wide';
-		if ( ['condensed','wide'].indexOf(view) < 0) view = 'wide';
-
-	}
-
-	// console.log( key, $(document).data('view'), view);
-	$(document).data('view', view);
-	$(document).trigger('mail-set-view');
-
-});
-
-$(document).on( 'mail-view-message-list', function( e) {
-	$(document).data('focus', 'message-list');
-	$(document).trigger('mail-set-view');
-	// console.log('mail-view-message-list');
-
-});
-
-$(document).on( 'mail-view-message-set-url', function( e, url) {
-	if ( _brayworth_.browser.isMobileDevice) {
-		if ( !!history.state) {
-			history.replaceState({ view : 'message'}, 'message', url);
-
-		}
-		else {
-			history.pushState({ view : 'message'}, 'message', url);
-
-		}
-
-	}
-
-});
-
-window.onpopstate = function( e) {
-	// console.log( e);
-
-	if ( !!e.state) {
-		if ( 'message' == e.state.view) {
-			$(document).trigger('mail-view-message');
-
-		}
-
-	}
-	else {
-		$(document).trigger('mail-view-message-list');
-
-	}
-
-	// else if ( Number( e.state.view) > 0) {
-	// 	$('body').trigger( 'load-application-viewer', e.state.view);
-
-	// }
-	// else {
-		// console.log( 'what about me ..', e.state);
-
-	// }
-
-};
-
-$(document).on( 'mail-info', function( e, func) {
-	_brayworth_.post({
-		url : _brayworth_.url('<?= $this->route ?>'),
-		data : {
-			action : 'get-info'
-		},
-
-	}).then( function( d) {
-		if ( 'function' == typeof func) func( d);
-
-	});
-
-});
-
-$(document).on( 'mail-view-message', function( e) {
-	$(document).data('focus', 'message-view');
-	$(document).trigger('mail-set-view');
-
-});
-
-$(document).on( 'mail-message-load-first', function() {
-	$('#<?= $uidMsgs ?> > div[uid]').first().trigger('view');
-
-});
-
-$(document).on( 'mail-message-load-next', function(e) {
-	let uid = $('#<?= $uidViewer ?>').data('next');
-	if ( 'undefined' != typeof uid) {
-		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
-		// console.log( 'mail-message-load-next - nid', nid);
-		$('> [uid="' + uid + '"]', '#<?= $uidMsgs ?>').trigger('view');
-
-	}
-	else {
-		$(document).trigger( 'mail-message-load-first');
-
-	}
-
-});
-
-$(document).on( 'mail-message-load-prev', function() {
-	let uid = $('#<?= $uidViewer ?>').data('prev');
-	if ( 'undefined' != typeof uid) {
-		$('#<?= $uidViewer ?>').removeData('next').removeData('prev');
-		// console.log( 'nid', nid);
-		$('> [uid="' + uid + '"]', '#<?= $uidMsgs ?>').trigger('view');
-
-	}
-	else {
-		$(document).trigger( 'mail-message-load-first');
-
-	}
-
-});
-
-$('#<?= $uidViewer ?>').on('clear', function( e) {
-	$(this)
-	.html('')
-	.removeData('message')
-	.removeData('uid')
-	.append('<div class="text-center pt-4 mt-4" style="font-size: 8em;"><i class="bi bi-envelope"></i></div>');
-
-	$(document).trigger('mail-view-message-set-url', _brayworth_.url('<?= $this->route ?>'));
-
-	if ( !_brayworth_.browser.isMobileDevice && 'yes' == $(document).data('autoloadnext')) {
-		$(document).trigger( 'mail-message-load-next');
-
-	}
-
-});
-
-if ( !_brayworth_.browser.isMobileDevice) {
-	$(document).on('keydown', function( e) {
-		/**
-		*	arrow keys are only triggered by onkeydown, not onkeypress
-		*
-		*	keycodes are:
-		*		left = 37
-		*		up = 38
-		*		right = 39
-		*		down = 40
-		*		delete = 46
-		*/
-
-		// console.log( e);
-
-		if ( 38 == e.keyCode) {
-
-			if ( $( 'body').hasClass('modal-open')) return;
-
-			e.stopPropagation();
-			$(document).trigger( 'mail-message-load-prev');
-
-		}
-		else if ( 40 == e.keyCode) {
-
-			if ( $( 'body').hasClass('modal-open')) return;
-
-			e.stopPropagation();
-			console.log( e.keyCode, 'mail-message-load-next');
-			$(document).trigger( 'mail-message-load-next');
-
-		}
-		else if ( 39 == e.keyCode) {
-
-			if ( $( 'body').hasClass('modal-open')) return;
-
-			e.stopPropagation();
-			$('iframe', '#<?= $uidViewer ?>').focus();
-
-		}
-		else if ( 46 == e.keyCode) {	// delete
-
-			if ( $( 'body').hasClass('modal-open')) return;
-
-			e.stopPropagation();
-			( function( data) {
-
-				// console.log( data);
-				// return;
-
-				if ( 'undefined' != typeof data.uid) {
-					$('> [uid="'+data.uid+'"]', '#<?= $uidMsgs ?>').first().trigger('delete');
-
-				}
-
-			})( $('#<?= $uidViewer ?>').data());
-
-		}
-
-	});
-
-}
-
-$(document).on('mail-clear-viewer', function( e) {
-	$('#<?= $uidViewer ?>').trigger('clear');
-
-});
-
-$(document).ready( function() {
-
-	$(document)
-	.data('route', '<?= $this->route ?>')
-	.data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
-
-	$(document).trigger('resize-main-content-wrapper');
-
-	$('html, body, div[data-role="main-content-wrapper"] > .row, div[data-role="main-content-wrapper"] > .row > .col').addClass( 'h-100');
-	$('div[data-role="content"]').removeClass( 'pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
-
-	$(document)
-	.trigger('mail-messages')
-	.trigger('mail-folderlist');
-	// console.log('init');
-
-	$(document).trigger('mail-toggle-view')
-	// console.log('init-2');
-
-	$(document).trigger('mail-view-message-list');
-	// console.log('init-3');
-
-	$(document).trigger('mail-clear-viewer');
-
-	if ( !_brayworth_.browser.isMobileDevice) {
-		$('#<?= $uidMsgs ?>').focus();
-
-	}
-
-	$(document).trigger('mail-load-complete');
-
-});
 </script>
