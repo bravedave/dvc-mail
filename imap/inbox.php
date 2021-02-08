@@ -94,11 +94,17 @@ class inbox {
 		// sys::dump( $options);
 
 		$ret = [];
-		if ( $this->_client->open( true, $options['folder'] )) {
-			$ret = $this->_client->finditems( $options);
-			$this->_client->close();
+    try {
+      if ( $this->_client->open( true, $options['folder'] )) {
+        $ret = $this->_client->finditems( $options);
+        $this->_client->close();
 
-		}
+      }
+
+    } catch (\Throwable $th) {
+      \sys::logger( sprintf('<%s> %s', $th->getMessage(), __METHOD__));
+
+    }
 
 		return ( $ret );
 
