@@ -583,6 +583,8 @@ class controller extends \Controller {
 		$msg = false;
 		$inbox = inbox::instance( $options['creds']);
 		if ( $options['msg']) {
+      \sys::logger( sprintf('<byMSG %s> %s', $options['msg'], __METHOD__));
+
 			$msg = $inbox->GetItemByMessageID(
 				$options['msg'],
 				$includeAttachments = true,
@@ -592,6 +594,8 @@ class controller extends \Controller {
 
 		}
 		elseif ( $options['uid']) {
+      \sys::logger( sprintf('<byUID %s> %s', $options['uid'], __METHOD__));
+
 			$msg = $inbox->GetItemByUID(
 				$options['uid'],
 				$includeAttachments = true,
@@ -600,6 +604,8 @@ class controller extends \Controller {
 			);
 
 		}
+
+    \sys::logger( sprintf('<done got msg> %s', __METHOD__));
 
 		if ( $msg) {
 			// unset( $msg->attachments);
