@@ -196,8 +196,6 @@ class client {
       }
 
     }
-		// sys::dump( $_headers, 'imap_fetchheader');
-		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers');
 
 		if ( !$overview) {
 			$overview = $this->_Overview( $msgno);
@@ -322,8 +320,6 @@ class client {
 
 		}
 
-		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', true);
-		// sys::dump( $_headers, 'imap_fetchheader', true);
 		$ret->references = '';
 
 		if ( isset($overview->in_reply_to)) $ret->in_reply_to = $overview->in_reply_to;
@@ -590,9 +586,6 @@ class client {
 			}
 
 		}
-		// sys::dump( imap_fetchheader( $this->_stream, $email_number));
-		// sys::dump($ret);
-		// sys::dump($overview);
 
 		// /* output the email body */
 		// $message = imap_fetchbody($inbox,$email_number,1);
@@ -606,6 +599,13 @@ class client {
 
 		}
 
+    if ( $errors = imap_errors()) {
+      foreach ($errors as $error) {
+        \sys::logger( sprintf('<%s> %s', $error, __METHOD__));
+
+      }
+
+    }
 		return ( $ret );
 
 	}
