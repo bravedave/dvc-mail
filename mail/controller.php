@@ -678,11 +678,14 @@ class controller extends \Controller {
 
 		}
 		else {
-			$this->data = (object)[
-				'user_id' => $creds->user_id,
-				'default_folders' => inbox::default_folders( $this->creds)
+      $this->data = (object)[
+        'user_id' => $creds->user_id,
+				'default_folders' => inbox::default_folders( $creds)
 
 			];
+
+      $folders = folders::instance( $creds);
+      $folders->checkDefaultFoldersExist($this->data->default_folders);
 
 			$this->render([
 				'title' => $this->title = $this->label,
@@ -698,37 +701,6 @@ class controller extends \Controller {
 		}
 
 	}
-
-	// protected function page( $params) {
-
-	// 	$p = parent::page( $params);
-	// 	if (  isset( $params['charset'])) {
-	// 		if (  $params['charset']) {
-	// 			$p->charset = $params['charset'];
-	// 			// sys::logger( sprintf('%s : %s', $params['charset'], __METHOD__));
-
-	// 		}
-
-  //   }
-
-  //   $mceLoaded = false;
-  //   foreach ($p->latescripts as $script) {
-  //     if ( false !== strstr( $script, 'tinymce')) {
-  //       $mceLoaded = true;
-  //       break;
-
-  //     }
-
-  //   }
-
-  //   if ( !$mceLoaded) {
-  //     $p->latescripts[] = sprintf( '<script type="text/javascript" src="%s" defer></script>', strings::url( 'js/tinymce5/'));
-
-  //   }
-
-	// 	return ( $p);
-
-	// }
 
 	public function compose() {
 		$this->data = (object)[

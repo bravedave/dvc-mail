@@ -43,6 +43,30 @@ class folders {
 
   }
 
+  public function checkDefaultFoldersExist( array $defaultFolders) {
+    if ( $folders = $this->getAll()) {
+
+      // $defaultFolders['Frank'] = 'Frank';
+      // \sys::logger( sprintf('<%s> %s', print_r( $defaultFolders, true), __METHOD__));
+
+      foreach ($defaultFolders as $k => $v) {
+        if( false === array_search( strtolower( $v), array_map('strtolower', array_column($folders, 'name')))) {
+          // \sys::logger( sprintf('<%s => %s> <❌> %s', $k, $v, __METHOD__));
+          $this->create( $v, '');
+          \sys::logger( sprintf('<%s => %s> <created> %s', $k, $v, __METHOD__));
+
+        }
+        // else {
+        //   \sys::logger( sprintf('<%s => %s> <✔> %s', $k, $v, __METHOD__));
+
+        // }
+
+      }
+
+    }
+
+  }
+
   static function map( $fldr, $fldrs, $level) {
 		foreach ( $fldrs as $f) {
 			if ( $f->id->Id == $fldr->parent_id) {
@@ -192,7 +216,7 @@ class folders {
 
 	}
 
-	public function create( string $folder, string $parent) : bool {
+	public function create( string $folder, string $parent = '') : bool {
 		$ret = false;
 
 		$a = [];
