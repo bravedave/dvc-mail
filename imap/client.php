@@ -186,9 +186,18 @@ class client {
 
 		// HEADER
 		// https://www.php.net/manual/en/function.imap-headerinfo.php#98809
-		$_headers = imap_fetchheader( $this->_stream, $msgno, 0);
-		$_headers_rfc822 = imap_rfc822_parse_headers( $_headers);
-		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers', false);
+
+    $_headers = imap_fetchheader( $this->_stream, $msgno, 0);
+    $_headers_rfc822 = imap_rfc822_parse_headers( $_headers);
+    if ( $errors = imap_errors()) {
+      foreach ($errors as $error) {
+        \sys::logger( sprintf('<%s> %s', $error, __METHOD__));
+
+      }
+
+    }
+		// sys::dump( $_headers, 'imap_fetchheader');
+		// sys::dump( $_headers_rfc822, 'imap_rfc822_parse_headers');
 
 		if ( !$overview) {
 			$overview = $this->_Overview( $msgno);
