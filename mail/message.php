@@ -14,7 +14,7 @@ use sys;
 
 class message {
 
-    public $attachmentIDs = [];
+  public $attachmentIDs = [];
 	public $attachments = [];
 	public $answered = 'no';
 	public $flagged = 'no';
@@ -55,7 +55,7 @@ class message {
 
 	}
 
-    public function asArray() {
+  public function asArray() {
 		// \sys::logger( $this->fromEmail);
 
 		return [
