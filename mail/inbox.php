@@ -32,21 +32,21 @@ abstract class inbox {
 
   }
 
-    static public function default_folders( $creds) : array {
-        switch ($creds->interface) {
-            case credentials::imap :
-                return \dvc\imap\client::default_folders();
-                break;
+  static public function default_folders( $creds) : array {
+      switch ($creds->interface) {
+          case credentials::imap :
+              return \dvc\imap\client::default_folders();
+              break;
 
-            case credentials::ews :
-                return \dvc\ews\client::default_folders();
-                break;
+          case credentials::ews :
+              return \dvc\ews\client::default_folders();
+              break;
 
-        }
+      }
 
-        return false;
+      return false;
 
-    }
+  }
 
 	static public function FiledMessageExists( $msgStore) {
 		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
