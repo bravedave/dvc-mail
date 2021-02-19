@@ -594,7 +594,7 @@ class controller extends \Controller {
 
 		}
 		elseif ( $options['uid']) {
-      \sys::logger( sprintf('<byUID %s> %s', $options['uid'], __METHOD__));
+      // \sys::logger( sprintf('<byUID %s> %s', $options['uid'], __METHOD__));
 
 			$msg = $inbox->GetItemByUID(
 				$options['uid'],
@@ -605,7 +605,7 @@ class controller extends \Controller {
 
 		}
 
-    \sys::logger( sprintf('<done got msg> %s', __METHOD__));
+    // \sys::logger( sprintf('<done got msg> %s', __METHOD__));
 
 		if ( $msg) {
 			// unset( $msg->attachments);
