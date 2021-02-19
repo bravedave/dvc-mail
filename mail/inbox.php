@@ -18,10 +18,6 @@ abstract class inbox {
         break;
 
       case credentials::ews :
-        // self::$_defaults = (object)[
-        //     'inbox' => 'INBOX'
-
-        // ];
         return new \dvc\ews\inbox( $creds);
         break;
 
@@ -33,18 +29,18 @@ abstract class inbox {
   }
 
   static public function default_folders( $creds) : array {
-      switch ($creds->interface) {
-          case credentials::imap :
-              return \dvc\imap\client::default_folders();
-              break;
+    switch ($creds->interface) {
+      case credentials::imap :
+        return \dvc\imap\client::default_folders();
+        break;
 
-          case credentials::ews :
-              return \dvc\ews\client::default_folders();
-              break;
+      case credentials::ews :
+        return \dvc\ews\client::default_folders();
+        break;
 
-      }
+    }
 
-      return false;
+    return false;
 
   }
 
