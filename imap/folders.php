@@ -219,39 +219,42 @@ class folders {
 	public function create( string $folder, string $parent = '') : bool {
 		$ret = false;
 
-		$a = [];
-		if ( $parent) {
-			if ( '.' == self::$delimiter) {
-				$a[] = trim( \str_replace( '/', '.', $parent), '. /');
+		if ( trim( $folder)) {
+      $a = [];
+      if ( $parent) {
+        if ( '.' == self::$delimiter) {
+          $a[] = trim( \str_replace( '/', '.', $parent), '. /');
 
-			}
-			elseif ( '/' == self::$delimiter) {
-				$a[] = trim( \str_replace( '.', '/', $parent), '. /');
+        }
+        elseif ( '/' == self::$delimiter) {
+          $a[] = trim( \str_replace( '.', '/', $parent), '. /');
 
-			}
+        }
 
-		}
+      }
 
-		$a[] = $folder;
-		$fldr = implode( self::$delimiter, $a);
+      $a[] = trim( $folder);
+      $fldr = implode( self::$delimiter, $a);
 
-		if ( $this->_client->open( false)) {
-			if ( $this->_client->createmailbox( $fldr)) {
-				$this->_client->subscribe( $fldr);
-				$ret = true;
+      if ( $this->_client->open( false)) {
+        if ( $this->_client->createmailbox( $fldr)) {
+          $this->_client->subscribe( $fldr);
+          $ret = true;
 
-			}
-			else {
-				$errors = sprintf( 'create mailbox failed : %s', imap_last_error());
-				sys::logger( sprintf('%s : %s', $error, __METHOD__));
+        }
+        else {
+          $errors = sprintf( 'create mailbox failed : %s', imap_last_error());
+          sys::logger( sprintf('%s : %s', $error, __METHOD__));
 
-				$this->errors[] = $error;
+          $this->errors[] = $error;
 
-			}
+        }
 
-			$this->_client->close();
+        $this->_client->close();
 
-		}
+      }
+
+    }
 
 		return ( $ret );
 
