@@ -88,10 +88,34 @@ class client {
 		$newString = '';
 		$elements = imap_mime_header_decode($string);
 		for($i = 0; $i < count($elements); $i++) {
-			if($elements[$i]->charset == 'default')
+			if($elements[$i]->charset == 'default') {
 				$elements[$i]->charset = 'iso-8859-1';
 
-			$newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+      }
+
+      /**
+       * Add checking to see if conversion is required
+       * but:
+       *  it may still rewquire work to add the //IGNORE flag, just that caused
+       *  an error when converting utf-8 to utf-8, so elected to just go
+       *  with checking at this stage - 3/3/2021
+       *
+       * possible more info:
+       *  * https://stackoverflow.com/questions/26092388/iconv-detected-an-incomplete-multibyte-character-in-input-string
+       *  * https://www.php.net/manual/en/function.iconv.php
+       *
+       */
+
+			if ( strtolower( $elements[$i]->charset) == strtolower( $charset)) {
+        // \sys::logger( sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+        $newString .= $elements[$i]->text;
+
+      }
+      else {
+        // \sys::logger( sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+        $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+
+      }
 
 		}
 		return $newString;
