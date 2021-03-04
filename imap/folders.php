@@ -243,7 +243,7 @@ class folders {
 
         }
         else {
-          $errors = sprintf( 'create mailbox failed : %s', imap_last_error());
+          $error = sprintf( 'create mailbox failed : %s', imap_last_error());
           sys::logger( sprintf('%s : %s', $error, __METHOD__));
 
           $this->errors[] = $error;
