@@ -20,59 +20,61 @@ $msg = $this->data->message;
 
 $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
+  $encoding = mb_detect_encoding($msg->Body);
 
-    $encoding = mb_detect_encoding($msg->Body);
+  if ( 'utf-8' == strtolower( $encoding)) {
+    // \sys::logger( sprintf('<%s> %s', $encoding, __METHOD__));
+    // $f = sprintf('%s/temp-0-utf8-message.txt', \config::dataPath());
+    // if ( \file_exists($f)) unlink( $f);
+    // \file_put_contents( $f, $msg->Body);
 
-    if ( 'utf-8' == strtolower( $encoding)) {
-        // \sys::logger( sprintf('<%s> %s', $encoding, __METHOD__));
-        // $f = sprintf('%s/temp-0-utf8-message.txt', \config::dataPath());
-        // if ( \file_exists($f)) unlink( $f);
-        // \file_put_contents( $f, $msg->Body);
+    $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', 'UTF-8');
 
-        $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', 'UTF-8');
+    // $f = sprintf('%s/temp-1-utf8-message.txt', \config::dataPath());
+    // if ( \file_exists($f)) unlink( $f);
+    // \file_put_contents( $f, $_msg);
 
-        // $f = sprintf('%s/temp-1-utf8-message.txt', \config::dataPath());
-        // if ( \file_exists($f)) unlink( $f);
-        // \file_put_contents( $f, $_msg);
+  }
+  elseif ( 'ascii' == strtolower( $encoding)) {
+    $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', 'ASCII');
+    // $_msg = $msg->Body;
+    // \sys::logger( sprintf('<%s> %s', 'no conversion', __METHOD__));
+    // $f = sprintf('%s/temp-4-message.txt', \config::dataPath());
+    // if ( \file_exists($f)) unlink( $f);
+    // \file_put_contents( $f, $_msg);
 
-    }
-    elseif ( 'ascii' == strtolower( $encoding)) {
-        $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', 'ASCII');
-        // $_msg = $msg->Body;
-        // \sys::logger( sprintf('<%s> %s', 'no conversion', __METHOD__));
-        // $f = sprintf('%s/temp-4-message.txt', \config::dataPath());
-        // if ( \file_exists($f)) unlink( $f);
-        // \file_put_contents( $f, $_msg);
+  }
+  elseif ( !$encoding) {
+    // there is no encoding
+    $_msg = $msg->Body;
 
+  }
+  else {
+    $_msg = sprintf( "Encoding: %s\n%s", $encoding, $msg->Body);
+    // $f = sprintf('%s/temp-3-message.txt', \config::dataPath());
+    // if ( \file_exists($f)) unlink( $f);
+    // \file_put_contents( $f, $_msg);
 
-    }
-    elseif ( !$encoding) {
-        // there is no encoding
-        $_msg = $msg->Body;
+  }
 
-    }
-    else {
-        $_msg = sprintf( "Encoding: %s\n%s", $encoding, $msg->Body);
-        // $f = sprintf('%s/temp-3-message.txt', \config::dataPath());
-        // if ( \file_exists($f)) unlink( $f);
-        // \file_put_contents( $f, $_msg);
+  $msgHtml = sprintf( "<pre>%s</pre>", htmlentities( $_msg));
+  // $msgHtml = str_replace( "\n", '<br />', $_msg);
 
-    }
-
-    $msgHtml = sprintf( "<pre>%s</pre>", $_msg);
-    // $msgHtml = str_replace( "\n", '<br />', $_msg);
 
 }
 elseif ( $msg->hasMso()) {
-    $msgHtml = sprintf( '<style>p { margin: 0; }</style> %s %s',
-            $msg->getMso(),
-            $msg->safehtml());
+  $msgHtml = sprintf(
+    '<style>p { margin: 0; }</style> %s %s',
+    $msg->getMso(),
+    $msg->safehtml()
+
+  );
 
 }
 else {
-    $msgHtml = $msg->safehtml();
-    // $msgHtml = $msg->Body;
-    // \sys::logger( sprintf('<%s> %s', strlen( $msgHtml), __METHOD__));
+  $msgHtml = $msg->safehtml();
+  // $msgHtml = $msg->Body;
+  // \sys::logger( sprintf('<%s> %s', strlen( $msgHtml), __METHOD__));
 
 
 }
