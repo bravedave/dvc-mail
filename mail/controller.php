@@ -533,6 +533,22 @@ class controller extends \Controller {
 
 	}
 
+	protected function _headers( array $params = []) : array {
+		$options = array_merge([
+			'creds' => $this->creds,
+			'folder' => 'default'
+
+		], $params);
+
+		$inbox = inbox::instance( $options['creds']);
+		\sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+		$headers = (array)$inbox->headers( $options);
+
+		\sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+		return $headers;
+
+  }
+
 	protected function _messages( array $params = []) : array {
 
 		$options = array_merge([
@@ -551,8 +567,7 @@ class controller extends \Controller {
 		// sys::dump( $messages);
 
 		$a = [];
-		foreach ( $messages as $message)
-			$a[] = $message->asArray();
+		foreach ( $messages as $message) $a[] = $message->asArray();
 
 		return $a;
 		// return $messages;

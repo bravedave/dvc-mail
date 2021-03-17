@@ -1794,6 +1794,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				$('<span class="d-inline-flex small pt-1" />').html(page).appendTo( primary);
 
 			}
+
 			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="bi bi-chevron-right" title="next page"></i></button>')
 			.appendTo( primary)
 			.on('click', (e) => {

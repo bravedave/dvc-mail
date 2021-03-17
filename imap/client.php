@@ -204,6 +204,11 @@ class client {
 
 	}
 
+	protected function _getheaders() {
+    return imap_headers( $this->_stream);
+
+  }
+
 	protected function _getmessage( $msgno, $overview = false ) : \dvc\mail\message {
 		$debug = false;
 		// $debug = true;
@@ -446,9 +451,7 @@ class client {
 
 	}
 
-	/*
-	* get information for this specific email
-	*/
+	/** get information for this specific email */
 	protected function _overview( $email_number = -1 ) : \dvc\mail\message {
 		$debug = false;
 		// $debug = true;
@@ -489,6 +492,8 @@ class client {
 		}
 
 		if ( $headers) {
+      // \sys::logger( sprintf('<%s> %s', print_r( $headers, true), __METHOD__));
+
 			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
 			// sys::dump($headers);
 			$ret->Uid = $uid;
@@ -554,6 +559,8 @@ class client {
 		if ( $overview = imap_fetch_overview( $this->_stream, $email_number, 0)) {
 
 			$msg = $overview[0];
+      // \sys::logger( sprintf('<%s> %s', print_r( $overview, true), __METHOD__));
+
 			// sys::dump( $msg);
 			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
 			if ( isset( $msg->answered)) $ret->answered = ( $msg->answered ? 'yes' : 'no' );
@@ -735,9 +742,11 @@ class client {
 		];
 		if ( $debug) \sys::logger( sprintf('<msgCount : %s> <%s> %s', $data['msgCount'], \application::timer()->elapsed(), __METHOD__));
 
-		$ret = [];
+		// \sys::logger( sprintf('<%s> <msgCount:%s> %s', \application::timer()->elapsed(), $data['msgCount'], __METHOD__));
+		// $headers = $this->_getheaders();
+		// \sys::logger( sprintf('<%s> <headers:%s> %s', \application::timer()->elapsed(), count( $headers), __METHOD__));
 
-		// \sys::logger( sprintf('<msgCount:%s> %s', $data['msgCount'], __METHOD__));
+		$ret = [];
 		if ( $data['msgCount'] > 500) {
 			$start = max( $data['msgCount'] - ((int)$options->page * (int)$options->pageSize) - ((int)$options->page > 0 ? 1 : 0), 0);
 			$emails = \range( $start, max( $start - $options->pageSize, 0), -1 );
@@ -766,7 +775,7 @@ class client {
 					if ( $start++ >= $_start ) {
 						if ( $i++ >= $options->pageSize ) break;
 						$msg = $this->_overview( $email_number);
-						// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $msg->Uid, __METHOD__));
+						// \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
 						$msg->Folder = $this->_folder;
 						$ret[] = $msg;
 
@@ -876,7 +885,23 @@ class client {
 
 	}
 
-	public function Info( $folder = "default") {
+	public function headers( $folder = "default") {
+		$ret = false;
+		if ( $this->open( true, $folder )) {
+			$ret = $this->_getheaders();
+			$this->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+		}
+
+		return ( $ret );
+
+	}
+
+  public function Info( $folder = "default") {
 		$ret = false;
 		if ( $this->open( true, $folder )) {
 			$ret = imap_mailboxmsginfo( $this->_stream);

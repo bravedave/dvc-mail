@@ -148,6 +148,36 @@ class inbox {
 
 	}
 
+	public function headers( $params) {
+		$options = array_merge([
+			'folder' => $this->defaults()->inbox,
+
+		], $params);
+
+		// sys::dump( $options);
+
+		$ret = [];
+    try {
+      $ret = $this->_client->headers( $options['folder']);
+
+      if ( $errors = imap_errors()) {
+        foreach ($errors as $error) {
+          \sys::logger( sprintf('<%s> %s', $error, __METHOD__));
+          \sys::logger( sprintf('<%s> %s', $options['folder'], __METHOD__));
+
+        }
+
+      }
+
+    } catch (\Throwable $th) {
+      \sys::logger( sprintf('<%s> %s', $th->getMessage(), __METHOD__));
+
+    }
+
+		return ( $ret );
+
+	}
+
 	public function Info( $folder = 'default' ) {
 		$ret = $this->_client->Info( $folder);
 		return $ret;
