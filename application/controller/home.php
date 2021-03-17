@@ -240,6 +240,20 @@ class home extends dvc\mail\controller {
 			phpinfo();
 
 		}
+		elseif ( 'headers' == $test) {
+			Response::text_headers();
+
+			print_r([
+				sprintf( 'elapsed : %s<br />', $this->timer->elapsed()),
+				$this->_headers([
+					'folder' => 'Inbox'
+
+				]),
+        '----'
+
+			]);
+
+    }
 		elseif ( 'message' == $test) {
 			$this->_view([
 				'msg' => '<20200314172947.B05C7637C8@v3.internal>'
