@@ -57,7 +57,10 @@ if ( 'text' == strtolower( $msg->BodyType)) {
 
   }
 
-  $msgHtml = sprintf( "<pre>%s</pre>", htmlentities( $_msg));
+  // $msgHtml = sprintf( "<pre>%s</pre>", htmlentities( $_msg));
+  // $_msg = htmlspecialchars_decode( $_msg);
+  $msgHtml = sprintf( "<pre>%s</pre>", htmlspecialchars( $_msg, $flags = ENT_COMPAT, $encoding = null, $double_encode = false));
+  // $msgHtml = sprintf( "<pre>%s</pre>", $_msg);
   // $msgHtml = str_replace( "\n", '<br />', $_msg);
 
 
