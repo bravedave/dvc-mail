@@ -785,7 +785,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 	};
 
 	let _list_message_row = ( msg) => {
-		console.log( msg);
+		// console.log( msg);
 		let defaultFolders = $(document).data('default_folders');
 
 		let email = msg.from;

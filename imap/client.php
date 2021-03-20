@@ -24,11 +24,15 @@ class client {
 
 	protected $_folder = '';
 
+	protected $_interface = 0;
+
 	protected $_open = false;
 
 	protected $_password = '';
 
 	protected $_port = '143';
+
+	protected $_socket = null;
 
 	protected $_stream = null;
 
@@ -47,7 +51,8 @@ class client {
 			$client = new self(
 				$cred->server,
 				$cred->account,
-				$cred->password
+				$cred->password,
+        $cred->interface
 
 			);
 
@@ -655,33 +660,39 @@ class client {
 	}
 
 	protected function _socket() {
-    return false;
-
 		$debug = self::$debug;
 		// $debug = true;
 
-		if ( $this->_server) {
-      return new ImapSocket([
-        'server' => $this->_server,
-        'port' => (int)$this->_port,
-        'login' => $this->_account,
-        'password' => $this->_password,
-        'tls' => false,
-        'ssl' => 'ssl' == $this->_secure,
+		if ( $this->_interface == credentials::imap) {
 
-      ], $this->_folder);
+      if ( $this->_socket) return $this->_socket;
 
-		}
-		else {
-			$this->_error = 'invalid server';
+      // \sys::logger( sprintf('<%s> %s', 'imap', __METHOD__));
 
-		}
+      if ( $this->_server) {
+        $this->_socket = new ImapSocket([
+          'server' => $this->_server,
+          'port' => (int)$this->_port,
+          'login' => $this->_account,
+          'password' => $this->_password,
+          'tls' => false,
+          'ssl' => 'ssl' == $this->_secure,
+
+        ], $this->_folder);
+
+      }
+      else {
+        $this->_error = 'invalid server';
+
+      }
+
+    }
 
 		return false;
 
 	}
 
-  protected function __construct( string $server, string $account, string $password) {
+  protected function __construct( string $server, string $account, string $password, int $interface) {
 		if ( preg_match('@^ssl://@', $server)) {
 			$this->_port = '993';
 			$this->_secure = 'ssl';
@@ -692,6 +703,7 @@ class client {
 		$this->_server = $server;
 		$this->_account = $account;
 		$this->_password = $password;
+		$this->_interface = $interface;
 
 	}
 
