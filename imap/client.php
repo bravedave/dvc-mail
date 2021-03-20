@@ -660,6 +660,9 @@ class client {
 	}
 
 	protected function _socket() {
+    \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_server, __METHOD__));
+    return false;
+
 		$debug = self::$debug;
 		// $debug = true;
 
@@ -667,7 +670,6 @@ class client {
 
       if ( $this->_socket) return $this->_socket;
 
-      \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_interface, __METHOD__));
 
       if ( $this->_server) {
         $this->_socket = new ImapSocket([
