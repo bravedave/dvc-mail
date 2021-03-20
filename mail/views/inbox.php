@@ -13,6 +13,7 @@
 	$unseen = '<span class="float-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
 
 	$answered = '<i class="bi bi-reply float-right text-muted" title="you have replied to this message" answered></i>';
+	$forwarded = '<i class="bi bi-forward float-right text-muted" title="your forwarded this message" forwarded></i>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -784,13 +785,14 @@ $(document).on('resize-main-content-wrapper', function( e) {
 	};
 
 	let _list_message_row = ( msg) => {
-		// console.table( msg);
+		console.log( msg);
 		let defaultFolders = $(document).data('default_folders');
 
 		let email = msg.from;
 		if ( msg.folder == defaultFolders.Sent) email = msg.to;
 		let from = $('<div class="col text-truncate font-weight-bold" from></div>').html( email).attr('title', email);
 		if ( 'yes' == msg.answered) $('<?= $answered ?>').prependTo( from);
+		if ( 'yes' == msg.forwarded) $('<?= $forwarded ?>').prependTo( from);
 		if ( 'no' == msg.seen) $('<?= $unseen ?>').prependTo( from);
 
 		let received = $('<div class="col-3 pl-0 text-right text-truncate small"></div>');

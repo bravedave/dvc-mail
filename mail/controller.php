@@ -360,6 +360,7 @@ class controller extends \Controller {
 			Json::ack( $action)
 				->add( 'messages', $this->_search( $params));
 
+
 		}
 		elseif ( 'send email' == $action) {
 			$to = $this->getPost( 'to');

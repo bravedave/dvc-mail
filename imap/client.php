@@ -459,6 +459,7 @@ class client {
 		if ( $email_number < 0 )
 			return ( false );
 
+    $socket = $this->_socket();
 
 		$ret = new \dvc\mail\message;
 		$_cache = false;
@@ -481,7 +482,10 @@ class client {
 
 			}
 
-			// $forwarded = imap_fetchflag_full($this->_stream, $email_number, '$Forwarded');
+      $flags = $socket->get_flags( $email_number);
+			$ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
+      // \sys::logger( sprintf('<%s> %s', print_r( $flags, true), __METHOD__));
+
 			// \sys::logger( sprintf('<%s> %s', $forwarded, __METHOD__));
 
 
@@ -618,6 +622,9 @@ class client {
 
 		}
 
+    $flags = $socket->get_flags( $email_number);
+    $ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
+
 		// /* output the email body */
 		// $message = imap_fetchbody($inbox,$email_number,1);
 		// $output.= '<div class="body"><pre>'.$message.'</pre></div>';
@@ -641,7 +648,32 @@ class client {
 
 	}
 
-	protected function __construct( string $server, string $account, string $password) {
+	protected function _socket() {
+		$debug = self::$debug;
+		// $debug = true;
+
+		if ( $this->_server) {
+      return new ImapSocket([
+        'server' => $this->_server,
+        'port' => (int)$this->_port,
+        'login' => $this->_account,
+        'password' => $this->_password,
+        'tls' => false,
+        'ssl' => 'ssl' == $this->_secure,
+
+      ], $this->_folder);
+
+		}
+		else {
+			$this->_error = 'invalid server';
+
+		}
+
+		return false;
+
+	}
+
+  protected function __construct( string $server, string $account, string $password) {
 		if ( preg_match('@^ssl://@', $server)) {
 			$this->_port = '993';
 			$this->_secure = 'ssl';

@@ -66,6 +66,7 @@ class message {
 			'fromEmail' => $this->fromEmail,
 			'subject' => $this->Subject,
 			'answered' => $this->answered,
+			'forwarded' => $this->forwarded,
 			'seen' => $this->seen,
 			'folder' => $this->Folder,
 			'uid' => $this->Uid,
