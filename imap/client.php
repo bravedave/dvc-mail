@@ -660,33 +660,33 @@ class client {
 	}
 
 	protected function _socket() {
-    \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_server, __METHOD__));
-    return false;
 
 		$debug = self::$debug;
 		// $debug = true;
 
-		if ( $this->_interface == credentials::imap) {
+    if ( $this->_socket) return $this->_socket;
 
-      if ( $this->_socket) return $this->_socket;
+    if ( $this->_server) {
 
+      if ( 'w2008k.ashgrove.darcy.com.au' == $this->_server) return false;
 
-      if ( $this->_server) {
-        $this->_socket = new ImapSocket([
-          'server' => $this->_server,
-          'port' => (int)$this->_port,
-          'login' => $this->_account,
-          'password' => $this->_password,
-          'tls' => false,
-          'ssl' => 'ssl' == $this->_secure,
+      $this->_socket = new ImapSocket([
+        'server' => $this->_server,
+        'port' => (int)$this->_port,
+        'login' => $this->_account,
+        'password' => $this->_password,
+        'tls' => false,
+        'ssl' => 'ssl' == $this->_secure,
 
-        ], $this->_folder);
+      ], $this->_folder);
 
-      }
-      else {
-        $this->_error = 'invalid server';
+      \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_server, __METHOD__));
 
-      }
+      return $this->_socket;
+
+    }
+    else {
+      $this->_error = 'invalid server';
 
     }
 
