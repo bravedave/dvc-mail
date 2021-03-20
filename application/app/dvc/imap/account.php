@@ -4,8 +4,7 @@
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- *      http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
 */
 
@@ -57,9 +56,6 @@ abstract class account {
 				];
 
 			}
-
-			// \sys::logger( sprintf('%s : %s', $config->getFilename(), __METHOD__));
-			// \sys::logger( sprintf('%s : %s', $config->getPathname(), __METHOD__));
 
 		}
 
