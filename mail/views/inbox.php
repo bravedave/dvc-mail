@@ -1946,6 +1946,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		}
 
+    let pageSize = localStorage.getItem( 'mail-pageSize');
+    if ( !!pageSize) data.pageSize = pageSize;
+
 		$(document).trigger('mail-messages-loader', data);
 
 	});
@@ -2388,6 +2391,11 @@ $(document).on('resize-main-content-wrapper', function( e) {
     $(document).trigger('mail-load-complete');
 
   });
+
+  window.setMailPageSize = i => localStorage.setItem('mail-pageSize', i);
+  window.setMailPageSize.clear = () => localStorage.removeItem('mail-pageSize');
+
+  console.info( 'use setMailPageSize(50) to set the page size');
 
 }) (_brayworth_);
 </script>

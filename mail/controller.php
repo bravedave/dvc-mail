@@ -260,6 +260,11 @@ class controller extends \Controller {
 
 			];
 
+      if ( $pageSize = (int)$this->getPost('pageSize')) {
+        $params['pageSize'] = $pageSize;
+
+      }
+
 			Json::ack( $action)
 				->add( 'folder', $params['folder'])
 				->add( 'messages', $this->_messages( $params));

@@ -82,10 +82,10 @@ class inbox {
 	}
 
 	public function finditems( $params) {
+    // 'pageSize' => 20,  need to specify ? it's the default
 		$options = array_merge([
 			'deep' => false,
 			'page' => 0,
-			'pageSize' => 20,
 			'folder' => $this->defaults()->inbox,
 			'allPages' => false
 
