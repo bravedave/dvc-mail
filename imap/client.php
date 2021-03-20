@@ -482,8 +482,11 @@ class client {
 
 			}
 
-      $flags = $socket->get_flags( $email_number);
-			$ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
+      if ( $socket) {
+        $flags = $socket->get_flags( $email_number);
+        $ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
+
+      }
       // \sys::logger( sprintf('<%s> %s', print_r( $flags, true), __METHOD__));
 
 			// \sys::logger( sprintf('<%s> %s', $forwarded, __METHOD__));
@@ -622,8 +625,11 @@ class client {
 
 		}
 
-    $flags = $socket->get_flags( $email_number);
-    $ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
+    if ( $socket) {
+      $flags = $socket->get_flags( $email_number);
+      $ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
+
+    }
 
 		// /* output the email body */
 		// $message = imap_fetchbody($inbox,$email_number,1);
@@ -649,6 +655,8 @@ class client {
 	}
 
 	protected function _socket() {
+    return false;
+
 		$debug = self::$debug;
 		// $debug = true;
 
