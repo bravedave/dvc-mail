@@ -32,6 +32,14 @@
 			"dvc\\imap\\": "imap/",
 			"dvc\\mail\\": "mail/"
 		}
-	}
+  },
+	"autoload-dev": {
+		"psr-4": {
+			"": "application/app"
+		}
+  },
+  "scripts": {
+    "socket": "tests\\tests::socket"
+  }
 
 }
