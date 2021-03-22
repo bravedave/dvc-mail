@@ -488,7 +488,9 @@ class client {
 			}
 
       if ( $socket) {
-        $flags = $socket->get_flags( $email_number);
+        if ( $debug) \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), 'flags ...', __METHOD__));
+        $flags = (array)$socket->get_flags( $email_number);
+        if ( $debug) \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), implode( ', ', $flags), __METHOD__));
         $ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
 
       }
@@ -680,7 +682,7 @@ class client {
 
       ], $this->_folder);
 
-      \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_server, __METHOD__));
+      // \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_server, __METHOD__));
 
       return $this->_socket;
 

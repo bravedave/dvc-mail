@@ -58,7 +58,7 @@ class ImapSocket {
   }
 
   private function login(string $login, string $password): void {
-    $result = $this->send("LOGIN $login $password");
+    $result = $this->send("LOGIN \"$login\" \"$password\"");
     $result = array_pop($result);
 
     if (substr($result, 0, 5) !== '. OK ') {
@@ -74,7 +74,7 @@ class ImapSocket {
   }
 
   public function select_mailbox(string $mailbox): void {
-    $result = $this->send("SELECT $mailbox");
+    $result = $this->send("SELECT \"$mailbox\"");
     $result = array_pop($result);
 
     if (substr($result, 0, 5) !== '. OK ') {
@@ -184,11 +184,21 @@ class ImapSocket {
   }
 
   private function gets() {
+    $debug = false;
+    // $debug = true;
+
     $result = [];
 
     $start = false;
     while ( $str = fgets($this->socket)) {
-      if (substr($str, 0, 1) == '*') {
+      if ( $debug) \sys::logger( sprintf('<%s> %s', $str ? $str : '(bool)false', __METHOD__));
+
+      if ( preg_match( '/NO Mailbox doesn\'t exist/', $str)) {
+        if ( $debug) \sys::logger( sprintf('<exit - no mailbox> %s', __METHOD__));
+        break;
+
+      }
+      elseif (substr($str, 0, 1) == '*') {
         $result[] = substr($str, 0, -2);
         $start = true;
 
