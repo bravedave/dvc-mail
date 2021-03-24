@@ -210,7 +210,7 @@ class ImapSocket {
 
     }
 
-    $result[] = substr($str, 0, -2);
+    if ( $str) $result[] = substr($str, 0, -2);
     return $result;
 
   }
