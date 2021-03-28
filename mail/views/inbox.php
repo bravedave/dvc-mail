@@ -14,6 +14,8 @@
 
 	$answered = '<i class="bi bi-reply float-right text-muted" title="you have replied to this message" answered></i>';
 	$forwarded = '<i class="bi bi-forward float-right text-muted" title="your forwarded this message" forwarded></i>';
+	$selector = '<i class="bi bi-circle float-right text-muted" selector></i>';
+	$selector = '<input class="float-right" type="checkbox" selector></i>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -196,7 +198,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
   });
 
   $(document).on( 'mail-clear-reloader', function( e) {
-    (function( i) {
+    (i => {
       if ( !!i) {
         window.clearTimeout( i);
         $(document).removeData( 'mail-messages-reloader');
@@ -218,10 +220,13 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		let map = '';
 		let uidx = 0;
-		let _list_subfolders = function( i, fldr) {
+		let _list_subfolders = ( i, fldr) => {
 			// console.log( fldr);
 
+
 			let ctrl = $('<div class="text-truncate"></div>').html( fldr.name);
+      if ( 'LearnAsSpam' == fldr.name) ctrl.addClass( 'd-none');
+
 			let searchCtrl = $('<div class="form-check"></div>');
 			let chkId = '<?= $uidSearchAll ?>_chk_' + String( ++uidx);
 			searchCtrl.append( $('<input type="checkbox" class="form-check-input" name="path" checked />')
@@ -536,7 +541,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		};
 
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 d-inline-flex mb-1">folders</h6></div></div>');
-		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="bi bi-arrow-repeat"></i></button>')
+		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto pl-2 pr-0"><i class="bi bi-arrow-repeat"></i></button>')
 		.on('click', function( e) {
 			$('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm');
 			$(document).trigger( 'mail-folderlist-reload');
@@ -791,6 +796,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		let email = msg.from;
 		if ( msg.folder == defaultFolders.Sent) email = msg.to;
 		let from = $('<div class="col text-truncate font-weight-bold" from></div>').html( email).attr('title', email);
+
+    let selector = $('<?= $selector ?>').prependTo( from);
+
 		if ( 'yes' == msg.answered) $('<?= $answered ?>').prependTo( from);
 		if ( 'yes' == msg.forwarded) $('<?= $forwarded ?>').prependTo( from);
 		if ( 'no' == msg.seen) $('<?= $unseen ?>').prependTo( from);
@@ -1347,6 +1355,15 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		})
 
+    selector
+    .data('rowid', rowID)
+    .on('click', function( e) {
+      e.stopPropagation();
+
+      $('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
+
+    });
+
 		return row;
 
 	};
@@ -1529,8 +1546,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				// console.log( _data);
 
-				let ctrl = $('<i class="spinner-grow spinner-grow-sm float-right"></i>');
-				ctrl.appendTo( $('[from]', _me));
+				$('[selector]', _me).addClass('d-none');
+				$('[from]', _me).append('<i class="spinner-grow spinner-grow-sm float-right"></i>');
 
 				_me.addClass( 'font-italic');
 
@@ -1539,9 +1556,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
 					url : _.url('<?= $this->route ?>'),
 					data : data,	//
 
-				}).then( function( d) {
+				}).then( d => {
 					if ( 'ack' == d.response) {
-						ctrl.remove();	// unnecessary
 
 						_me.remove();
 
@@ -1557,7 +1573,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 					}
 
-					$(document).trigger('mail-messages', _data.folder);
+					if ( 'no' != _data.refresh) $(document).trigger('mail-messages', _data.folder);
+
+					$('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
 
 				});
 
@@ -1746,6 +1764,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		let heading = $('<div class="row bg-light text-muted"></div>');
 		( (col) => {
 			let primary = $('<div class="d-flex"></div>').appendTo( col);
+			let bulkControl = $('<div class="py-1 input-group d-none text-right"><div class="mr-auto" status></div></div>').appendTo( col);
 			let search = $('<div class="py-1 input-group d-none"></div>').appendTo( col);
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
@@ -1765,8 +1784,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				}
 				else {
-					primary.addClass( 'd-none');
-					search.removeClass( 'd-none');
+          $('#<?= $uidMsgs ?>').trigger('expose-search-controls');
 
 					$(document).trigger( 'mail-clear-reloader');
 					$('input[type="search"]', search).focus();
@@ -1793,7 +1811,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			});
 
 			if ( page > 0) {
-				$('<span class="d-inline-flex small pt-1" />').html(page).appendTo( primary);
+				$('<span class="d-inline-flex small pt-1"></span>').html(page).appendTo( primary);
 
 			}
 
@@ -1818,7 +1836,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="spinner-grow spinner-grow-sm"></i></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex pr-0"><i class="spinner-grow spinner-grow-sm"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				if ( !!folder)
@@ -1828,7 +1846,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
-			let fldSearch = $('<input class="form-control" type="search" />')
+			let fldSearch = $('<input class="form-control" type="search">')
 			.appendTo( search)
 			.attr('placeholder', 'search ' + location)
 			.attr('title', 'press escape to exit')
@@ -1845,8 +1863,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				}
 				else if ( 27 == e.keyCode) {	// esc
-					search.addClass( 'd-none');
-					primary.removeClass( 'd-none');
+          $('#<?= $uidMsgs ?>').trigger('expose-primary-controls');
 
 				}
 
@@ -1864,14 +1881,16 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				if ( !!folder) { data.folder = folder; }
 
+        $('> [uid]', '#<?= $uidMsgs ?>').remove();
+
 				// DONE : Submit search
 				// console.log( data);
 				_.post({
 					url : _.url('<?= $this->route ?>'),
 					data : data,	// data from the form
 
-				}).then( function( d) {
-					// console.log( d);
+				}).then( d => {
+					console.log( d);
 
 					if ( 'ack' == d.response) {
 						// DONE : Clear message list before loading search results
@@ -1886,6 +1905,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 							.appendTo( col);
 
 						$('#<?= $uidMsgs ?>').html('').append( heading);
+            console.log( '_list_messages > ')
 						_list_messages( d.messages);
 
 					}
@@ -1916,6 +1936,107 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			})
 			.appendTo( iga);
+
+      $('<button type="button" class="btn btn-sm d-none" title="Learn as Spam"><i class="bi bi-shield-exclamation"></i></button>')// move to learnasspam
+      .appendTo( bulkControl)
+      .on( 'click', function( e) {
+        e.stopPropagation();e.preventDefault();
+        let _me = $(this);
+        let _btn_data = _me.data();
+
+        $('input[selector]:checked', '#<?= $uidMsgs ?>').each( (i, ctrl) => {
+          let _ctrl = $(ctrl)
+          let _data = _ctrl.data();
+
+          $('#' + _data.rowid)
+					.data( 'refresh', 'no')
+          .trigger('execute-action', {
+						action : 'move-message',
+						targetFolder : _btn_data.folder
+
+					});
+
+        });
+
+      })
+      .on('verify-feature-available', function(e) {
+        let _me = $(this);
+        // console.log( 'verify LearnAsSpam is a feature ...');
+        _.post({
+          url : _.url('<?= $this->route ?>'),
+          data : {
+            action : 'get-folders-learnasspam'
+
+          },
+
+        }).then( d => {
+          if ( 'ack' == d.response) {
+            // console.log( d);
+            _me
+            .data( 'folder', d.folder.fullname)
+            .removeClass('d-none');
+
+          }
+
+        });
+
+      })
+      .trigger('verify-feature-available');
+
+      $('<button type="button" class="btn btn-sm" title="Move to Trash"><i class="bi bi-trash"></i></button>')// delete all selected
+      .appendTo( bulkControl)
+      .on( 'click', function( e) {
+        e.stopPropagation();e.preventDefault();
+
+        $('input[selector]:checked', '#<?= $uidMsgs ?>').each( (i, ctrl) => {
+          let _ctrl = $(ctrl)
+          let _data = _ctrl.data();
+
+          $('#' + _data.rowid)
+					.data( 'refresh', 'no')
+          .trigger( 'delete');
+
+        });
+
+      });
+
+      $('#<?= $uidMsgs ?>')
+      .off('expose-bulk-controls')
+      .off('expose-primary-controls')
+      .off('expose-search-controls')
+      .on('expose-bulk-controls', function() {
+
+        let _me = $(this);
+        let selectors = $('input[selector]:checked', this);
+
+        if ( selectors.length > 0) {
+          search.addClass( 'd-none');
+          primary.removeClass( 'd-flex').addClass('d-none');
+
+          $('[status]', bulkControl).html( selectors.length + 'msg/s');
+					bulkControl.removeClass( 'd-none').addClass( 'd-flex');
+
+        }
+        else {
+          _me.trigger('expose-primary-controls');
+
+        }
+
+      })
+      .on('expose-primary-controls', function() {
+        search.addClass( 'd-none');
+        bulkControl.removeClass( 'd-flex').addClass( 'd-none');
+
+        primary.removeClass( 'd-none').addClass('d-flex');
+
+      })
+      .on('expose-search-controls', function() {
+        primary.removeClass('d-flex').addClass( 'd-none');
+        bulkControl.removeClass( 'd-flex').addClass( 'd-none');
+
+        search.removeClass( 'd-none');
+
+      });
 
 		})( $('<div class="col"></div>').appendTo( heading));
 

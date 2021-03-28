@@ -349,7 +349,7 @@ class inbox {
 
 				}
 				$_subject[] = sprintf( 'SUBJECT "%s"', trim( $_term));
-				$_text[] = sprintf( 'TEXT "%s"', trim( $_term));
+				$_text[] = sprintf( 'BODY "%s"', trim( $_term));
 
 			}
 			$from = implode( ' ', $_from);

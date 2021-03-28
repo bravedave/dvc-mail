@@ -251,6 +251,11 @@ class controller extends \Controller {
 				->add( 'folders', $this->_folders());
 
 		}
+		elseif ( 'get-folders-learnasspam' == $action) {
+			Json::ack( $action)
+				->add( 'folder', $this->_folder_learnasspam());
+
+		}
 		elseif ( 'get-messages' == $action) {
 			$params = [
 				'creds' => $this->creds,
@@ -409,6 +414,9 @@ class controller extends \Controller {
 
 		}
 
+    \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
+
+
 	}
 
 	protected function _file( array $params = []) {
@@ -525,6 +533,12 @@ class controller extends \Controller {
 	protected function _folders( $format = 'json') {
 		$folders = folders::instance( $this->creds);
 		return $folders->getAll( $format);
+
+	}
+
+	protected function _folder_learnasspam() {
+		$folders = folders::instance( $this->creds);
+		return $folders->getByPath( 'LearnAsSpam');
 
 	}
 
