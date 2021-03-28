@@ -797,8 +797,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
     .append( $('<div class="text-truncate font-weight-bold mr-auto"></div>').html( email))
     .attr('title', email);
 
-    $('<i class="bi bi-reply text-muted mx-1 fade" title="you have replied to this message" answered></i>').appendTo( from);
-    $('<i class="bi bi-forward text-muted mx-1 fade" title="your forwarded this message" forwarded></i>').appendTo( from);
+    $('<i class="bi bi-reply mx-1 fade" title="you have replied to this message" answered></i>').appendTo( from);
+    $('<i class="bi bi-reply bi-flip-horizontal mx-1 fade" title="your forwarded this message" forwarded></i>').appendTo( from);
 
     let selector = $('<input class="mt-1" type="checkbox" selector></i>').appendTo( from);
 
@@ -1074,7 +1074,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				})();
 
 				( function() {
-					let btn = $('<button type="button" data-role="forward"><i class="bi bi-forward"></i></button>');
+					let btn = $('<button type="button" data-role="forward"><i class="bi bi-reply bi-flip-horizontal"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
