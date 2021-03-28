@@ -10,12 +10,6 @@
 
 	$keyLastFolders = sprintf('%s-lastfolders', $this->route);
 	$activeMessage = 'open-message';
-	$unseen = '<span class="float-left text-primary font-weight-bold" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>';
-
-	$answered = '<i class="bi bi-reply float-right text-muted" title="you have replied to this message" answered></i>';
-	$forwarded = '<i class="bi bi-forward float-right text-muted" title="your forwarded this message" forwarded></i>';
-	$selector = '<i class="bi bi-circle float-right text-muted" selector></i>';
-	$selector = '<input class="float-right" type="checkbox" selector></i>';
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
@@ -795,13 +789,24 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		let email = msg.from;
 		if ( msg.folder == defaultFolders.Sent) email = msg.to;
-		let from = $('<div class="col text-truncate font-weight-bold" from></div>').html( email).attr('title', email);
+		let from = $('<div class="col d-flex" from></div>');
 
-    let selector = $('<?= $selector ?>').prependTo( from);
+    $('<span class="text-primary font-weight-bold d-none" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>').appendTo( from);
 
-		if ( 'yes' == msg.answered) $('<?= $answered ?>').prependTo( from);
-		if ( 'yes' == msg.forwarded) $('<?= $forwarded ?>').prependTo( from);
-		if ( 'no' == msg.seen) $('<?= $unseen ?>').prependTo( from);
+    from
+    .append( $('<div class="text-truncate font-weight-bold mr-auto"></div>').html( email))
+    .attr('title', email);
+
+    $('<i class="bi bi-reply text-muted mx-1 fade" title="you have replied to this message" answered></i>').appendTo( from);
+    $('<i class="bi bi-forward text-muted mx-1 fade" title="your forwarded this message" forwarded></i>').appendTo( from);
+
+    let selector = $('<input class="mt-1" type="checkbox" selector></i>').appendTo( from);
+
+		if ( 'no' == msg.seen) $('[unseen]', from).removeClass( 'd-none');
+		if ( 'yes' == msg.forwarded) $('[forwarded]', from).addClass( 'show');
+		if ( 'yes' == msg.answered) $('[answered]', from).addClass( 'show');
+    //----------------------------------------------------
+
 
 		let received = $('<div class="col-3 pl-0 text-right text-truncate small"></div>');
 		let subject = $('<div class="col-9 text-truncate" subject></div>').html( msg.subject).attr( 'title', msg.subject);
@@ -1383,20 +1388,20 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				if ( 'no' == msg.seen) {
 					let _unseen = $('[unseen]', row);
 					if ( _unseen.length == 0 ) {
-						$('[from]', row).prepend( '<?= $unseen ?>');
+						$('[unseen]', row).removeClass( 'd-none');
 
 					}
 
 				}
 				else {
-					$('[unseen]', row).remove();
+					$('[unseen]', row).addClass('d-none');
 
 				}
 
 				if ( 'yes' == msg.answered) {
 					let _answered = $('[answered]', row);
 					if ( _answered.length == 0 ) {
-						$('[from]', row).prepend( '<?= $answered ?>');
+            $('[answered]', row).addClass( 'show');
 
 					}
 
@@ -1626,7 +1631,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				}).then( function( d) {
 					if ( 'ack' == d.response) {
-						$('<?= $unseen ?>').prependTo( $('[from]', _me));
+						$('[unseen]', _me).removeClass('d-none');
 						_me.data('read', 'no');
 
 					}
