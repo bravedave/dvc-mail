@@ -77,7 +77,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			<h6>Search All Folders</h6>
 
-			<div class="form-group row">
+			<div class="form-row mb-2">
 				<div class="col">
 					<input type="search" class="form-control" name="term" placeholder="term" required>
 
@@ -85,7 +85,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			</div>
 
-			<div class="form-group row">
+			<div class="form-row mb-2">
 				<div class="col-md-6">
 					<label for="<?= $uid = strings::rand() ?>">from</label>
 					<input type="date" class="form-control" name="from" id="<?= $uid ?>">
@@ -100,7 +100,17 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			</div>
 
-			<div class="row">
+			<div class="form-row mb-2">
+				<div class="col">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="search-body" value="yes" id="<?= $uid = strings::rand() ?>">
+
+            <label class="form-check-label" for="<?= $uid ?>">Search Body</label>
+
+          </div>
+
+        </div>
+
 				<div class="col text-right">
 					<button class="btn btn-outline-primary">search</button>
 
@@ -2152,7 +2162,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
       let _f = data => {
         return new Promise( resolve => {
 
-          let spinner = $('<i class="spinner-grow spinner-grow-sm"></i>')
+          let spinner = $('<i class="spinner-grow spinner-grow-sm mr-2"></i>')
           spinner.insertAfter( data.el[0]);
           data.el.addClass( 'd-none');
 

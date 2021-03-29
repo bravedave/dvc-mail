@@ -32,7 +32,8 @@ class search {
 
 		$options = array_merge([
 			'folder' => 'default',
-			'term' => ''
+			'term' => '',
+			'body' => 'no',
 
 		], $params);
 

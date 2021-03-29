@@ -325,6 +325,7 @@ class inbox {
 			'folder' => $this->defaults()->inbox,
 			'term' => '',
 			'criteria' => [],
+			'body' => 'no',
 
 		], $params);
 
@@ -349,7 +350,10 @@ class inbox {
 
 				}
 				$_subject[] = sprintf( 'SUBJECT "%s"', trim( $_term));
-				$_text[] = sprintf( 'BODY "%s"', trim( $_term));
+        if ( 'yes' == $options['body']) {
+          $_text[] = sprintf( 'BODY "%s"', trim( $_term));
+
+        }
 
 			}
 			$from = implode( ' ', $_from);

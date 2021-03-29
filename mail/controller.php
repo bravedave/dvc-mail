@@ -337,7 +337,7 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'search-all-messages' == $action) {
-      \set_time_limit( 600);
+
 			// todo: creds
 			$params = [
 				'creds' => $this->creds,
@@ -345,6 +345,8 @@ class controller extends \Controller {
 				'term' => $this->getPost('term'),
 				'from' => $this->getPost('from'),
 				'to' => $this->getPost('to'),
+				'body' => $this->getPost('body'),
+        'time_limit' => 240,
 
 			];
 
@@ -353,7 +355,7 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'search-messages' == $action) {
-      \set_time_limit( 600);
+
 			// todo: creds
 			$params = [
 				'creds' => $this->creds,
@@ -361,6 +363,8 @@ class controller extends \Controller {
 				'term' => $this->getPost('term'),
 				'from' => $this->getPost('from'),
 				'to' => $this->getPost('to'),
+				'body' => 'yes',
+        'time_limit' => 240,
 
 			];
 
