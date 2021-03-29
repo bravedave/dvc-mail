@@ -337,6 +337,7 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'search-all-messages' == $action) {
+      \set_time_limit( 600);
 			// todo: creds
 			$params = [
 				'creds' => $this->creds,
@@ -352,6 +353,7 @@ class controller extends \Controller {
 
 		}
 		elseif ( 'search-messages' == $action) {
+      \set_time_limit( 600);
 			// todo: creds
 			$params = [
 				'creds' => $this->creds,
@@ -364,7 +366,6 @@ class controller extends \Controller {
 
 			Json::ack( $action)
 				->add( 'messages', $this->_search( $params));
-
 
 		}
 		elseif ( 'send email' == $action) {
