@@ -415,7 +415,7 @@ class controller extends \Controller {
 
 		}
 
-    // \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
+    \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
 
 	}
 
