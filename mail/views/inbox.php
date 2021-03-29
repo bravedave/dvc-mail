@@ -13,9 +13,9 @@
 
 	?>
 <form id="<?= $uidFrm = strings::rand() ?>">
-	<input type="hidden" name="user_id" value="<?= $this->data->user_id ?>" />
-	<input type="hidden" name="page" value="0" />
-	<input type="hidden" name="action" />
+	<input type="hidden" name="user_id" value="<?= $this->data->user_id ?>">
+	<input type="hidden" name="page" value="0">
+	<input type="hidden" name="action">
 
 </form>
 
@@ -34,6 +34,8 @@
 		background-color: darkgrey;
 		outline: 1px solid slategrey;
 	}
+
+  .folderlist:not(.searching-disabled) input[searchThisFolder] { display: none; }
 
 	@media (max-width: 575px) {
 		body.hide-nav-bar > nav,
@@ -68,7 +70,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 <div class="row h-100">
 	<div class="d-none" id="<?= $uidSearchAll = strings::rand() ?>" style="overflow: auto;" data-role="mail-search-all">
 		<form id="<?= $uidSearchAll ?>_form">
-			<input type="hidden" name="action" value="search-all-messages" />
+			<input type="hidden" name="action" value="search-all-messages">
 
 			<button type="button" class="close" id="<?= $uid = strings::rand() ?>">&times;</button>
 			<script>$('#<?= $uid ?>').on( 'click', function( e) { $(document).trigger( 'mail-default-view');});</script>
@@ -77,12 +79,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			<div class="form-group row">
 				<div class="col">
-					<input
-						type="search"
-						class="form-control"
-						name="term"
-						placeholder="term"
-						required />
+					<input type="search" class="form-control" name="term" placeholder="term" required>
 
 				</div>
 
@@ -91,13 +88,13 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			<div class="form-group row">
 				<div class="col-md-6">
 					<label for="<?= $uid = strings::rand() ?>">from</label>
-					<input type="date" class="form-control" name="from" id="<?= $uid ?>" />
+					<input type="date" class="form-control" name="from" id="<?= $uid ?>">
 
 				</div>
 
 				<div class="col-md-6 pb-md-0 pb-1">
 					<label for="<?= $uid = strings::rand() ?>">to</label>
-					<input type="date" class="form-control" name="to" id="<?= $uid ?>" />
+					<input type="date" class="form-control" name="to" id="<?= $uid ?>">
 
 				</div>
 
@@ -123,31 +120,20 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		</div>
 
 		<script>
-		$(document).ready( function() {
-			$('#<?= $uid ?>set').on( 'click', function( e) {
-				e.stopPropagation();e.preventDefault();
+    ( _ => {
+      $('#<?= $uid ?>set').on( 'click', e => {
+        e.stopPropagation();e.preventDefault();
+        $('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( ( i, el) => $(el).prop('checked', true));
 
-				$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( function( i, el) {
-					let _el = $(el);
-					_el.prop('checked', true);
+      });
 
-				});
+      $('#<?= $uid ?>unset').on( 'click', e => {
+        e.stopPropagation();e.preventDefault();
+        $('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( ( i, el) => $(el).prop('checked', false));
 
-			});
+      });
 
-			$('#<?= $uid ?>unset').on( 'click', function( e) {
-				e.stopPropagation();e.preventDefault();
-
-				$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( function( i, el) {
-					let _el = $(el);
-					_el.prop('checked', false);
-
-				});
-
-			});
-
-		});
-
+    }) (_brayworth_);
 		</script>
 
 		<div class="form-group row">
@@ -206,8 +192,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
 	let _list = ( folders, cacheData) => {
 		// console.log( folders);
 
-		let ul = $('<ul class="nav flex-column" />');
-		let searchUL = $('<ul class="nav flex-column" />');
+		let ul = $('<ul class="nav flex-column folderlist"></ul>');
+		$('#<?= $uidSearchAll ?>_folders').html(''); // a .col
 
 		let keys = {};
 		let searchKeys = {};
@@ -217,21 +203,19 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		let _list_subfolders = ( i, fldr) => {
 			// console.log( fldr);
 
-
 			let ctrl = $('<div class="text-truncate"></div>').html( fldr.name);
       if ( 'LearnAsSpam' == fldr.name) ctrl.addClass( 'd-none');
 
 			let searchCtrl = $('<div class="form-check"></div>');
 			let chkId = '<?= $uidSearchAll ?>_chk_' + String( ++uidx);
-			searchCtrl.append( $('<input type="checkbox" class="form-check-input" name="path" checked />')
+			searchCtrl.append( $('<input type="checkbox" class="form-check-input" name="path" checked>')
 				.attr( 'id', chkId)
 				.data( 'folder', fldr.fullname));
-			searchCtrl.append( $('<label class="form-check-label"></label>').attr( 'for', chkId));
+			searchCtrl.append( $('<label class="form-check-label"></label>').html( fldr.name).attr( 'for', chkId));
 
-			$('label', searchCtrl).html( fldr.name);
-
-			let li = $('<li class="nav-item pointer" />').appendTo( ul).append( ctrl);
-			let searchLI = $('<li class="pt-1 py-md-0 py-3 pointer" />').appendTo( searchUL).append( searchCtrl);
+			let li = $('<li class="nav-item pointer"></li>').appendTo( ul).append( ctrl);
+			let searchLI = $('<div class="col"></div>').append( searchCtrl);
+      searchLI.appendTo( $('<div class="row"></div>').appendTo( '#<?= $uidSearchAll ?>_folders'))
 
 			keys[ fldr.fullname] = li;
 			searchKeys[ fldr.fullname] = searchLI;
@@ -280,7 +264,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 						caret.prependTo( keys[realPath]);
 
-						_ul = $('<ul class="list-unstyled pl-2" />').appendTo( keys[realPath]);
+						_ul = $('<ul class="nav flex-column pl-2"></ul>').appendTo( keys[realPath]);
 						if ( !!folderState[fldr.fullname]) {
 							caret.removeClass('bi-caret-left').addClass( 'bi-caret-down');
 
@@ -304,30 +288,28 @@ $(document).on('resize-main-content-wrapper', function( e) {
 					// console.log( realPath, ':', realName);
 					$('label', searchCtrl).html( realName);
 
-					let _searchUL = $('> ul', searchKeys[realPath]);
-					if ( _searchUL.length == 0) {
-						_searchUL = $('<ul class="list-unstyled pl-2" />').appendTo( searchKeys[realPath]);
-
-					}
-
-					searchLI.appendTo( _searchUL);
+          // slight indent on new owner ...
+          $('<div class="row"><div class="col-auto">&nbsp;</div></div>')
+          .append(searchLI)
+          .appendTo( searchKeys[realPath]);
 
 				}
-				else {
-					searchLI.appendTo( searchUL);
+				// else {
+					// searchLI.appendTo( '#<?= $uidSearchAll ?>_folders');
 
-				}
+				// }
 
 			}
 			else {
 				li.appendTo( ul);
-				searchLI.appendTo( searchUL);
+				// searchLI.appendTo( '#<?= $uidSearchAll ?>_folders');
 
 			}
 			/** [ recon flag ] */
 
 
 			ctrl
+      .prepend( $('<input type="checkbox" class="mr-1" searchThisFolder>').attr( 'data-folder', fldr.fullname).on( 'click', e => e.stopPropagation()))
 			.attr('title', fldr.name)
 			.data('folder', fldr.fullname)
 			.on( 'click', function( e) {
@@ -543,14 +525,10 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		})
 		.appendTo( '#<?= $uidFolders ?> > div > div.col');
 
-		$('#<?= $uidFolders ?>').on( 'spin', function( e) {
-			$('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm');
-
-		});
+		$('#<?= $uidFolders ?>').on( 'spin', function( e) { $('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm'); });
 
 		$.each( folders, _list_subfolders);
 		$('#<?= $uidFolders ?>').append( ul);
-		$('#<?= $uidSearchAll ?>_folders').html('').append( searchUL);
 		//~ console.log( folders);
 
 		if ( !cacheData) $(document).trigger('mail-folderlist-complete');
@@ -652,7 +630,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				}
 
-				_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time + '<br /><br />');
+				_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time + '<br><br>');
 				// _wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( _to) + ' wrote:');
 
 			}
@@ -670,7 +648,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		// console.log( _frm_data);
 
 		let j = {
-			message : _.browser.isMobileDevice ? '' : '<br /><br />' + _wrap[0].outerHTML,
+			message : _.browser.isMobileDevice ? '' : '<br><br>' + _wrap[0].outerHTML,
 			original : _wrap[0].outerHTML,
 			subject : _subject,
 			user_id : _frm_data.user_id
@@ -783,7 +761,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 	};
 
-	let _list_message_row = ( msg) => {
+	let _list_message_row = (msg, withBulkSelector) => {
 		// console.log( msg);
 		let defaultFolders = $(document).data('default_folders');
 
@@ -800,7 +778,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
     $('<i class="bi bi-reply mx-1 fade" title="you have replied to this message" answered></i>').appendTo( from);
     $('<i class="bi bi-reply bi-flip-horizontal mx-1 fade" title="your forwarded this message" forwarded></i>').appendTo( from);
 
-    let selector = $('<input class="mt-1" type="checkbox" selector></i>').appendTo( from);
+    let selector = $('<input class="mt-1" type="checkbox" selector></i>');
+    if ( withBulkSelector) selector.appendTo( from);
 
 		if ( 'no' == msg.seen) $('[unseen]', from).removeClass( 'd-none');
 		if ( 'yes' == msg.forwarded) $('[forwarded]', from).addClass( 'show');
@@ -895,7 +874,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			}
 
 			let url = _.url('<?= $this->route ?>/view?' + params.join('&'));
-			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="height: 100%;" />');
+			let frame = $('<iframe class="w-100 border-0 pl-sm-1" style="height: 100%;"></iframe>');
 			frame.on( 'load', function( e) {
 				// console.log( this, e);
 				let _frame = this;
@@ -919,7 +898,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 					}
 
-				}, 3000);
+				}, 2000);
 
 				/* build a toolbar */
 				let btns = [];
@@ -937,7 +916,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				})();
 
-				( function() {
+				(() => { // trash button
 					if ( !!defaultFolders && params.message.folder != defaultFolders.Trash) {
 						let btn = $('<button type="button" class="flex-shrink-1" data-role="trash"><i class="bi bi-trash"></i></button>');
 						btn
@@ -969,7 +948,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				})();
 
-				( function() {
+				(() => {
 					let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
 					// console.log( key, lastFolders);
 					if ( !!lastFolders) {
@@ -978,7 +957,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 						.attr('title', 'move ')
 						.addClass( params.btnClass)
 						.on( 'click', function( e) {
-							let select = $('<select class="form-control" />');
+							let select = $('<select class="form-control"></select>');
 
 							let level = 0;
 							/**
@@ -990,7 +969,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 							let _list_subfolders = function( i, fldr) {
 
-								let opt = $('<option />')
+								let opt = $('<option></option>')
 								.html( '&nbsp;'.repeat(level) + fldr.name)
 								.val(fldr.fullname);
 
@@ -1020,7 +999,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 							// console.log( _data.message);
 
-							// $('<input type="hidden" name="folder" />').val( _data.message.folder).appendTo( frm);
+							// $('<input type="hidden" name="folder">').val( _data.message.folder).appendTo( frm);
 
 							btn
 							.on( 'click', function(e) {
@@ -1052,7 +1031,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				})();
 
-				( function() {
+				(function() {
 					let btn = $('<button type="button" data-role="reply"><i class="bi bi-reply"></i></button>');
 					btn
 					.addClass( params.btnClass)
@@ -1179,7 +1158,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				btns.forEach( element => { element.appendTo( params.toolbar); });
 
-				(function( toolbar) {
+				(toolbar => {
 					if ( _.browser.isMobileDevice) {
 						let row = $('<div class="row"></div>').prependTo( '#<?= $uidViewer ?>');
 						$('<div class="col bg-secondary"></div>').appendTo( row).append( toolbar);
@@ -1248,15 +1227,15 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 						/**---------------------------------------------------------------------------- */
 
-						let form = $('<form />').appendTo( '#<?= $uidViewer ?>');
+						let form = $('<form></form>').appendTo( '#<?= $uidViewer ?>');
 						let row = $('<div class="row mx-0"></div>').appendTo( form);
 						let col = $('<div class="col position-relative"></div>').appendTo( row);
-						let ta = $('<textarea class="form-control pt-2" rows="3" required />').appendTo(col);
+						let ta = $('<textarea class="form-control pt-2" rows="3" required></textarea>').appendTo(col);
 
 						let ig = $('<div class="input-group input-group-sm position-absolute" style="top: -1.2rem; left: 27px; width: 360px; opacity: .7"><div class="input-group-prepend"><div class="input-group-text">to</div></div></div>')
 							.appendTo( col);
 
-						$('<input type="text" readonly class="form-control form-control-sm" />')
+						$('<input type="text" readonly class="form-control form-control-sm">')
 							.val( _to)
 							.appendTo( ig);
 
@@ -1285,7 +1264,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 										_time = m.format( 'll');
 
 									}
-									_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time + '<br /><br />');
+									_wrap.prepend('from ' + encodeHTMLEntities( _to) + ' - '  + _time + '<br><br>');
 
 								}
 								else {
@@ -1347,10 +1326,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			});
 
 			_me.addClass('<?= $activeMessage ?>');
-			window.setTimeout(() => {
-				_me[0].scrollIntoViewIfNeeded({behavior: 'smooth'});
-
-			}, 200)
+			window.setTimeout(() => _me[0].scrollIntoViewIfNeeded({behavior: 'smooth'}), 200)
 
 			// console.log(_me[0]);
 
@@ -1373,13 +1349,10 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 	};
 
-	let _list_messages = ( messages, cacheData) => {
-		$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
-			$(el).data('seen', false);
+	let _list_messages = ( messages, cacheData, withBulkSelector) => {
+		$('> [uid]', '#<?= $uidMsgs ?>').each( ( i, el) => $(el).data('seen', false));
 
-		});
-
-		$.each( messages, function( i, msg) {
+		$.each( messages, ( i, msg) => {
 			let row = $('[uid="'+msg.uid+'"]');
 			if ( row.length > 0) {
 				row.data('seen', true);
@@ -1414,7 +1387,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			// console.log( msg);
 			// msg.folder ==
-			row = _list_message_row( msg);
+			row = _list_message_row( msg, withBulkSelector);
 			let rowID = row.attr( 'id');
 
 			/**
@@ -1602,7 +1575,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				}).then( function( d) {
 					if ( 'ack' == d.response) {
-						$('[unseen]', _me).remove();
+						$('[unseen]', _me).addClass('d-none');
 						_me.data('read', 'yes');
 
 					}
@@ -1683,12 +1656,10 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		});
 
-		$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+		// remove any message not seen in latest round
+    $('> [uid]', '#<?= $uidMsgs ?>').each( (i, el) => {
 			let _el = $(el);
-			if ( !_el.data('seen')) {
-				_el.remove();
-
-			}
+			if ( !_el.data('seen')) _el.remove();
 
 		});
 
@@ -1709,7 +1680,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			url : _.url('<?= $this->route ?>'),
 			data : data,	// data from the form
 
-		}).then( function( d) {
+		}).then( d => {
 			if ( 'ack' == d.response) {
 				// console.log( data.key);
 				sessionStorage.setItem( data.key, JSON.stringify( d.messages));
@@ -1721,27 +1692,30 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				};
 
-				if ( !!data.folder) fldrs.data = data.folder;
-				if ( !!$('#<?= $uidMsgs ?>').data('folder')) fldrs.current = $('#<?= $uidMsgs ?>').data('folder');
+        if ( !/search/.test( $('#<?= $uidMsgs ?>').data('controlstate'))) {
+          if ( !!data.folder) fldrs.data = data.folder;
+          if ( !!$('#<?= $uidMsgs ?>').data('folder')) fldrs.current = $('#<?= $uidMsgs ?>').data('folder');
 
-				if ( fldrs.data == fldrs.current) {
-					if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
-						_list_messages( d.messages);
-						$('i.spinner-grow', '#<?= $uidMsgs ?>').addClass('bi-arrow-repeat').removeClass('spinner-grow spinner-grow-sm');
+          if ( fldrs.data == fldrs.current) {
+            if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
+              _list_messages( d.messages, false, true);
+              $('i.spinner-grow', '#<?= $uidMsgs ?>').addClass('bi-arrow-repeat').removeClass('spinner-grow spinner-grow-sm');
 
-						if ( 0 == data.page) {
-							$(document).trigger( 'mail-clear-reloader');
-							$(document).data( 'mail-messages-reloader', window.setTimeout(() => {
-								sessionStorage.removeItem( data.key);
-								$(document).trigger('mail-messages-loader', data);
+              if ( 0 == data.page) {
+                $(document).trigger( 'mail-clear-reloader');
+                $(document).data( 'mail-messages-reloader', window.setTimeout(() => {
+                  sessionStorage.removeItem( data.key);
+                  $(document).trigger('mail-messages-loader', data);
 
-							}, 20000));
+                }, 20000));
 
-						}
+              }
 
-					}
+            }
 
-				}
+          }
+
+        }
 
 			}
 			else {
@@ -1754,7 +1728,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 	});
 
-	$(document).on( 'mail-messages', function( e, folder) {
+	$(document).on( 'mail-messages', ( e, folder) => {                      // header view set here
 
 		$(document).trigger( 'mail-clear-reloader');
 
@@ -1767,7 +1741,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		let page = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
 		let heading = $('<div class="row bg-light text-muted"></div>');
-		( (col) => {
+		( (col) => {                                                          // header view set here
 			let primary = $('<div class="d-flex"></div>').appendTo( col);
 			let bulkControl = $('<div class="py-1 input-group d-none text-right"><div class="mr-auto" status></div></div>').appendTo( col);
 			let search = $('<div class="py-1 input-group d-none"></div>').appendTo( col);
@@ -1895,7 +1869,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 					data : data,	// data from the form
 
 				}).then( d => {
-					console.log( d);
+					// console.log( d);
 
 					if ( 'ack' == d.response) {
 						// DONE : Clear message list before loading search results
@@ -1910,8 +1884,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 							.appendTo( col);
 
 						$('#<?= $uidMsgs ?>').html('').append( heading);
-            console.log( '_list_messages > ')
-						_list_messages( d.messages);
+						_list_messages( d.messages, false, false);
 
 					}
 					else {
@@ -2015,11 +1988,13 @@ $(document).on('resize-main-content-wrapper', function( e) {
         let selectors = $('input[selector]:checked', this);
 
         if ( selectors.length > 0) {
+          $('.folderlist', '#<?= $uidFolders ?>').removeClass( 'searching');
           search.addClass( 'd-none');
           primary.removeClass( 'd-flex').addClass('d-none');
 
           $('[status]', bulkControl).html( selectors.length + 'msg/s');
 					bulkControl.removeClass( 'd-none').addClass( 'd-flex');
+          _me.data('controlstate','bulk');
 
         }
         else {
@@ -2029,23 +2004,46 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
       })
       .on('expose-primary-controls', function() {
+
+        let _me = $(this);
+
+        $('.folderlist', '#<?= $uidFolders ?>').removeClass( 'searching');
         search.addClass( 'd-none');
         bulkControl.removeClass( 'd-flex').addClass( 'd-none');
 
         primary.removeClass( 'd-none').addClass('d-flex');
+        _me.data('controlstate','primary');
 
       })
       .on('expose-search-controls', function() {
+        let _me = $(this);
+
+        $('.folderlist', '#<?= $uidFolders ?>').addClass( 'searching');
+
+        $('input[searchThisFolder]', '#<?= $uidFolders ?>').prop( 'checked', false);
+				if ( !!folder) {
+          $('input[searchThisFolder][data-folder="' + folder + '"]', '#<?= $uidFolders ?>').prop( 'checked', true);
+
+        }
+        else {
+          $('input[searchThisFolder][data-folder="INBOX"]', '#<?= $uidFolders ?>').prop( 'checked', true);
+
+        }
+
         primary.removeClass('d-flex').addClass( 'd-none');
         bulkControl.removeClass( 'd-flex').addClass( 'd-none');
 
         search.removeClass( 'd-none');
+        _me.data('controlstate','search');
 
       });
 
 		})( $('<div class="col"></div>').appendTo( heading));
 
-		$('#<?= $uidMsgs ?>').html('').append( heading);
+		$('#<?= $uidMsgs ?>')
+    .html('')
+    .append( heading)
+    .trigger('expose-primary-controls');
 
 		data.key = '<?= $this->route ?>-lastmessages-';
 		if ( 'undefined' != typeof data.folder) {
@@ -2064,7 +2062,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		if ( !!lastMessages) {
 			// console.log( 'lastMessages - ' + data.folder);
 			try {
-				_list_messages( JSON.parse( lastMessages), true);
+				_list_messages( JSON.parse( lastMessages), true, true);
 
 			} catch (error) {
 				console.log( error);
@@ -2091,9 +2089,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		/**--- ---[ search-all ]--- ---*/
 		let gForm = $('#<?= $uidFrm ?>');
-		let gData = gForm.serializeFormJSON();
-
-		$.extend( gData, _data);
+		let gData = _.extend( gForm.serializeFormJSON(), _data);
 
 		$('button', _form)
 		.html('')
@@ -2130,7 +2126,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		$('#<?= $uidSearchAll ?>_form').addClass( 'd-none');
 		$('#<?= $uidSearchAll ?>_buttons').addClass( 'd-none');
 
-		$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( function( i, el) {
+    let dataQ = [];
+
+		$('input[type="checkbox"]', '#<?= $uidSearchAll ?>_folders').each( ( i, el) => {
 			let _el = $(el);
 			if ( !_el.prop('checked')) {
 				_el.closest('div.form-check').remove();
@@ -2138,59 +2136,83 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			}
 
-			let data = $.extend( _el.data(), gData);
-
-			let spinner = $('<i class="spinner-grow spinner-grow-sm"></i>')
-			spinner.insertAfter( this);
-			_el.addClass( 'd-none');
-
+			let data = _.extend( _el.data(), gData);
 			data.action = 'search-messages';
 
 			// console.table( data);
+      dataQ.push({
+        data : data,
+        el : _el
 
-			_.post({
-				url : _.url('<?= $this->route ?>'),
-				data : data,	// data from the form
-
-			}).then( function( d) {
-				// console.table( d);
-				// // console.log( d);
-
-				if ( 'ack' == d.response) {
-					// 	$('#<?= $uidMsgs ?>').html('').append( heading);
-					let fc = _el.closest('div.form-check');
-					let container = $('<div></div>');
-					container.insertAfter( fc);
-					$.each( d.messages, function( i, el ) {
-						let row = _list_message_row( el);
-						container.append( row);
-
-					});
-
-					spinner.remove();
-					let badge = $('<div class="badge badge-pill badge-secondary float-right"></div>').html( d.messages.length);
-
-					fc
-					.removeClass('form-check')
-					.prepend( badge);
-
-				}
-				else {
-					_.growl( d);
-
-				}
-
-			});
-
-			// return false;
+      });
 
 		});
 
-		return false;
+    if ( dataQ.length > 0) {
+      let _f = data => {
+        return new Promise( resolve => {
+
+          let spinner = $('<i class="spinner-grow spinner-grow-sm"></i>')
+          spinner.insertAfter( data.el[0]);
+          data.el.addClass( 'd-none');
+
+          // console.table( data);
+          // resolve();
+          // return;
+
+          _.post({
+            url : _.url('<?= $this->route ?>'),
+            data : data.data,	// data from the form
+
+          })
+          .then( d => {
+            // console.table( d);
+            // // console.log( d);
+
+            if ( 'ack' == d.response) {
+              // 	$('#<?= $uidMsgs ?>').html('').append( heading);
+              let fc = data.el.closest('div.form-check');
+              let container = $('<div></div>');
+              container.insertAfter( fc);
+              $.each( d.messages, ( i, msg) => container.append( _list_message_row( msg, false)));
+
+              spinner.remove();
+              let badge = $('<div class="badge badge-pill badge-secondary float-right"></div>').html( d.messages.length);
+
+              fc
+              .removeClass('form-check')
+              .prepend( badge);
+
+              resolve();
+
+            }
+            else {
+              _.growl( d);
+
+            }
+
+          });
+
+        });
+
+      };
+
+      let looper = () => {
+        // console.log( 'looper');
+        // if ( dataQ.length > 0) console.log( dataQ.shift());
+        if ( dataQ.length > 0) _f( dataQ.shift()).then( looper);
+
+      };
+
+      looper();
+
+    }
+
+		return false; // don't reload page
 
 	});
 
-  $(document).on( 'mail-set-view', function() {
+  $(document).on( 'mail-set-view', e => {
     let view = $(document).data('view');
     let focus = $(document).data('focus');
 
@@ -2253,7 +2275,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  $(document).on( 'mail-view-state', function() {
+  $(document).on( 'mail-view-state', e => {
     console.table({
       view : $(document).data('view'),
       focus : $(document).data('focus'),
@@ -2265,7 +2287,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  $(document).on( 'mail-default-view', function() {
+  $(document).on( 'mail-default-view', e => {
     let key = '<?= $this->route ?>-view';
     let view = sessionStorage.getItem( key);
 
@@ -2277,7 +2299,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  $(document).on( 'mail-toggle-view', function() {
+  $(document).on( 'mail-toggle-view', e => {
     let view = $(document).data('view');
     let key = '<?= $this->route ?>-view';
 
@@ -2303,14 +2325,14 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  $(document).on( 'mail-view-message-list', function( e) {
+  $(document).on( 'mail-view-message-list', e => {
     $(document).data('focus', 'message-list');
     $(document).trigger('mail-set-view');
     // console.log('mail-view-message-list');
 
   });
 
-  $(document).on( 'mail-view-message-set-url', function( e, url) {
+  $(document).on( 'mail-view-message-set-url', ( e, url) => {
     if ( _.browser.isMobileDevice) {
       if ( !!history.state) {
         history.replaceState({ view : 'message'}, 'message', url);
@@ -2325,9 +2347,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  window.onpopstate = function( e) {
-    // console.log( e);
-
+  window.onpopstate = e => {
     if ( !!e.state) {
       if ( 'message' == e.state.view) {
         $(document).trigger('mail-view-message');
@@ -2340,18 +2360,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
     }
 
-    // else if ( Number( e.state.view) > 0) {
-    // 	$('body').trigger( 'load-application-viewer', e.state.view);
-
-    // }
-    // else {
-      // console.log( 'what about me ..', e.state);
-
-    // }
-
   };
 
-  $(document).on( 'mail-info', function( e, func) {
+  $(document).on( 'mail-info', ( e, func) => {
     _.post({
       url : _.url('<?= $this->route ?>'),
       data : {
@@ -2365,18 +2376,15 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  $(document).on( 'mail-view-message', function( e) {
+  $(document).on( 'mail-view-message', e => {
     $(document).data('focus', 'message-view');
     $(document).trigger('mail-set-view');
 
   });
 
-  $(document).on( 'mail-message-load-first', function() {
-    $('#<?= $uidMsgs ?> > div[uid]').first().trigger('view');
+  $(document).on( 'mail-message-load-first', e => $('#<?= $uidMsgs ?> > div[uid]').first().trigger('view'));
 
-  });
-
-  $(document).on( 'mail-message-load-next', function(e) {
+  $(document).on( 'mail-message-load-next', e => {
     let uid = $('#<?= $uidViewer ?>').data('next');
     if ( 'undefined' != typeof uid) {
       $('#<?= $uidViewer ?>').removeData('next').removeData('prev');
@@ -2391,7 +2399,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
-  $(document).on( 'mail-message-load-prev', function() {
+  $(document).on( 'mail-message-load-prev', e => {
     let uid = $('#<?= $uidViewer ?>').data('prev');
     if ( 'undefined' != typeof uid) {
       $('#<?= $uidViewer ?>').removeData('next').removeData('prev');
@@ -2485,16 +2493,13 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   }
 
-  $(document).on('mail-clear-viewer', function( e) {
-    $('#<?= $uidViewer ?>').trigger('clear');
-
-  });
+  $(document).on('mail-clear-viewer', e => $('#<?= $uidViewer ?>').trigger('clear'));
 
   $(document)
   .data('route', '<?= $this->route ?>')
   .data('autoloadnext', '<?= ( currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no' ) ?>');
 
-  $(document).ready( function() {
+  $(document).ready( () => {
 
     $(document).trigger('resize-main-content-wrapper');
 

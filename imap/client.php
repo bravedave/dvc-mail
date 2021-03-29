@@ -1107,7 +1107,7 @@ class client {
 		$ret = [];
 		$results = [];
 		foreach ( $options['criteria'] as $criteria) {
-      \sys::logger( sprintf('<%s> %s', $criteria, __METHOD__));
+      // \sys::logger( sprintf('<%s> %s', $criteria, __METHOD__));
 
 
 			set_time_limit( $options['time_limit']);
