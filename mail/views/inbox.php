@@ -1754,7 +1754,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		( (col) => {                                                          // header view set here
 			let primary = $('<div class="d-flex"></div>').appendTo( col);
 			let bulkControl = $('<div class="py-1 input-group d-none text-right"><div class="mr-auto" status></div></div>').appendTo( col);
-			let search = $('<div class="py-1 input-group d-none"></div>').appendTo( col);
+			let search = $('<div class="py-1 d-none"></div>').appendTo( col);
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
 			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1"></h6>').html( location).appendTo( primary);
@@ -1835,8 +1835,16 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
+			let _search_ig = $('<div class="input-group"></div>').appendTo( search);
+      let _uid = 'uid' + parseInt( Math.random() * 1000000);
+      let searchBody = $('<input type="checkbox" class="custom-control-input" id="' +_uid+ '">');
+      $('<div class="custom-control custom-switch"></div>')
+      .appendTo( search)
+      .append( searchBody)
+      .append( '<label class="custom-control-label" for="' +_uid+ '">search email body</label>');
+
 			let fldSearch = $('<input class="form-control" type="search">')
-			.appendTo( search)
+			.appendTo( _search_ig)
 			.attr('placeholder', 'search ' + location)
 			.attr('title', 'press escape to exit')
 			.on( 'keyup', function( e) {
@@ -1862,7 +1870,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				let data = frm.serializeFormJSON();
 
 				data.action = 'search-messages';
-        data['search-body'] = 'yes';
+        data['search-body'] = searchBody.prop('checked') ? 'yes' : 'no';
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
@@ -1906,15 +1914,14 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				});
 
-			})
-			;
+			});
 
-			let iga = $('<div class="input-group-append"></div>').appendTo( search);
+			let iga = $('<div class="input-group-append"></div>').appendTo( _search_ig);
 			$('<button type="button" class="btn btn-outline-secondary px-2" search-activate><i class="bi bi-arrow-return-left"></i></button>')
 			.on( 'click', function( e) { fldSearch.trigger( 'search'); })
 			.appendTo( iga);
 
-			iga = $('<div class="input-group-append"></div>').appendTo( search);
+			iga = $('<div class="input-group-append"></div>').appendTo( _search_ig);
 			$('<button type="button" class="btn btn-outline-secondary px-2" title="advanced search">A</button>')
 			.on( 'click', function( e) {
 				$('input[name="term"]','#<?= $uidSearchAll ?>').val( fldSearch.val());
