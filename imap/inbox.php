@@ -333,6 +333,7 @@ class inbox {
 
 		$ret = [];
 		if ( $options['term']) {
+      $text = '';
 			$term = \str_replace( '"', '', $options['term']);
 			$terms = explode(',', $term);
 
@@ -351,6 +352,7 @@ class inbox {
 				}
 				$_subject[] = sprintf( 'SUBJECT "%s"', trim( $_term));
         if ( 'yes' == $options['body']) {
+          // \sys::logger( sprintf('<%s> %s', 'add body', __METHOD__));
           $_text[] = sprintf( 'BODY "%s"', trim( $_term));
 
         }
@@ -358,7 +360,7 @@ class inbox {
 			}
 			$from = implode( ' ', $_from);
 			$subject = implode( ' ', $_subject);
-			$text = implode( ' ', $_text);
+			if ( $_text) $text = implode( ' ', $_text);
 
 			if ( isset($options['from']) && strtotime($options['from']) > 0) {
 				$since = strtotime($options['from']);
@@ -385,7 +387,7 @@ class inbox {
 			 */
 			$options['criteria'][] = $from;
 			$options['criteria'][] = $subject;
-			$options['criteria'][] = $text;
+			if ( $text) $options['criteria'][] = $text;
 
 			// sys::logger( sprintf('%s : %s', $from, __METHOD__));
 

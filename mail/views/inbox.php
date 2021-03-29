@@ -2095,8 +2095,6 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		if ( '' == String( _data.term).trim()) return;	// this won't happen, but it here anyway ...
 
-		// console.table( _data);
-
 		/**--- ---[ search-all ]--- ---*/
 		let gForm = $('#<?= $uidFrm ?>');
 		let gData = _.extend( gForm.serializeFormJSON(), _data);

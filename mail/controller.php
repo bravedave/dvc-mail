@@ -345,10 +345,13 @@ class controller extends \Controller {
 				'term' => $this->getPost('term'),
 				'from' => $this->getPost('from'),
 				'to' => $this->getPost('to'),
-				'body' => $this->getPost('body'),
+				'body' => $this->getPost('search-body'),
         'time_limit' => 240,
 
 			];
+
+      \sys::logger( sprintf('<%s> %s', $params['body'], __METHOD__));
+
 
 			Json::ack( $action)
 				->add( 'messages', $this->_search( $params));
@@ -363,13 +366,14 @@ class controller extends \Controller {
 				'term' => $this->getPost('term'),
 				'from' => $this->getPost('from'),
 				'to' => $this->getPost('to'),
-				'body' => 'yes',
+				'body' => $this->getPost('search-body'),
         'time_limit' => 240,
 
 			];
 
 			Json::ack( $action)
 				->add( 'messages', $this->_search( $params));
+      \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
 
 		}
 		elseif ( 'send email' == $action) {
@@ -419,7 +423,7 @@ class controller extends \Controller {
 
 		}
 
-    \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
+    // \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
 
 	}
 
