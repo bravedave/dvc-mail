@@ -299,7 +299,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 					$('label', searchCtrl).html( realName);
 
           // slight indent on new owner ...
-          $('<div class="row"><div class="col-auto">&nbsp;</div></div>')
+          $('<div class="row" search-parameter-row><div class="col-auto"></div></div>')
           .append(searchLI)
           .appendTo( searchKeys[realPath]);
 
@@ -1862,6 +1862,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				let data = frm.serializeFormJSON();
 
 				data.action = 'search-messages';
+        data['search-body'] = 'yes';
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
