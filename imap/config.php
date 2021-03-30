@@ -4,8 +4,7 @@
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
- * This work is licensed under a Creative Commons Attribution 4.0 International Public License.
- *      http://creativecommons.org/licenses/by/4.0/
+ * MIT License
  *
 */
 
@@ -15,6 +14,7 @@ abstract class config extends \config {
 	const imap_route = 'imap';
 
 	static $WEBNAME = 'IMAP Interface for DVC';
+	static $IMAP_PAGE_SIZE = 20;
 
 	static protected $_IMAP_VERSION = 0;
 

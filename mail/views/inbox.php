@@ -1799,8 +1799,78 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
-			if ( page > 0) {
-				$('<span class="d-inline-flex small pt-1"></span>').html(page).appendTo( primary);
+			if ( page > -1) {
+        let statDiv = $('<div class="d-inline-flex small pt-1"></div>').appendTo( primary);
+
+				$('<span></span>')
+        .html(page+1)
+        .appendTo( statDiv);
+
+				$('<span></span>')
+        .appendTo( statDiv)
+        .on( 'update', function(e) {
+          let _me = $(this);
+          $(document).trigger( 'mail-info', d => {
+            if ( 'ack' == d.response) {
+              _me.html( '/' + d.data.pages);
+
+              statDiv
+              .addClass('pointer')
+              .on( 'click', function( e) {
+                e.stopPropagation();e.preventDefault();
+
+                let input = $('<input type="text" class="form-control text-center">');
+                input
+                .val( page+1)
+                .on( 'goto', function( e) {
+                  let _me = $(this);
+                  let v = Number( _me.val());
+                  if ( v > 0) {
+
+                    v --;
+                    $('input[name="page"]','#<?= $uidFrm ?>').val( v);
+
+                    if ( !!folder)
+                      $(document).trigger('mail-messages', folder);
+                    else
+                      $(document).trigger('mail-messages');
+
+                  }
+
+                })
+                .on( 'keyup', function( e) {
+                  if ( 13 == e.keyCode) {
+                    // console.log( 'enter');
+                    e.stopPropagation();e.preventDefault();
+
+                    let _me = $(this);
+                    _me.trigger( 'goto');
+
+                  }
+
+                });
+
+                if ( _.browser.isMobileDevice) {
+                  input.on( 'blur', function(e) {
+                    let _me = $(this);
+                    _me.trigger( 'goto');
+
+                  });
+
+                }
+
+                statDiv.removeClass('d-inline-flex').addClass( 'd-none');
+                input.insertAfter( statDiv[0]);
+                input.focus();
+
+              });
+
+            }
+
+          });
+
+        })
+        .trigger( 'update');
 
 			}
 
@@ -2379,16 +2449,16 @@ $(document).on('resize-main-content-wrapper', function( e) {
   };
 
   $(document).on( 'mail-info', ( e, func) => {
+    let data = { action : 'get-info' };
+
+    let pageSize = localStorage.getItem( 'mail-pageSize');
+    if ( !!pageSize) data.pageSize = pageSize;
+
     _.post({
       url : _.url('<?= $this->route ?>'),
-      data : {
-        action : 'get-info'
-      },
+      data : data,
 
-    }).then( d => {
-      if ( 'function' == typeof func) func( d);
-
-    });
+    }).then( d => { if ( 'function' == typeof func) func( d); });
 
   });
 

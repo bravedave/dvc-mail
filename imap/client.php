@@ -786,7 +786,7 @@ class client {
 		$options = (object)array_merge([
 			'deep' => false,
 			'page' => 0,
-			'pageSize' => 20,
+			'pageSize' => config::$IMAP_PAGE_SIZE,
 			'allPages' => false,
 
 		], $params);

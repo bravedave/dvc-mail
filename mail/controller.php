@@ -17,6 +17,7 @@ use Response;
 use strings;
 use sys;
 use dvc\cssmin;
+use dvc\imap\config;
 use userAgent;
 // use url;
 
@@ -43,7 +44,7 @@ class controller extends \Controller {
 
 		if ( 'attachments-get' == $action) {
 			if ( $tmpdir = $this->getPost( 'tmpdir' )) {
-				$dir = \config::tempdir() . $tmpdir;
+				$dir = config::tempdir() . $tmpdir;
 				if ( \is_dir( $dir)) {
 
 					// \sys::logger( sprintf('<%s> %s', $dir, __METHOD__));
@@ -99,7 +100,7 @@ class controller extends \Controller {
 
 			$j->add( 'tmpdir', $tmpdir);
 
-			$UploadDir = \config::tempdir() . $tmpdir;
+			$UploadDir = config::tempdir() . $tmpdir;
 			if ( !is_dir( $UploadDir )) {
 				mkdir( $UploadDir);
 				chmod( $UploadDir, 0777 );
@@ -181,7 +182,7 @@ class controller extends \Controller {
     }
     elseif ( 'cleanup-temp' == $action) {
       if ( $tmpdir = $this->getPost( 'tmpdir')) {
-				$dir = \config::tempdir() . $tmpdir;
+				$dir = config::tempdir() . $tmpdir;
 				if ( \is_dir( $dir)) {
           $it = new \FilesystemIterator($dir);
           foreach ($it as $fileinfo) {
@@ -277,10 +278,18 @@ class controller extends \Controller {
 		}
 		elseif ( 'get-info' == $action) {
 			$folder = $this->getPost('folder', 'default');
+
+      $pageSize = config::$IMAP_PAGE_SIZE;
+      if ( $i = (int)$this->getPost('pageSize')) $pageSize = $i;
+
 			$inbox = inbox::instance( $this->creds);
+      $data = $inbox->Info( $folder);
+
+      $data->pages = $pageSize ? round( $data->Nmsgs / $pageSize, 0, PHP_ROUND_HALF_UP) : 0;
+
 			Json::ack( $action)
 				->add( 'folder', $folder)
-				->add( 'data', $inbox->Info( $folder));
+				->add( 'data', $data);
 
 		}
 		elseif ( 'mark-seen' == $action || 'mark-unseen' == $action) {
@@ -393,7 +402,7 @@ class controller extends \Controller {
       // $mail->Body = $message;
 
       if ( $tmpdir = (string)$this->getPost( 'tmpdir')) {
-        $tmpdir = \config::tempdir()  . $tmpdir;
+        $tmpdir = config::tempdir()  . $tmpdir;
         if ( is_dir( $tmpdir)) {
           $it = new \FilesystemIterator($tmpdir);
           foreach ($it as $fileinfo) {
@@ -831,7 +840,7 @@ class controller extends \Controller {
 			'debug' => false,
 			'libName' => 'mailjs',
 			'jsFiles' => sprintf( '%s/js/*.js', __DIR__ ),
-			'libFile' => \config::tempdir()  . '_mailjs_tmp.js'
+			'libFile' => config::tempdir()  . '_mailjs_tmp.js'
 
 		]);
 
@@ -842,7 +851,7 @@ class controller extends \Controller {
 			'debug' => false,
 			'libName' => 'mail/normalise',
 			'cssFiles' => [ __DIR__ . '/normalize.css'],
-			'libFile' => \config::tempdir()  . '_mail_normalize.css'
+			'libFile' => config::tempdir()  . '_mail_normalize.css'
 
 		]);
 
