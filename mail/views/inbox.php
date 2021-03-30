@@ -1853,12 +1853,12 @@ $(document).on('resize-main-content-wrapper', function( e) {
                 if ( _.browser.isMobileDevice) {
                   input
                   .attr('inputmode','numeric')
-                  .attr('pattern','[0-9]*');
-                  // .on( 'blur', function(e) {
-                  //   let _me = $(this);
-                  //   _me.trigger( 'goto');
+                  .attr('pattern','[0-9]*')
+                  .on( 'blur', function(e) {
+                    let _me = $(this);
+                    _me.trigger( 'goto');
 
-                  // });
+                  });
 
                 }
 
