@@ -1063,7 +1063,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				})();
 
 				( function() {
-					let btn = $('<button type="button" data-role="forward"><i class="bi bi-reply bi-flip-horizontal"></i></button>');
+					let btn = $('<button type="button" data-role="forward"><i class="bi bi-reply" style="display: flex; transform: scale(-1,1);"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', () => { reply.call( btn, _data)});
@@ -1677,6 +1677,24 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 	};
 
+  let mailInfo = folder => {
+    let data = {
+      action : 'get-info',
+      folder : folder
+
+    };
+
+    let pageSize = localStorage.getItem( 'mail-pageSize');
+    if ( !!pageSize) data.pageSize = pageSize;
+
+    return _.post({
+      url : _.url('<?= $this->route ?>'),
+      data : data,
+
+    });
+
+  };
+
 	$(document).on('mail-messages-loader', (e, data) => {
 
 		$('i.bi-arrow-repeat', '#<?= $uidMsgs ?>')
@@ -1810,7 +1828,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
         .appendTo( statDiv)
         .on( 'update', function(e) {
           let _me = $(this);
-          $(document).trigger( 'mail-info', d => {
+
+          mailInfo( !!folder ? folder : 'default')
+          .then( d => {
             if ( 'ack' == d.response) {
               _me.html( '/' + d.data.pages);
 
@@ -1845,6 +1865,16 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
                     let _me = $(this);
                     _me.trigger( 'goto');
+
+                  }
+                  else if ( 27 == e.keyCode) {
+                    // console.log( 'enter');
+                    e.stopPropagation();e.preventDefault();
+
+                    let _me = $(this);
+                    _me.addClass( 'd-none');
+                    statDiv.addClass('d-inline-flex').removeClass( 'd-none');
+                    _me.remove();
 
                   }
 
@@ -2452,16 +2482,20 @@ $(document).on('resize-main-content-wrapper', function( e) {
   };
 
   $(document).on( 'mail-info', ( e, func) => {
-    let data = { action : 'get-info' };
+    if ( 'function' != typeof func) func = d => console.log( 'ack' == d.response ? d.data : d);
 
-    let pageSize = localStorage.getItem( 'mail-pageSize');
-    if ( !!pageSize) data.pageSize = pageSize;
+    mailInfo('default').then( func);
 
-    _.post({
-      url : _.url('<?= $this->route ?>'),
-      data : data,
+    // let data = { action : 'get-info' };
 
-    }).then( d => { if ( 'function' == typeof func) func( d); });
+    // let pageSize = localStorage.getItem( 'mail-pageSize');
+    // if ( !!pageSize) data.pageSize = pageSize;
+
+    // _.post({
+    //   url : _.url('<?= $this->route ?>'),
+    //   data : data,
+
+    // }).then( d => { if ( 'function' == typeof func) func( d); });
 
   });
 

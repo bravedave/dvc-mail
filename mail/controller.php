@@ -285,7 +285,7 @@ class controller extends \Controller {
 			$inbox = inbox::instance( $this->creds);
       $data = $inbox->Info( $folder);
 
-      $data->pages = $pageSize ? round( $data->Nmsgs / $pageSize, 0, PHP_ROUND_HALF_UP) : 0;
+      $data->pages = $pageSize ? round( ($data->Nmsgs / $pageSize)+.5, 0) : 0;
 
 			Json::ack( $action)
 				->add( 'folder', $folder)
