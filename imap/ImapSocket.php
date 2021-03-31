@@ -85,16 +85,16 @@ class ImapSocket {
   }
 
   public function get_flags(int $id): array {
-    $result = $this->send("FETCH $id (FLAGS)");
-    preg_match_all("|\\* \\d+ FETCH \\(FLAGS \\((.*)\\)\\)|", $result[0], $matches);
-    if (isset($matches[1][0])) {
-      return explode(' ', $matches[1][0]);
+    if ( $result = $this->send("FETCH $id (FLAGS)")) {
+      preg_match_all("|\\* \\d+ FETCH \\(FLAGS \\((.*)\\)\\)|", $result[0], $matches);
+      if (isset($matches[1][0])) {
+        return explode(' ', $matches[1][0]);
+
+      }
 
     }
-    else {
-      return [];
 
-    }
+    return [];
 
   }
 
