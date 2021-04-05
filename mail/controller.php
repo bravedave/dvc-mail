@@ -283,17 +283,22 @@ class controller extends \Controller {
       if ( $i = (int)$this->getPost('pageSize')) $pageSize = $i;
 
 			$inbox = inbox::instance( $this->creds);
-      $data = $inbox->Info( $folder);
+      if ($data = $inbox->Info( $folder)) {
+        $data->pages = 0;
+        if ( isset($data->Nmsgs)) {
+          $data->pages = $pageSize ? round( ($data->Nmsgs / $pageSize)+.5, 0) : 0;
 
-      $data->pages = 0;
-      if ( isset($data->Nmsgs)) {
-        $data->pages = $pageSize ? round( ($data->Nmsgs / $pageSize)+.5, 0) : 0;
+        }
+
+        Json::ack( $action)
+          ->add( 'folder', $folder)
+          ->add( 'data', $data);
 
       }
+      else {
+        Json::nak( $action);
 
-			Json::ack( $action)
-				->add( 'folder', $folder)
-				->add( 'data', $data);
+      }
 
 		}
 		elseif ( 'mark-seen' == $action || 'mark-unseen' == $action) {
