@@ -301,6 +301,31 @@ class controller extends \Controller {
       }
 
 		}
+		elseif ( 'get-status' == $action) {
+			$folder = $this->getPost('folder', 'default');
+
+      $pageSize = config::$IMAP_PAGE_SIZE;
+      if ( $i = (int)$this->getPost('pageSize')) $pageSize = $i;
+
+			$inbox = inbox::instance( $this->creds);
+      if ($data = $inbox->status( $folder)) {
+        $data->pages = 0;
+        if ( isset($data->messages)) {
+          $data->pages = $pageSize ? round( ($data->messages / $pageSize)+.5, 0) : 0;
+
+        }
+
+        Json::ack( $action)
+          ->add( 'folder', $folder)
+          ->add( 'data', $data);
+
+      }
+      else {
+        Json::nak( $action);
+
+      }
+
+		}
 		elseif ( 'mark-seen' == $action || 'mark-unseen' == $action) {
 			$msgID = $this->getPost('messageid');
 			$uid = $this->getPost('uid');

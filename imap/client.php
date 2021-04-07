@@ -38,6 +38,8 @@ class client {
 
 	protected $_server = '';
 
+	protected $_server_path = '';
+
 	protected $_secure = 'tls';
 
 	const INBOX = 'Inbox';
@@ -1016,7 +1018,7 @@ class client {
 			if ( $folder == 'default' )
 				$folder = self::INBOX;
 
-			$server = sprintf( '{%s:%s/%s/novalidate-cert}',
+			$this->_server_path = sprintf( '{%s:%s/%s/novalidate-cert}',
 				$this->_server,
 				$this->_port,
 				$this->_secure
@@ -1044,20 +1046,20 @@ class client {
 
 			if ( $full ) {
 				if ( $debug) sys::logger( sprintf( 'imap_open( %s, %s, %s)',
-					$server . $folder, $this->_account, 'password' ));
+					$this->_server_path . $folder, $this->_account, 'password' ));
 
 				/* connect server */
-				if ( $this->_stream = @imap_open($server . $folder, $this->_account, $this->_password, 0, 1, $nogssapi)) {
+				if ( $this->_stream = @imap_open($this->_server_path . $folder, $this->_account, $this->_password, 0, 1, $nogssapi)) {
 					$this->_open = true;
 					$this->_folder = $folder;
 					if ( $debug) sys::logger( sprintf( 'successfully opened:imap_open(%s,%s,%s)',
-						$server . $folder,
+						$this->_server_path . $folder,
 						$this->_account,
 						'password'));
 
 				}
 				else {
-					$this->_error = sprintf( 'Cannot connect to %s :: %s', $server, imap_last_error());
+					$this->_error = sprintf( 'Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
 					sys::logger( $this->_error);
 
 				}
@@ -1065,19 +1067,19 @@ class client {
 			}
 			else {
 				if ( $debug) sys::logger( sprintf( 'imap_open( %s, %s, %s, OP_HALFOPEN)',
-					$server . $folder, $this->_account, 'password' ));
+					$this->_server_path . $folder, $this->_account, 'password' ));
 
 				/* connect server */
-				if ( $this->_stream = @imap_open( $server . $folder, $this->_account, $this->_password, OP_HALFOPEN, 1, $nogssapi )) {
+				if ( $this->_stream = @imap_open( $this->_server_path . $folder, $this->_account, $this->_password, OP_HALFOPEN, 1, $nogssapi )) {
 					$this->_open = true;
 					$this->_folder = $folder;
 					if ( $debug) sys::logger( sprintf( 'successfully half-opened:imap_open(%s,%s,%s)',
-						$server . $folder,
+						$this->_server_path . $folder,
 						$this->_account,
 						'password'));
 
 				} else {
-					$this->_error = sprintf( 'Cannot connect to %s :: %s', $server, imap_last_error());
+					$this->_error = sprintf( 'Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
 
 				}
 
@@ -1188,6 +1190,31 @@ class client {
 	public function setflagByUID( $uid, $flag) {
 		$this->_flush_cache( $uid);
 		return imap_setflag_full( $this->_stream, $uid, $flag, ST_UID);
+
+	}
+
+  public function status( $folder = "default") {
+
+    if ( $folder == 'default' ) $folder = self::INBOX;
+
+		$ret = false;
+    $_fake = '';
+		if ( $this->open( false, $_fake )) {
+
+      if ( $ret = imap_status($this->_stream, $this->_server_path . $folder, SA_ALL)) {
+        $ret->folder = $folder;
+
+      }
+
+			$this->close();
+
+		}
+		else {
+      \sys::logger( sprintf('<failed to open folder : %s> <%s> %s', $folder, $this->_error, __METHOD__));
+
+		}
+
+		return ( $ret );
 
 	}
 

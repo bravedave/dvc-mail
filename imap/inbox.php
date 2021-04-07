@@ -404,6 +404,11 @@ class inbox {
 
   }
 
+  public function status( string $folder = 'default') {
+    return $this->_client->status( $folder);
+
+	}
+
   public function verify() : bool {
     if ( $this->_client->open( true)) {
       return true;

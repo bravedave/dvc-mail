@@ -1695,6 +1695,24 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   };
 
+  let mailStatus = folder => {
+    let data = {
+      action : 'get-status',
+      folder : folder
+
+    };
+
+    let pageSize = localStorage.getItem( 'mail-pageSize');
+    if ( !!pageSize) data.pageSize = pageSize;
+
+    return _.post({
+      url : _.url('<?= $this->route ?>'),
+      data : data,
+
+    });
+
+  };
+
 	$(document).on('mail-messages-loader', (e, data) => {
 
 		$('i.bi-arrow-repeat', '#<?= $uidMsgs ?>')
@@ -1827,12 +1845,98 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				$('<span></span>')
         .appendTo( statDiv)
         .on( 'update', function(e) {
+          // $(this).trigger('update-info');
+          $(this).trigger('update-status'); // faster on bigger mailboxes
+
+        })
+        .on( 'update-info', function(e) {
           let _me = $(this);
 
           mailInfo( !!folder ? folder : 'default')
           .then( d => {
             if ( 'ack' == d.response) {
               _me.html( '/' + d.data.pages);
+
+              statDiv
+              .addClass('pointer')
+              .on( 'click', function( e) {
+                e.stopPropagation();e.preventDefault();
+
+                let input = $('<input type="text" class="form-control text-center">');
+                input
+                .val( page+1)
+                .on( 'goto', function( e) {
+                  let _me = $(this);
+                  let v = Number( _me.val());
+                  if ( v > 0) {
+
+                    v --;
+                    $('input[name="page"]','#<?= $uidFrm ?>').val( v);
+
+                    if ( !!folder)
+                      $(document).trigger('mail-messages', folder);
+                    else
+                      $(document).trigger('mail-messages');
+
+                  }
+
+                })
+                .on( 'keyup', function( e) {
+                  if ( 13 == e.keyCode) {
+                    // console.log( 'enter');
+                    e.stopPropagation();e.preventDefault();
+
+                    let _me = $(this);
+                    _me.trigger( 'goto');
+
+                  }
+                  else if ( 27 == e.keyCode) {
+                    // console.log( 'enter');
+                    e.stopPropagation();e.preventDefault();
+
+                    let _me = $(this);
+                    _me.addClass( 'd-none');
+                    statDiv.addClass('d-inline-flex').removeClass( 'd-none');
+                    _me.remove();
+
+                  }
+
+                });
+
+                if ( _.browser.isMobileDevice) {
+                  input
+                  .attr('inputmode','numeric')
+                  .attr('pattern','[0-9]*')
+                  .on( 'blur', function(e) {
+                    let _me = $(this);
+                    _me.trigger( 'goto');
+
+                  });
+
+                }
+
+                statDiv.removeClass('d-inline-flex').addClass( 'd-none');
+                input.insertAfter( statDiv[0]);
+                input.focus();
+
+              });
+
+            }
+
+          });
+
+        })
+        .on( 'update-status', function(e) {
+          let _me = $(this);
+
+          mailStatus( !!folder ? folder : 'default')
+          .then( d => {
+            if ( 'ack' == d.response) {
+              // console.log( d.data);
+
+              _me.html( '/' + d.data.pages);
+              let txt = d.data.folder + '(' + d.data.messages + ')';
+              h.html( txt).attr('title', txt);
 
               statDiv
               .addClass('pointer')
@@ -2486,16 +2590,12 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
     mailInfo('default').then( func);
 
-    // let data = { action : 'get-info' };
+  });
 
-    // let pageSize = localStorage.getItem( 'mail-pageSize');
-    // if ( !!pageSize) data.pageSize = pageSize;
+  $(document).on( 'mail-status', ( e, func) => {
+    if ( 'function' != typeof func) func = d => console.log( 'ack' == d.response ? d.data : d);
 
-    // _.post({
-    //   url : _.url('<?= $this->route ?>'),
-    //   data : data,
-
-    // }).then( d => { if ( 'function' == typeof func) func( d); });
+    mailStatus('default').then( func);
 
   });
 
