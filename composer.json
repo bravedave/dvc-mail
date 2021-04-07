@@ -39,7 +39,8 @@
 		}
   },
   "scripts": {
-    "socket": "tests\\tests::socket"
+    "socket": "tests\\tests::socket",
+    "inbox-status": "tests\\tests::status"
   }
 
 }

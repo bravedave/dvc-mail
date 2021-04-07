@@ -40,4 +40,24 @@ class tests extends dvc\service {
 
   }
 
+  public static function status() {
+    $app = new self( \application::startDir());
+    $app->_status();
+
+  }
+
+  protected function _status() {
+
+    if ( $imap = imap::instance('INBOX')) {
+      print_r( $imap->Info());
+      print_r( $imap->status());
+
+    }
+    else {
+      echo 'could not establish instance ...';
+
+    }
+
+  }
+
 }
