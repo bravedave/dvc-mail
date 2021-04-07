@@ -8,6 +8,8 @@
  *
 */
 
+$debug = false;
+// $debug = true;
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
 // sys::dump( $msg);
@@ -21,6 +23,8 @@ $msg = $this->data->message;
 $msgHtml = '';
 if ( 'text' == strtolower( $msg->BodyType)) {
   $encoding = mb_detect_encoding($msg->Body);
+
+  if ( $debug) \sys::logger( sprintf('<encoding : %s> %s', $encoding, __METHOD__));
 
   if ( 'utf-8' == strtolower( $encoding)) {
     // \sys::logger( sprintf('<%s> %s', $encoding, __METHOD__));
@@ -45,8 +49,30 @@ if ( 'text' == strtolower( $msg->BodyType)) {
 
   }
   elseif ( !$encoding) {
-    // there is no encoding
-    $_msg = $msg->Body;
+    /**
+     * this list will grow I suspect, could probably just pull them from php
+     * https://www.php.net/manual/en/mbstring.supported-encodings.php
+     * forum : #7311 Mail - issue reading email
+     * forum : #7276 Mail - Mail not reading
+     */
+
+    $otherEncodings = [
+      'iso-8859-1'
+
+    ];
+
+    if ( in_array( strtolower( $msg->CharSet), $otherEncodings)) {
+      $_msg = mb_convert_encoding( $msg->Body, 'HTML-ENTITIES', strtoupper( $msg->CharSet));
+
+    }
+    else {
+
+      // there is no encoding
+      $_msg = $msg->Body;
+      if ( $debug) \sys::logger( sprintf('<encoding : %s> %s', 'none', __METHOD__));
+      // sys::dump( $msg);
+
+    }
 
   }
   else {
