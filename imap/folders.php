@@ -24,7 +24,9 @@ class folders {
 
 		'Sent' => 'Sent',
 
-		'Trash' => 'Trash'
+		'Trash' => 'Trash',
+
+		'Drafts' => 'Drafts'
 
 	];
 
@@ -51,15 +53,10 @@ class folders {
 
       foreach ($defaultFolders as $k => $v) {
         if( false === array_search( strtolower( $v), array_map('strtolower', array_column($folders, 'name')))) {
-          // \sys::logger( sprintf('<%s => %s> <❌> %s', $k, $v, __METHOD__));
           $this->create( $v, '');
           \sys::logger( sprintf('<%s => %s> <created> %s', $k, $v, __METHOD__));
 
         }
-        // else {
-        //   \sys::logger( sprintf('<%s => %s> <✔> %s', $k, $v, __METHOD__));
-
-        // }
 
       }
 
