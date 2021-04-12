@@ -95,7 +95,7 @@ class client {
 		$newString = '';
 		$elements = imap_mime_header_decode($string);
 		for($i = 0; $i < count($elements); $i++) {
-			if($elements[$i]->charset == 'default') {
+			if('default' == $elements[$i]->charset) {
 				$elements[$i]->charset = 'iso-8859-1';
 
       }
@@ -496,24 +496,14 @@ class client {
         $ret->forwarded = in_array( '$Forwarded', $flags) ? 'yes' : 'no';
 
       }
-      // \sys::logger( sprintf('<%s> %s', print_r( $flags, true), __METHOD__));
 
-			// \sys::logger( sprintf('<%s> %s', $forwarded, __METHOD__));
-
-
-			// sys::logger( sprintf('seen <%s> : %s', $ret->seen, __METHOD__));
-			if ( $debug) \sys::logger( sprintf('<cache:%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
+      if ( $debug) \sys::logger( sprintf('<cache:%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
 			return $ret;
 
 		}
 
 		if ( $headers) {
-      // \sys::logger( sprintf('<%s> %s', print_r( $headers, true), __METHOD__));
-
-			//~ print "<!-- " . print_r( $headers, TRUE ) . " -->\n";
-			// sys::dump($headers);
 			$ret->Uid = $uid;
-			// $_cache = sprintf('%s%s_%s.json', config::IMAP_CACHE(), $this->_cache_prefix(), $ret->Uid);
 
 
 			if ( isset( $headers->message_id)) $ret->MessageID = $headers->message_id;
@@ -523,23 +513,24 @@ class client {
 				 * [to] => Array (
 				 *		[0] => stdClass Object (
 				 *		 	[personal] => Dingo Star
-				*		 	[mailbox] => davbray
-				*		 	[host] => gmail.com
-				*		)
-				*
-				*		[1] => stdClass Object (
-				*			[personal] => Digital Dave
-				*			[mailbox] => davbray
-				*			[host] => live.com
-				*		)
-				*
-				* )
+				 *		 	[mailbox] => davbray
+				 *		 	[host] => gmail.com
+				 *		)
+				 *
+				 *		[1] => stdClass Object (
+				 *			[personal] => Digital Dave
+				 *			[mailbox] => davbray
+				 *			[host] => live.com
+				 *		)
+				 *
+				 * )
 				*/
-				// sys::dump($headers->to);
 				$a = [];
 				foreach( $headers->to as $to) {
 					if ( isset( $to->personal)) {
-						$name = $to->personal;
+						$name = self::decodeMimeStr((string)$to->personal);
+            // \sys::logger( sprintf('<%s> %s', $name, __METHOD__));
+
 						if ( false != strstr( $name, "'")) {
 							$name = sprintf( '"%s"', $name);
 
@@ -556,7 +547,6 @@ class client {
 							$a[] = $to->mailbox;
 
 						}
-						// sys::dump( $to);
 
 					}
 
@@ -568,28 +558,27 @@ class client {
 				}
 
 			}
-			// sys::logger( sprintf('<headers> : %s', __METHOD__));
 
 		}
 
 		if ( $overview = imap_fetch_overview( $this->_stream, $email_number, 0)) {
 
 			$msg = $overview[0];
-      // \sys::logger( sprintf('<%s> %s', print_r( $overview, true), __METHOD__));
-
-			// sys::dump( $msg);
 			if ( isset( $msg->seen)) $ret->seen = ( $msg->seen ? 'yes' : 'no' );
 			if ( isset( $msg->answered)) $ret->answered = ( $msg->answered ? 'yes' : 'no' );
 
 			if ( !$ret->To) {
 				if ( isset( $msg->to)) $ret->To = self::decodeMimeStr((string)$msg->to);
+        // \sys::logger( sprintf('<%s> %s', $msg->to, __METHOD__));
 
 			}
 
 			if ( isset( $msg->subject)) $ret->Subject = self::decodeMimeStr($msg->subject);
+      // \sys::logger( sprintf('<%s> %s', $msg->subject, __METHOD__));
 
 			if ( isset( $msg->from)) {
-				$ret->From = self::decodeMimeStr($msg->from);
+        $ret->From = self::decodeMimeStr($msg->from);
+        if ( $debug) \sys::logger( sprintf('<%s> %s', $msg->from, __METHOD__));
 				$ea = new EmailAddress( $ret->From);
 				$ret->fromEmail = $ea->email;
 
@@ -605,8 +594,6 @@ class client {
 
 			if ( isset( $msg->in_reply_to)) $ret->in_reply_to = $msg->in_reply_to;
 			if ( isset( $msg->references)) $ret->references = $msg->references;
-			// sys::logger( sprintf('<overview> : %s', __METHOD__));
-
 
 		}
 
