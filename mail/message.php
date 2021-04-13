@@ -143,14 +143,14 @@ class message {
 	}
 
 	public function getMso() {
-        $header = trim( $this->getHtmlHeader());
-        if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
-            if ( strings::endswith( $header, '<![endif]-->')) {
-				return $header;
+    $header = trim( $this->getHtmlHeader());
+    if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
+      if ( strings::endswith( $header, '<![endif]-->')) {
+        return $header;
 
-            }
+      }
 
-		}
+    }
 
 		return '';
 
@@ -158,11 +158,11 @@ class message {
 
 	public function hasMso() {
 		$header = trim( $this->getHtmlHeader());
-        if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
-            if ( strings::endswith( $header, '<![endif]-->')) {
-                return true;
+    if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
+      if ( strings::endswith( $header, '<![endif]-->')) {
+        return true;
 
-            }
+      }
 
 		}
 

@@ -95,7 +95,9 @@ elseif ( $msg->hasMso()) {
   $msgHtml = sprintf(
     '<style>p { margin: 0; }</style> %s %s',
     $msg->getMso(),
-    $msg->safehtml()
+    preg_replace( [
+      '@class="WordSection1"@'
+    ], '', $msg->safehtml())
 
   );
 
