@@ -164,7 +164,13 @@
 
             });
 
-            ed.on( 'blur', e => tinyMCE.triggerSave())
+            ed.on( 'init', e => {
+              _.hourglass.off();
+              $('#<?= $_modal ?>').trigger( 'email-active');
+
+            });
+
+            ed.on( 'blur', e => tinyMCE.triggerSave());
 
           }
 
@@ -188,9 +194,6 @@
         });
 
         tinymce.init(options);
-        _.hourglass.off();
-
-        $('#<?= $_modal ?>').trigger( 'email-active');
 
       })
       .on( 'shown.bs.modal', e => {
