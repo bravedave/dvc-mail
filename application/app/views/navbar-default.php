@@ -37,7 +37,7 @@
 
 		<li class="nav-item px-1">
 			<button id="<?= $uid = strings::rand() ?>"
-				class="btn btn-light rounded-circle""
+				class="btn btn-outline-dark rounded-circle""
 				href="#">
 				<i class="bi bi-envelope"></i>
 
@@ -45,17 +45,14 @@
 
 		</li>
 		<script>
-		( _ => {
-			$('#<?= $uid ?>').on( 'click', function( e) {
-				let btn = $(this)
-				btn.prop('disabled', true);
+		( _ => $('#<?= $uid ?>').on( 'click', function( e) {
+      let btn = $(this)
+      btn.prop('disabled', true);
 
-				_.get.modal( _.url('home/compose'))
-        .then( modal => btn.prop('disabled', false));
+      _.get.modal( _.url('home/compose'))
+      .then( modal => btn.prop('disabled', false));
 
-			});
-
-		}) (_brayworth_);
+    })) (_brayworth_);
 		</script>
 
 	</ul>
