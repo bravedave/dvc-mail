@@ -66,8 +66,12 @@ abstract class currentUser extends dvc\currentUser {
 
 		if ( account::$SMTP_PORT) {
 			$mail->Port = account::$SMTP_PORT;
+      // if ( 587 == account::$SMTP_PORT) $mail->SMTPSecure = 'tls';
 
 		}
+
+    // \sys::logger( sprintf('<%s:%s/%s> %s', $mail->Host, $mail->Port, $mail->SMTPSecure, __METHOD__));
+
 
 		if ( account::$USERNAME && account::$PASSWORD) {
 			$mail->SMTPAuth = true;

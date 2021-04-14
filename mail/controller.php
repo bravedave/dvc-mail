@@ -454,6 +454,8 @@ class controller extends \Controller {
 			}
 			else {
 				Json::nak( $mail->ErrorInfo);
+        \sys::logger( sprintf('<failed : %s> %s', $mail->ErrorInfo, __METHOD__));
+
 
 			}
 
