@@ -68,6 +68,8 @@ class home extends dvc\mail\controller {
 
 		}
 
+    \dvc\jslib::$debug = true;
+
 	}
 
 	protected function postHandler() {

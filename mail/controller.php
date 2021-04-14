@@ -838,33 +838,6 @@ class controller extends \Controller {
 
 	}
 
-	public function js( string $lib = '') {
-		if ( in_array( $lib, ['tinymce','tinymce5']))  {
-			if ( preg_match( '/(content\.min\.css|content\.css)$/', $uri = $this->Request->getUri())) {
-        parent::js( $lib);
-
-			}
-			else {
-
-        if ( userAgent::isMobileDevice()) {
-          jslib::tinyserve( 'tiny-imap-mobile', 'autolink,lists');
-
-        }
-        else {
-          jslib::tinyserve( 'tiny-imap', 'autolink,paste,lists,table,image,imagetools,link,spellchecker');
-
-        }
-
-			}
-
-    }
-    else {
-      parent::js( $lib);
-
-    }
-
-  }
-
 	public function localjs() {
 		print '/* placeholder for local scripts */';
 
