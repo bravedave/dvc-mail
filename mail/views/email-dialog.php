@@ -118,9 +118,8 @@
 
 	</form>
 	<script>
-	$(document).ready( () => {
-
-		( _ => {
+  ( _ => {
+    $(document).ready( () => {
 
       $('#<?= $_modal ?>')
       .on( 'init-tinymce', e => {
@@ -189,9 +188,16 @@
         });
 
         tinymce.init(options);
+        _.hourglass.off();
+
+        $('#<?= $_modal ?>').trigger( 'email-active');
 
       })
-      .on( 'shown.bs.modal', e => _.tiny().then( () => $('#<?= $_modal ?>').trigger('init-tinymce')))
+      .on( 'shown.bs.modal', e => {
+        _.hourglass.on();
+        _.tiny().then( () => $('#<?= $_modal ?>').trigger('init-tinymce'))
+
+      })
       .on( 'hide.bs.modal', e => $('#<?= $_form ?>').trigger('cleanup'));
 
       $('button[cc]', '#<?= $_form ?>').on( 'click', function( e) {
@@ -374,9 +380,9 @@
 
 			}	// if (isAdvancedUpload && !_me.attachmentContainer.hasClass('has-advanced-upload'))
 
-    }) (_brayworth_);
+    });
 
-	});
+  }) (_brayworth_);
 	</script>
 
 </div>
