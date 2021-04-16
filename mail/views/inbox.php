@@ -529,13 +529,13 @@ $(document).on('resize-main-content-wrapper', function( e) {
 		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 d-inline-flex mb-1">folders</h6></div></div>');
 		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto pl-2 pr-0"><i class="bi bi-arrow-repeat"></i></button>')
 		.on('click', function( e) {
-			$('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm');
+			$('i.bi-arrow-repeat', this).addClass('bi-spin');
 			$(document).trigger( 'mail-folderlist-reload');
 
 		})
 		.appendTo( '#<?= $uidFolders ?> > div > div.col');
 
-		$('#<?= $uidFolders ?>').on( 'spin', function( e) { $('i.bi-arrow-repeat', this).removeClass('bi-arrow-repeat').addClass('spinner-grow spinner-grow-sm'); });
+		$('#<?= $uidFolders ?>').on( 'spin', function( e) { $('i.bi-arrow-repeat', this).addClass('bi-spin'); });
 
 		$.each( folders, _list_subfolders);
 		$('#<?= $uidFolders ?>').append( ul);
@@ -1715,45 +1715,51 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 	$(document).on('mail-messages-loader', (e, data) => {
 
-		$('i.bi-arrow-repeat', '#<?= $uidMsgs ?>')
-			.removeClass('bi-arrow-repeat')
-			.addClass('spinner-grow spinner-grow-sm');
 		$(document).trigger( 'mail-clear-reloader');
+    if ( _.isWindowHidden()) {
+      console.log( 'defer refresh, not visible')
+      $(document).data( 'mail-messages-reloader', window.setTimeout(() => $(document).trigger('mail-messages-loader', data), 10000));
 
-		// console.log( data);
+    }
+    else {
+      $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').addClass('bi-spin');
 
-		_.post({
-			url : _.url('<?= $this->route ?>'),
-			data : data,	// data from the form
+      // console.log( data);
 
-		}).then( d => {
-			if ( 'ack' == d.response) {
-				// console.log( data.key);
-				sessionStorage.setItem( data.key, JSON.stringify( d.messages));
-				// console.log( 'messages - ' + data.folder);
-				// console.log( $('#<?= $uidMsgs ?>').data('folder'));
-				let fldrs = {
-					data : '',
-					current : ''
+      _.post({
+        url : _.url('<?= $this->route ?>'),
+        data : data,	// data from the form
 
-				};
+      }).then( d => {
+        if ( 'ack' == d.response) {
+          // console.log( data.key);
+          sessionStorage.setItem( data.key, JSON.stringify( d.messages));
+          // console.log( 'messages - ' + data.folder);
+          // console.log( $('#<?= $uidMsgs ?>').data('folder'));
+          let fldrs = {
+            data : '',
+            current : ''
 
-        if ( !/search/.test( $('#<?= $uidMsgs ?>').data('controlstate'))) {
-          if ( !!data.folder) fldrs.data = data.folder;
-          if ( !!$('#<?= $uidMsgs ?>').data('folder')) fldrs.current = $('#<?= $uidMsgs ?>').data('folder');
+          };
 
-          if ( fldrs.data == fldrs.current) {
-            if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
-              _list_messages( d.messages, false, true);
-              $('i.spinner-grow', '#<?= $uidMsgs ?>').addClass('bi-arrow-repeat').removeClass('spinner-grow spinner-grow-sm');
+          if ( !/search/.test( $('#<?= $uidMsgs ?>').data('controlstate'))) {
+            if ( !!data.folder) fldrs.data = data.folder;
+            if ( !!$('#<?= $uidMsgs ?>').data('folder')) fldrs.current = $('#<?= $uidMsgs ?>').data('folder');
 
-              if ( 0 == data.page) {
-                $(document).trigger( 'mail-clear-reloader');
-                $(document).data( 'mail-messages-reloader', window.setTimeout(() => {
-                  sessionStorage.removeItem( data.key);
-                  $(document).trigger('mail-messages-loader', data);
+            if ( fldrs.data == fldrs.current) {
+              if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
+                _list_messages( d.messages, false, true);
+                $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').removeClass('bi-spin');
 
-                }, 20000));
+                if ( 0 == data.page) {
+                  $(document).trigger( 'mail-clear-reloader');
+                  $(document).data( 'mail-messages-reloader', window.setTimeout(() => {
+                    sessionStorage.removeItem( data.key);
+                    $(document).trigger('mail-messages-loader', data);
+
+                  }, 20000));
+
+                }
 
               }
 
@@ -1762,15 +1768,15 @@ $(document).on('resize-main-content-wrapper', function( e) {
           }
 
         }
+        else {
+          _.growl( d);
+          $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').removeClass('bi-spin');
 
-			}
-			else {
-				_.growl( d);
-				$('i.spinner-grow', '#<?= $uidMsgs ?>').removeClass('spinner-grow spinner-grow-sm').addClass('bi-arrow-repeat');
+        }
 
-			}
+      });
 
-		});
+    }
 
 	});
 
@@ -2032,7 +2038,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex pr-0"><i class="spinner-grow spinner-grow-sm"></i></button>')
+			$('<button type="button" class="btn btn-sm d-inline-flex pr-0"><i class="bi bi-arrow-repeat"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				if ( !!folder)
@@ -2081,7 +2087,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
-				$('button[search-activate]', search).html('').append('<i class="spinner-grow spinner-grow-sm"></i>').prop( 'disabled', true);
+				$('button[search-activate]', search).html('').append('<i class="bi bi-arrow-repeat bi-spin"></i>').prop( 'disabled', true);
 				fldSearch.prop( 'disabled', true);
 
 				if ( !!folder) { data.folder = folder; }
@@ -2115,7 +2121,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 					}
 					else {
 						_.growl( d);
-						$('i.spinner-grow', '#<?= $uidMsgs ?>').removeClass('spinner-grow spinner-grow-sm').addClass('bi-arrow-repeat');
+						$('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').removeClass('bi-spin');
 
 					}
 
