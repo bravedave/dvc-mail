@@ -199,8 +199,106 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   });
 
+  let _learnAsHam = {
+    available : false,
+    checked : false,
+    folder : '',
+    reset : function() {
+      this.available = false;
+      this.checked = false;
+      this.folder = '';
+
+    }
+
+  };
+
+  let featureLearnAsHam = () => {
+    return new Promise( resolve => {
+      if ( _learnAsHam.checked) {
+        resolve( _learnAsHam);
+
+      }
+      else {
+        let frm = $('#<?= $uidFrm ?>');
+        let data = frm.serializeFormJSON();
+
+        data.action = 'get-folders-learnasham';
+
+        _.post({
+          url : _.url('<?= $this->route ?>'),
+          data : data,
+
+        }).then( d => {
+          if ( 'ack' == d.response) {
+            // console.log( d);
+            _learnAsHam.checked = true;
+            _learnAsHam.available = '' != String( d.folder.fullname);
+            _learnAsHam.folder = d.folder.fullname;
+            resolve( _learnAsHam);
+
+          }
+
+        });
+
+      }
+
+    });
+
+  }
+
+  let _learnAsSpam = {
+    available : false,
+    checked : false,
+    folder : '',
+    reset : function() {
+      this.available = false;
+      this.checked = false;
+      this.folder = '';
+
+    }
+
+  };
+
+  let featureLearnAsSpam = () => {
+    return new Promise( resolve => {
+      if ( _learnAsSpam.checked) {
+        resolve( _learnAsSpam);
+
+      }
+      else {
+        let frm = $('#<?= $uidFrm ?>');
+        let data = frm.serializeFormJSON();
+
+        data.action = 'get-folders-learnasspam';
+        // console.log( data.action);
+
+        _.post({
+          url : _.url('<?= $this->route ?>'),
+          data : data,
+
+        }).then( d => {
+          if ( 'ack' == d.response) {
+            _learnAsSpam.checked = true;
+            _learnAsSpam.available = '' != String( d.folder.fullname);
+            _learnAsSpam.folder = d.folder.fullname;
+            resolve( _learnAsSpam);
+
+          }
+
+        });
+
+      }
+
+    });
+
+  }
+
 	let _list = ( folders, cacheData) => {
 		// console.log( folders);
+
+    // general reset on learning features
+    _learnAsHam.reset();
+    _learnAsSpam.reset();
 
 		let ul = $('<ul class="nav flex-column folderlist"></ul>');
 		$('#<?= $uidSearchAll ?>_folders').html(''); // a .col
@@ -214,8 +312,27 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			// console.log( fldr);
 
 			let ctrl = $('<div class="text-truncate"></div>').html( fldr.name);
-      if ( 'LearnAsHam' == fldr.name) ctrl.addClass( 'd-none');
-      if ( 'LearnAsSpam' == fldr.name) ctrl.addClass( 'd-none');
+      if ( 'LearnAsHam' == fldr.name) {
+        // console.log( fldr);
+
+        _learnAsHam.checked = true;
+        _learnAsHam.available = '' != String( fldr.fullname);
+        _learnAsHam.folder = fldr.fullname;
+
+        ctrl.addClass( 'd-none');
+
+      }
+
+      if ( 'LearnAsSpam' == fldr.name) {
+        // console.log( fldr);
+
+        _learnAsSpam.checked = true;
+        _learnAsSpam.available = '' != String( fldr.fullname);
+        _learnAsSpam.folder = fldr.fullname;
+
+        ctrl.addClass( 'd-none');
+
+      }
 
 			let searchCtrl = $('<div class="form-check"></div>');
 			let chkId = '<?= $uidSearchAll ?>_chk_' + String( ++uidx);
@@ -544,7 +661,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		if ( !cacheData) $(document).trigger('mail-folderlist-complete');
 
-	}
+	};
 
 	$(document).on( 'mail-folderlist', function( e) {
 		let lastFolders = sessionStorage.getItem( '<?= $keyLastFolders ?>');
@@ -1402,12 +1519,11 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			let rowID = row.attr( 'id');
 
 			/**
-			*	find the next location to insert
-			*	based on time
+			*	find the next location to insert based on time
 			*/
 			let time = _.dayjs( msg.received);
 			let nextMsg = false;
-			$('> [uid]', '#<?= $uidMsgs ?>').each( function( i, el) {
+			$('> [uid]', '#<?= $uidMsgs ?>').each( ( i, el) => {
 				// $(el).data('seen', false);
 				let _el = $(el);
 				let _data = _el.data();
@@ -1443,42 +1559,79 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				let _context = _.context();
 				let defaultFolders = $(document).data('default_folders');
 
-				if ( 'yes' == String( _data.read)) {
-					_context.append( $('<a href="#">mark unseen</a>').on( 'click', function( e) {
-						e.stopPropagation();e.preventDefault();
+        _context.append(
+          $('<a href="#"></a>')
+          .html( 'yes' == String( _data.read) ? 'mark unseen' : 'mark seen')
+          .on( 'click', function( e) {
+          e.stopPropagation();e.preventDefault();
 
-						_row.trigger('mark-unseen');
+          _row.trigger('yes' == String( _data.read) ? 'mark-unseen' : 'mark-seen');
 
-						_context.close();
+          _context.close();
 
-					}));
+        }));
 
-				}
-				else {
-					_context.append( $('<a href="#">mark seen</a>').on( 'click', function( e) {
-						e.stopPropagation();e.preventDefault();
+				if ( 'junkmail' == _data.folder) {
+          /**
+           * possibly this could be dynamic, but is current specific to SME Server (https://contribs.org)
+           * which has a Learn feature (https://wiki.koozali.org/Learn)
+           */
+					_context.append(
+            $('<a href="#" class="d-none"></a>')
+            .on( 'click', function( e) {
+              e.stopPropagation();e.preventDefault();
 
-						_row.trigger('mark-seen');
+              let _me = $(this);
+              let _data = _me.data();
+              // console.log( _data);
 
-						_context.close();
+              _row.trigger('execute-action', {
+                action : 'copy-message',
+                targetFolder : _data.folder
 
-					}));
+              });
 
-				}
+              _context.close();
+
+            })
+            .on( 'check-availability', function(e) {
+              let _me = $(this);
+              featureLearnAsHam().then( d => {
+                if ( d.available) {
+                  // console.log( _me, d);
+                  _me
+                  .html('<i class="bi bi-shield-check text-success"></i>Learn as NOT Spam')
+                  .data('folder', d.folder)
+                  .removeClass('d-none');
+
+                }
+
+              });
+
+            })
+            .trigger( 'check-availability')
+
+          );
+
+        }
 
 				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
 					_context.append( $('<a href="#"><i class="bi bi-trash"></i>move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
-							e.stopPropagation();e.preventDefault();
+            e.stopPropagation();e.preventDefault();
 
-							_row.trigger('delete');
+            _row.trigger('delete');
 
-							_context.close();
+            _context.close();
 
 					}));
 
 				}
 
-				$(document).trigger( 'mail-messages-context', {
+				/**
+         * trigger back to the local system passing item and context menu,
+         * the local system can add some contexts ..
+         */
+        $(document).trigger( 'mail-messages-context', {
 					element : this,
 					context : _context
 
@@ -2163,6 +2316,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			})
 			.appendTo( iga);
 
+      // not activating this feature
       $('<button type="button" class="btn btn-sm d-none" title="Learn as Ham"><i class="bi bi-shield-check text-success"></i></button>')// move to learnasspam
       .appendTo( bulkControl)
       .on( 'click', function( e) {
@@ -2187,16 +2341,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
       })
       .on('verify-feature-available', function(e) {
         let _me = $(this);
-        // console.log( 'verify LearnAsHam is a feature ...');
-        _.post({
-          url : _.url('<?= $this->route ?>'),
-          data : {
-            action : 'get-folders-learnasham'
-
-          },
-
-        }).then( d => {
-          if ( 'ack' == d.response) {
+        featureLearnAsHam().then( d => {
+          if ( d.available) {
             // console.log( d);
             _me
             .data( 'folder', d.folder.fullname)
@@ -2206,10 +2352,12 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
         });
 
-      })
-      .trigger('verify-feature-available');
+      }); // .trigger('verify-feature-available');
+      // feature not activated
 
-      $('<button type="button" class="btn btn-sm d-none" title="Learn as Spam"><i class="bi bi-shield-exclamation"></i></button>')// move to learnasspam
+      let btnLearnAsSpam = $('<button type="button" class="btn btn-sm d-none" title="Learn as Spam"><i class="bi bi-shield-exclamation"></i></button>');
+
+      btnLearnAsSpam
       .appendTo( bulkControl)
       .on( 'click', function( e) {
         e.stopPropagation();e.preventDefault();
@@ -2233,27 +2381,20 @@ $(document).on('resize-main-content-wrapper', function( e) {
       })
       .on('verify-feature-available', function(e) {
         let _me = $(this);
-        // console.log( 'verify LearnAsSpam is a feature ...');
-        _.post({
-          url : _.url('<?= $this->route ?>'),
-          data : {
-            action : 'get-folders-learnasspam'
 
-          },
-
-        }).then( d => {
-          if ( 'ack' == d.response) {
+        _me.addClass('d-none');
+        featureLearnAsSpam().then( d => {
+          if ( d.available) {
             // console.log( d);
             _me
-            .data( 'folder', d.folder.fullname)
+            .data( 'folder', d.folder)
             .removeClass('d-none');
 
           }
 
         });
 
-      })
-      .trigger('verify-feature-available');
+      });
 
       $('<button type="button" class="btn btn-sm" title="Move to Trash"><i class="bi bi-trash"></i></button>')// delete all selected
       .appendTo( bulkControl)
@@ -2289,6 +2430,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
           $('[status]', bulkControl).html( selectors.length + 'msg/s');
 					bulkControl.removeClass( 'd-none').addClass( 'd-flex');
           _me.data('controlstate','bulk');
+
+          btnLearnAsSpam.trigger('verify-feature-available');
 
         }
         else {
@@ -2800,16 +2943,10 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
     $(document)
     .trigger('mail-messages')
-    .trigger('mail-folderlist');
-    // console.log('init');
-
-    $(document).trigger('mail-toggle-view')
-    // console.log('init-2');
-
-    $(document).trigger('mail-view-message-list');
-    // console.log('init-3');
-
-    $(document).trigger('mail-clear-viewer');
+    .trigger('mail-folderlist')
+    .trigger('mail-toggle-view')
+    .trigger('mail-view-message-list')
+    .trigger('mail-clear-viewer');
 
     if ( !_.browser.isMobileDevice) $('#<?= $uidMsgs ?>').focus();
 
