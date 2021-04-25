@@ -51,6 +51,48 @@ class inbox {
 
 	}
 
+	public function CopyItem(
+		string $itemID,
+		string $folder = "default",
+		string $archiveFolder ) {
+
+		$ret = false;
+
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->copy_message( $itemID, $archiveFolder);
+			$this->_client->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
+
+		}
+
+		return ( $ret);
+
+	}
+
+	public function CopyItemByUID(
+		string $uid,
+		string $folder = "default",
+		string $archiveFolder ) {
+
+		$ret = false;
+
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->copy_message_byUID( $uid, $archiveFolder);
+			$this->_client->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
+
+		}
+
+		return ( $ret);
+
+	}
+
   public function defaults() {
 		return (object)[
 			'inbox' => client::INBOX

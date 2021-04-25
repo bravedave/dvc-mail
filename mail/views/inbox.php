@@ -214,6 +214,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			// console.log( fldr);
 
 			let ctrl = $('<div class="text-truncate"></div>').html( fldr.name);
+      if ( 'LearnAsHam' == fldr.name) ctrl.addClass( 'd-none');
       if ( 'LearnAsSpam' == fldr.name) ctrl.addClass( 'd-none');
 
 			let searchCtrl = $('<div class="form-check"></div>');
@@ -1547,13 +1548,29 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				}).then( d => {
 					if ( 'ack' == d.response) {
 
-						_me.remove();
+            /**
+             * actions could be:
+             *  => move-message
+             *  => copy-message
+             *  */
+            if ( 'copy-message' == data.action) {
+              $('[from] > i.spinner-grow', _me).remove();
+              $('[selector]', _me)
+              .prop('checked', false)
+              .removeClass('d-none');
+              _me.removeClass( 'font-italic');
 
-						if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
-							$('#<?= $uidViewer ?>').trigger('clear');
-							$(document).trigger('mail-view-message-list');
+            }
+            else {
+              _me.remove();
 
-						}
+              if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
+                $('#<?= $uidViewer ?>').trigger('clear');
+                $(document).trigger('mail-view-message-list');
+
+              }
+
+            }
 
 					}
 					else {
@@ -2145,6 +2162,52 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			})
 			.appendTo( iga);
+
+      $('<button type="button" class="btn btn-sm d-none" title="Learn as Ham"><i class="bi bi-shield-check text-success"></i></button>')// move to learnasspam
+      .appendTo( bulkControl)
+      .on( 'click', function( e) {
+        e.stopPropagation();e.preventDefault();
+        let _me = $(this);
+        let _btn_data = _me.data();
+
+        $('input[selector]:checked', '#<?= $uidMsgs ?>').each( (i, ctrl) => {
+          let _ctrl = $(ctrl)
+          let _data = _ctrl.data();
+
+          $('#' + _data.rowid)
+					.data( 'refresh', 'no')
+          .trigger('execute-action', {
+						action : 'copy-message',
+						targetFolder : _btn_data.folder
+
+					});
+
+        });
+
+      })
+      .on('verify-feature-available', function(e) {
+        let _me = $(this);
+        // console.log( 'verify LearnAsHam is a feature ...');
+        _.post({
+          url : _.url('<?= $this->route ?>'),
+          data : {
+            action : 'get-folders-learnasham'
+
+          },
+
+        }).then( d => {
+          if ( 'ack' == d.response) {
+            // console.log( d);
+            _me
+            .data( 'folder', d.folder.fullname)
+            .removeClass('d-none');
+
+          }
+
+        });
+
+      })
+      .trigger('verify-feature-available');
 
       $('<button type="button" class="btn btn-sm d-none" title="Learn as Spam"><i class="bi bi-shield-exclamation"></i></button>')// move to learnasspam
       .appendTo( bulkControl)

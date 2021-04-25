@@ -199,6 +199,28 @@ class controller extends \Controller {
       } else { Json::nak( $action); }
 
     }
+		elseif ( 'copy-message' == $action) {
+			$msgID = $this->getPost('messageid');
+			$uid = $this->getPost('uid');
+
+			if ( $msgID || $uid) {
+				$srcFolder = $this->getPost('folder', 'default');
+				if ( $targetFolder = $this->getPost('targetFolder')) {
+					$inbox = inbox::instance( $this->creds);
+					$res = $uid ?
+            $inbox->CopyItemByUID( $uid, $srcFolder, $targetFolder) :
+						$inbox->MoveItem( $msgID, $srcFolder, $targetFolder);
+
+					if ( $res) {
+						\Json::ack( $action);
+
+					} else { \Json::nak( $action); }
+
+				} else { \Json::nak( sprintf('missing target folder : %s', $action)); }
+
+			} else { \Json::nak( sprintf('invalid message : %s', $action)); }
+
+		}
 		elseif ( 'create-folder' == $action) {
 			if ( $folder = (string)$this->getPost( 'folder')) {
 				$parent = (string)$this->getPost( 'parent');
@@ -252,9 +274,28 @@ class controller extends \Controller {
 				->add( 'folders', $this->_folders());
 
 		}
+		elseif ( 'get-folders-learnasham' == $action) {
+      if ( $folder = $this->_folder_learnasham()) {
+        Json::ack( $action)
+          ->add( 'folder', $folder);
+
+      }
+      else {
+        Json::nak( $action);
+
+      }
+
+		}
 		elseif ( 'get-folders-learnasspam' == $action) {
-			Json::ack( $action)
-				->add( 'folder', $this->_folder_learnasspam());
+      if ( $folder = $this->_folder_learnasspam()) {
+        Json::ack( $action)
+          ->add( 'folder', $folder);
+
+      }
+      else {
+        Json::nak( $action);
+
+      }
 
 		}
 		elseif ( 'get-messages' == $action) {
@@ -588,6 +629,15 @@ class controller extends \Controller {
 		return $folders->getAll( $format);
 
 	}
+
+  protected function _folder_learnasham() {
+    $folders = folders::instance( $this->creds);
+    $folder = $folders->getByPath( 'LearnAsHam');
+    // \sys::logger( sprintf('<%s> %s', $folder, __METHOD__));
+
+    return $folder;
+
+  }
 
 	protected function _folder_learnasspam() {
 		$folders = folders::instance( $this->creds);

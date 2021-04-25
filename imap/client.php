@@ -752,6 +752,37 @@ class client {
 
 	}
 
+	public function copy_message( $id, $target) {
+		$ret = false;
+		$total = imap_num_msg( $this->_stream );
+		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
+		foreach ( $result as $msg) {
+			if ( !isset($msg->message_id)) continue;
+
+			if ( "{$msg->message_id}" == "{$id}" ) {
+				$ret = $this->copy_message_byUID( \imap_uid(  $this->_stream, $msg->msgno));
+				break;
+
+			}
+
+		}
+
+		return $ret;
+
+	}
+
+	public function copy_message_byUID( $uid, $target) {
+		$this->_flush_cache( $uid);
+		if ($ret = imap_mail_copy( $this->_stream, $uid, $target, CP_UID)) {
+			imap_expunge( $this->_stream);
+			$this->_flush_cache();	// generally flush cache after expunge if that is enabled
+
+		}
+
+		return $ret;
+
+	}
+
 	public function createmailbox( $fldr) : bool {
 		return @imap_createmailbox( $this->_stream, imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldr)));
 
