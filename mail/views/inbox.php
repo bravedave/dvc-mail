@@ -1695,11 +1695,11 @@ $(document).on('resize-main-content-wrapper', function( e) {
 	};
 
   let mailInfo = folder => {
-    let data = {
-      action : 'get-info',
-      folder : folder
+		let frm = $('#<?= $uidFrm ?>');
+		let data = frm.serializeFormJSON();
 
-    };
+    data.action = 'get-info';
+    data.folder = folder;
 
     let pageSize = localStorage.getItem( 'mail-pageSize');
     if ( !!pageSize) data.pageSize = pageSize;
@@ -1713,11 +1713,11 @@ $(document).on('resize-main-content-wrapper', function( e) {
   };
 
   let mailStatus = folder => {
-    let data = {
-      action : 'get-status',
-      folder : folder
+		let frm = $('#<?= $uidFrm ?>');
+		let data = frm.serializeFormJSON();
 
-    };
+    data.action = 'get-status';
+    data.folder = folder;
 
     let pageSize = localStorage.getItem( 'mail-pageSize');
     if ( !!pageSize) data.pageSize = pageSize;
