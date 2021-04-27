@@ -217,7 +217,7 @@ class message {
 
     }
     elseif ( in_array( $this->CharSet, mb_list_encodings())) {
-      $_string = iconv( $this->CharSet, 'utf-8', $_string);
+      // $_string = iconv( $this->CharSet, 'utf-8', $_string);
 
     }
 
