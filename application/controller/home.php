@@ -238,6 +238,10 @@ class home extends dvc\mail\controller {
 			sys::dump( $this->_folders());
 
 		}
+		elseif ( 'encodings' == $test) {
+			sys::dump( mb_list_encodings());
+
+		}
 		elseif ( 'info' == $test) {
 			phpinfo();
 
