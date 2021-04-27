@@ -1263,11 +1263,11 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				let imgs = $('img[data-safe-src]', _frame.contentDocument);
 				if ( imgs.length > 0) {
-					let btn = $('<button type="button"><i class="bi bi-file-image"></i></button>');
+					let btn = $('<button type="button" title="show images"><i class="bi bi-file-image"></i></button>');
 					btn
 					.addClass( params.btnClass)
 					.on('click', function( e) {
-						$('img[data-safe-src]', _frame.contentDocument).each( function( i, img) {
+						$('img[data-safe-src]', _frame.contentDocument).each( ( i, img) => {
 							let _img = $(img);
 
 							_img.attr( 'src', _img.attr( 'data-safe-src'));

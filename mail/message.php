@@ -210,10 +210,14 @@ class message {
     $_string = $this->Body;
 
     /**
-     * probably expand this section ...
+     * probably expand this section ... 28/04/2021
      */
 		if ( 'ks_c_5601-1987' == $this->CharSet) {
       $_string = iconv( 'EUC-KR', 'utf-8', $_string);
+
+    }
+    elseif ( in_array( $this->CharSet, mb_list_encodings())) {
+      $_string = iconv( $this->CharSet, 'utf-8', $_string);
 
     }
 
