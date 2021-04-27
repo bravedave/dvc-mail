@@ -212,12 +212,16 @@ class message {
     /**
      * probably expand this section ... 28/04/2021
      */
+    if ( $debug) \sys::logger( sprintf('<CharSet : %s> %s', $this->CharSet, __METHOD__));
 		if ( 'ks_c_5601-1987' == $this->CharSet) {
       $_string = iconv( 'EUC-KR', 'utf-8', $_string);
 
     }
     elseif ( in_array( $this->CharSet, mb_list_encodings())) {
-      // $_string = iconv( $this->CharSet, 'utf-8', $_string);
+      if ( !in_array( $this->CharSet, ['UTF-8'])) {
+        $_string = iconv( $this->CharSet, 'utf-8', $_string);
+
+      }
 
     }
 
