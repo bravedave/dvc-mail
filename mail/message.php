@@ -234,7 +234,7 @@ class message {
 		else {
 			if ( $debug) sys::logger( sprintf('no encoding on string :: %s', __METHOD__));
 			// sys::dump( $this);
-			die( $_string . '<br />die...');
+			// die( $_string . '<br />die...');
 			$_string = str_replace( '&rsquo;', chr(146), $_string);
 			$_string = str_replace( '&nbsp;', '__hardspace__', $_string);
 			$_string = str_replace( '&rsquo;', '’', $_string);
