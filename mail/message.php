@@ -110,35 +110,40 @@ class message {
 	}
 
 	public function fromJson( $json) {
-		$o = \json_decode( $json);
+		if ( $o = \json_decode( $json)) {
+      $this->attachmentIDs = (array)$o->attachmentIDs;
+      $this->attachments = (array)$o->attachments;
+      $this->answered = (string)$o->answered;
+      $this->flagged = (string)$o->flagged;
+      $this->forwarded = (string)$o->forwarded;
+      $this->fromName = (string)$o->fromName;
+      $this->fromEmail = (string)$o->fromEmail;
+      $this->seen = (string)$o->seen;
+      $this->tags = (string)$o->tags;
+      $this->time = (string)$o->time;
+      $this->BodyType = (string)$o->BodyType;
+      $this->Body = (string)$o->Body;
+      $this->Folder = (string)$o->Folder;
+      $this->From = (string)$o->From;
+      $this->ItemId = (string)$o->ItemId;
+      $this->MessageID = (string)$o->MessageID;
+      $this->Recieved = (string)$o->Recieved;
+      $this->Subject = (string)$o->Subject;
+      $this->To = (string)$o->To;
+      $this->CC = (string)$o->CC;
+      $this->BCC = (string)$o->BCC;
+      $this->Uid = (string)$o->Uid;
+      $this->MSGNo = (string)$o->MSGNo;
+      $this->CharSet = (string)$o->CharSet;
+      $this->in_reply_to = (string)$o->in_reply_to;
+      $this->references = (string)$o->references;
+      $this->cids = (string)$o->cids;
 
-		$this->attachmentIDs = (array)$o->attachmentIDs;
-		$this->attachments = (array)$o->attachments;
-		$this->answered = (string)$o->answered;
-		$this->flagged = (string)$o->flagged;
-		$this->forwarded = (string)$o->forwarded;
-		$this->fromName = (string)$o->fromName;
-		$this->fromEmail = (string)$o->fromEmail;
-		$this->seen = (string)$o->seen;
-		$this->tags = (string)$o->tags;
-		$this->time = (string)$o->time;
-		$this->BodyType = (string)$o->BodyType;
-		$this->Body = (string)$o->Body;
-		$this->Folder = (string)$o->Folder;
-		$this->From = (string)$o->From;
-		$this->ItemId = (string)$o->ItemId;
-		$this->MessageID = (string)$o->MessageID;
-		$this->Recieved = (string)$o->Recieved;
-		$this->Subject = (string)$o->Subject;
-		$this->To = (string)$o->To;
-		$this->CC = (string)$o->CC;
-		$this->BCC = (string)$o->BCC;
-		$this->Uid = (string)$o->Uid;
-		$this->MSGNo = (string)$o->MSGNo;
-		$this->CharSet = (string)$o->CharSet;
-		$this->in_reply_to = (string)$o->in_reply_to;
-		$this->references = (string)$o->references;
-		$this->cids = (string)$o->cids;
+    }
+    else {
+      \sys::logger( sprintf('<%s> %s', 'unable to decode', __METHOD__));
+
+    }
 
 	}
 
@@ -202,9 +207,18 @@ class message {
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '-', '-');
 		//~ UPDATE wp_posts SET post_content = REPLACE(post_content, '…', '…');
 
-		$_string = preg_replace( $decodecs, $decodeca, $this->Body);
+    $_string = $this->Body;
 
-		$encoding = mb_detect_encoding($_string);
+    /**
+     * probably expand this section ...
+     */
+		if ( 'ks_c_5601-1987' == $this->CharSet) {
+      $_string = iconv( 'EUC-KR', 'utf-8', $_string);
+
+    }
+
+		$_string = preg_replace( $decodecs, $decodeca, $_string);
+    $encoding = mb_detect_encoding($_string);
 		if ( $encoding) {
 			if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
 				sys::logger( sprintf('%s : %s', $encoding, __METHOD__));
@@ -219,7 +233,8 @@ class message {
 		}
 		else {
 			if ( $debug) sys::logger( sprintf('no encoding on string :: %s', __METHOD__));
-			// die( $_string . '<br />die...');
+			// sys::dump( $this);
+			die( $_string . '<br />die...');
 			$_string = str_replace( '&rsquo;', chr(146), $_string);
 			$_string = str_replace( '&nbsp;', '__hardspace__', $_string);
 			$_string = str_replace( '&rsquo;', '’', $_string);

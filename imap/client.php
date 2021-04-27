@@ -92,6 +92,14 @@ class client {
 	}
 
 	protected static function decodeMimeStr($string, $charset = 'UTF-8') {
+    $debug = false;
+    // $debug = true;
+
+    $unsupportedEncodings = [
+      'ks_c_5601-1987'
+
+    ];
+
 		$newString = '';
 		$elements = imap_mime_header_decode($string);
 		for($i = 0; $i < count($elements); $i++) {
@@ -111,15 +119,29 @@ class client {
        *  * https://stackoverflow.com/questions/26092388/iconv-detected-an-incomplete-multibyte-character-in-input-string
        *  * https://www.php.net/manual/en/function.iconv.php
        *
+       * the thunderbird encodings are referenced here
+       *  * https://github.com/php-mime-mail-parser/php-mime-mail-parser/issues/26
+       *
        */
+      if ( 'ks_c_5601-1987' == $elements[$i]->charset) {
+        $elements[$i]->charset = 'EUC-KR';  // thunderbird
 
+      }
+
+      if ( $debug) \sys::logger( sprintf('<?%s:%s?> %s', $elements[$i]->charset, $charset, __METHOD__));
 			if ( strtolower( $elements[$i]->charset) == strtolower( $charset)) {
-        // \sys::logger( sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+        if ( $debug) \sys::logger( sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
         $newString .= $elements[$i]->text;
 
       }
+      elseif ( in_array( $elements[$i]->charset, $unsupportedEncodings)) {
+        \sys::logger( sprintf('<unsupported encoding> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+        $newString .= $elements[$i]->text;
+        // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+
+      }
       else {
-        // \sys::logger( sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+        if ( $debug) \sys::logger( sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
         $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
 
       }
