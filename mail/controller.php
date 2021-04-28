@@ -209,7 +209,7 @@ class controller extends \Controller {
 					$inbox = inbox::instance( $this->creds);
 					$res = $uid ?
             $inbox->CopyItemByUID( $uid, $srcFolder, $targetFolder) :
-						$inbox->MoveItem( $msgID, $srcFolder, $targetFolder);
+						$inbox->CopyItem( $msgID, $srcFolder, $targetFolder);
 
 					if ( $res) {
 						\Json::ack( $action);
@@ -251,6 +251,25 @@ class controller extends \Controller {
 				}
 
 			} else { \Json::nak( sprintf( 'specifiy a folder name: %s', $action)); }
+
+		}
+		elseif ( 'delete-message' == $action) {
+			$msgID = $this->getPost('messageid');
+			$uid = $this->getPost('uid');
+
+			if ( $msgID || $uid) {
+				$srcFolder = $this->getPost('folder', 'default');
+        $inbox = inbox::instance( $this->creds);
+        $res = $uid ?
+          $inbox->DeleteItemByUID( $uid, $srcFolder) :
+          $inbox->DeleteItem( $msgID, $srcFolder);
+
+        if ( $res) {
+          \Json::ack( $action);
+
+        } else { \Json::nak( $action); }
+
+			} else { \Json::nak( sprintf('invalid message : %s', $action)); }
 
 		}
 		elseif ( 'empty-trash' == $action) {

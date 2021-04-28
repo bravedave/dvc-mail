@@ -448,7 +448,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 				// console.log( _data.folder);
 				$('input[name="page"]','#<?= $uidFrm ?>').val( 0);
-				$(document).trigger( 'mail-messages', _data.folder);
+				$(document).trigger('mail-messages', _data.folder);
 
 				//~ $('#submit-folder')
 				//~ .val( $(this).data('folder'))
@@ -713,7 +713,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
     sessionStorage.removeItem( key);
 
-    $(document).trigger( 'mail-messages', folder);
+    $(document).trigger('mail-messages', folder);
 
   });
 
@@ -1615,15 +1615,29 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
         }
 
-				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-					_context.append( $('<a href="#"><i class="bi bi-trash"></i>move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
-            e.stopPropagation();e.preventDefault();
+				if ( !!defaultFolders) {
+          if ( _data.folder == defaultFolders.Trash || _data.folder == 'junkmail') {
+            _context.append( $('<a href="#"><i class="bi bi-trash"></i>delete</a>').on( 'click', function( e) {
+              e.stopPropagation();e.preventDefault();
 
-            _row.trigger('delete');
+              _row.trigger('delete');
 
-            _context.close();
+              _context.close();
 
-					}));
+            }));
+
+          }
+          else {
+            _context.append( $('<a href="#"><i class="bi bi-trash"></i>move to '+defaultFolders.Trash+'</a>').on( 'click', function( e) {
+              e.stopPropagation();e.preventDefault();
+
+              _row.trigger('delete');
+
+              _context.close();
+
+            }));
+
+          }
 
 				}
 
@@ -1645,15 +1659,25 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				let _data = _row.data();
 				let defaultFolders = $(document).data('default_folders');
 
-				if ( !!defaultFolders && _data.folder != defaultFolders.Trash) {
-					_row.trigger('set-next').trigger('set-previous');
-					_row.trigger('execute-action', {
-						action : 'move-message',
-						targetFolder : defaultFolders.Trash
+				if ( !!defaultFolders) {
+          _row.trigger('set-next').trigger('set-previous');
+          if ( _data.folder == defaultFolders.Trash || _data.folder == 'junkmail') {
+            _row.trigger('execute-action', {
+              action : 'delete-message'
 
-					});
+            });
 
-				}
+          }
+          else {
+            _row.trigger('execute-action', {
+              action : 'move-message',
+              targetFolder : defaultFolders.Trash
+
+            });
+
+          }
+
+        }
 
 			})
 			.attr('draggable', true)
@@ -1703,9 +1727,11 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
             /**
              * actions could be:
-             *  => move-message
              *  => copy-message
+             *  => delete-message
+             *  => move-message
              *  */
+            // console.log( data.action);
             if ( 'copy-message' == data.action) {
               $('[from] > i.spinner-grow', _me).remove();
               $('[selector]', _me)
@@ -1716,6 +1742,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
             }
             else {
               _me.remove();
+              // console.log( 'removed message ..', _me[0]);
+              // return;
 
               if ( _data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
                 $('#<?= $uidViewer ?>').trigger('clear');
@@ -1731,7 +1759,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 					}
 
-					if ( 'no' != _data.refresh) $(document).trigger('mail-messages', _data.folder);
+					if ( 'no' != _data.refresh) $(document).trigger('mail-messages-refresh');
 
 					$('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
 
@@ -1883,6 +1911,19 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
   };
 
+	$(document).on('mail-messages-refresh', (e) => {
+    let data = $(document).data('mail-messages-data');
+    if ( !!data) {
+      $(document).trigger('mail-messages-loader', data);
+
+    }
+    else {
+      $(document).trigger('mail-messages', data);
+
+    }
+
+  });
+
 	$(document).on('mail-messages-loader', (e, data) => {
 
 		$(document).trigger( 'mail-clear-reloader');
@@ -1894,8 +1935,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
     else {
       $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').addClass('bi-spin');
 
-      // console.log( data);
-
+      $(document).data('mail-messages-data', data);
       _.post({
         url : _.url('<?= $this->route ?>'),
         data : data,	// data from the form
@@ -1950,7 +1990,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 	});
 
-	$(document).on( 'mail-messages', ( e, folder) => {                      // header view set here
+	$(document).on('mail-messages', ( e, folder) => {                      // header view set here
 
 		$(document).trigger( 'mail-clear-reloader');
 

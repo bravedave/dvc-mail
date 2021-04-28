@@ -101,6 +101,46 @@ class inbox {
 
 	}
 
+	public function DeleteItem(
+		string $itemID,
+		string $folder = "default") {
+
+		$ret = false;
+
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->delete_message( $itemID);
+			$this->_client->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
+
+		}
+
+		return ( $ret);
+
+	}
+
+	public function DeleteItemByUID(
+		string $uid,
+		string $folder = "default") {
+
+		$ret = false;
+
+		if ( $this->_client->open( true, $folder )) {
+			$ret = $this->_client->delete_message_byUID( $uid);
+			$this->_client->close();
+
+		}
+		else {
+			sys::logger( sprintf( 'can\'t open folder %s : %s', $folder, __METHOD__ ));
+
+		}
+
+		return ( $ret);
+
+	}
+
 	public function EmptyTrash( $folder) {
 		$ret = false;
 		$folders = new folders( $this->_creds);

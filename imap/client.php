@@ -782,7 +782,7 @@ class client {
 			if ( !isset($msg->message_id)) continue;
 
 			if ( "{$msg->message_id}" == "{$id}" ) {
-				$ret = $this->copy_message_byUID( \imap_uid(  $this->_stream, $msg->msgno));
+				$ret = $this->copy_message_byUID( \imap_uid(  $this->_stream, $msg->msgno), $target);
 				break;
 
 			}
@@ -812,6 +812,37 @@ class client {
 
 	public function deletemailbox( $fldr) {
 		return @imap_deletemailbox( $this->_stream, imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldr)));
+
+	}
+
+	public function delete_message( $id) {
+		$ret = false;
+		$total = imap_num_msg( $this->_stream );
+		$result = imap_fetch_overview( $this->_stream, "1:{$total}", 0 );
+		foreach ( $result as $msg) {
+			if ( !isset($msg->message_id)) continue;
+
+			if ( "{$msg->message_id}" == "{$id}" ) {
+				$ret = $this->delete_message_byUID( \imap_uid(  $this->_stream, $msg->msgno));
+				break;
+
+			}
+
+		}
+
+		return $ret;
+
+	}
+
+	public function delete_message_byUID( $uid) {
+		$this->_flush_cache( $uid);
+		if ($ret = imap_delete( $this->_stream, $uid, FT_UID)) {
+			imap_expunge( $this->_stream);
+			$this->_flush_cache();	// generally flush cache after expunge if that is enabled
+
+		}
+
+		return $ret;
 
 	}
 
@@ -1023,11 +1054,7 @@ class client {
 			if ( !isset($msg->message_id)) continue;
 
 			if ( "{$msg->message_id}" == "{$id}" ) {
-				$ret = $this->move_message_byUID( \imap_uid(  $this->_stream, $msg->msgno));
-				// imap_mail_move( $this->_stream, $msg->msgno, $target);
-				// imap_expunge( $this->_stream);
-				// $ret = sprintf( 'moved to %s : %s', $target, __METHOD__ );
-
+				$ret = $this->move_message_byUID( \imap_uid(  $this->_stream, $msg->msgno), $target);
 				break;
 
 			}
