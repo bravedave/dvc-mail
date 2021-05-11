@@ -47,11 +47,17 @@ abstract class inbox {
 	static public function FiledMessageExists( $msgStore) {
 		$file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
 		if ( file_exists( $file)) {
-            return ( \filesize( $file) > 1024);
+      /**
+       * based on I had a message that was 416k - it
+       * was sent from an iPhone with a
+       * single attachment
+       */
+      return ( \filesize( $file) > 384);
+      // return ( \filesize( $file) > 1024);
 
-        }
+    }
 
-        return false;
+    return false;
 
 	}
 
