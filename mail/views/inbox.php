@@ -644,8 +644,8 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 		};
 
-		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 d-inline-flex mb-1">folders</h6></div></div>');
-		$('<button type="button" class="btn btn-sm d-inline-flex ml-auto pl-2 pr-0"><i class="bi bi-arrow-repeat"></i></button>')
+		$('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 mb-1">folders</h6></div></div>');
+		$('<button type="button" class="btn btn-sm ml-auto pl-2 pr-0"><i class="bi bi-arrow-repeat"></i></button>')
 		.on('click', function( e) {
 			$('i.bi-arrow-repeat', this).addClass('bi-spin');
 			$(document).trigger( 'mail-folderlist-reload');
@@ -1959,7 +1959,6 @@ $(document).on('resize-main-content-wrapper', function( e) {
             if ( fldrs.data == fldrs.current) {
               if ( data.page == Number( $('input[name="page"]','#<?= $uidFrm ?>').val())) {
                 _list_messages( d.messages, false, true);
-                $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').removeClass('bi-spin');
 
                 if ( 0 == data.page) {
                   $(document).trigger( 'mail-clear-reloader');
@@ -1980,9 +1979,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
         }
         else {
           _.growl( d);
-          $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').removeClass('bi-spin');
 
         }
+        $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').removeClass('bi-spin');
 
       });
 
@@ -2009,9 +2008,9 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			let search = $('<div class="py-1 d-none"></div>').appendTo( col);
 			let location = 'undefined' == typeof data.folder ? 'messages' : data.folder;
 
-			let h = $('<h6 class="text-truncate pt-1 d-inline-flex mb-1"></h6>').html( location).appendTo( primary);
+			let h = $('<h6 class="text-truncate pt-1 mb-1"></h6>').html( location).appendTo( primary);
 
-			$('<button type="button" class="btn btn-sm d-inline-flex ml-auto"><i class="bi bi-search"></i></button>')
+			$('<button type="button" class="btn btn-sm ml-auto"><i class="bi bi-search"></i></button>')
 			.attr( 'title', _.browser.isMobileDevice ? 'search' : 'ctrl+click for advanced search')
 			.appendTo( primary)
 			.on('click', function(e) {
@@ -2034,7 +2033,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="bi bi-chevron-left" title="previous page"></i></button>')
+			$('<button type="button" class="btn btn-sm"><i class="bi bi-chevron-left" title="previous page"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				let v = Number( $('input[name="page"]','#<?= $uidFrm ?>').val());
@@ -2052,7 +2051,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 			});
 
 			if ( page > -1) {
-        let statDiv = $('<div class="d-inline-flex small pt-1"></div>').appendTo( primary);
+        let statDiv = $('<div class="small pt-1"></div>').appendTo( primary);
 
 				$('<span></span>')
         .html(page+1)
@@ -2112,7 +2111,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
                     let _me = $(this);
                     _me.addClass( 'd-none');
-                    statDiv.addClass('d-inline-flex').removeClass( 'd-none');
+                    statDiv.removeClass( 'd-none');
                     _me.remove();
 
                   }
@@ -2131,7 +2130,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
                 }
 
-                statDiv.removeClass('d-inline-flex').addClass( 'd-none');
+                statDiv.addClass( 'd-none');
                 input.insertAfter( statDiv[0]);
                 input.focus();
 
@@ -2193,7 +2192,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
                     let _me = $(this);
                     _me.addClass( 'd-none');
-                    statDiv.addClass('d-inline-flex').removeClass( 'd-none');
+                    statDiv.removeClass( 'd-none');
                     _me.remove();
 
                   }
@@ -2212,7 +2211,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
                 }
 
-                statDiv.removeClass('d-inline-flex').addClass( 'd-none');
+                statDiv.addClass( 'd-none');
                 input.insertAfter( statDiv[0]);
                 input.focus();
 
@@ -2227,7 +2226,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			}
 
-			$('<button type="button" class="btn btn-sm d-inline-flex"><i class="bi bi-chevron-right" title="next page"></i></button>')
+			$('<button type="button" class="btn btn-sm"><i class="bi bi-chevron-right" title="next page"></i></button>')
 			.appendTo( primary)
 			.on('click', (e) => {
 				let _page = $('input[name="page"]','#<?= $uidFrm ?>');
@@ -2248,7 +2247,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 
 			});
 
-			$('<button type="button" class="btn btn-sm d-inline-flex pr-0"><i class="bi bi-arrow-repeat"></i></button>')
+			$('<button type="button" class="btn btn-sm pr-0"><i class="bi bi-arrow-repeat"></i></button>')
 			.appendTo( primary)
 			.on('click', function(e) {
 				if ( !!folder)
@@ -2297,7 +2296,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				data.term = String( fldSearch.val());
 				if ( '' == data.term.trim()) return;
 
-				$('button[search-activate]', search).html('').append('<i class="bi bi-arrow-repeat bi-spin"></i>').prop( 'disabled', true);
+				$('button[search-activate]', search).html('<i class="bi bi-arrow-repeat bi-spin"></i>').prop( 'disabled', true);
 				fldSearch.prop( 'disabled', true);
 
 				if ( !!folder) { data.folder = folder; }
@@ -2318,7 +2317,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 						let heading = $('<div class="row bg-light text-muted"></div>');
 						let col = $('<div class="col"></div>').appendTo( heading);
             let close = $('<i class="bi bi-x float-right pointer"></i>');
-            close.on( 'click', e => $(document).trigger('mail-messages'));
+            close.on( 'click', e => $(document).trigger('mail-messages', folder));
 
 						let h = $('<h6 class="text-truncate pt-1"></h6>')
 							.html( data.term)
