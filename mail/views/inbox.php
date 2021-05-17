@@ -1170,7 +1170,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
 				})();
 
 				( function() {
-					if ( _.browser.isMobileDevice) return;
+					// if ( _.browser.isMobileDevice) return;
 					let btn = $('<button type="button" data-role="reply-all"><i class="bi bi-reply-all"></i></button>');
 					btn
 					.addClass( params.btnClass)
