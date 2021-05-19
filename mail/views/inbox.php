@@ -1614,6 +1614,53 @@ $(document).on('resize-main-content-wrapper', function( e) {
           );
 
         }
+				else if ( /^inbox$/i.test( _data.folder)) {
+          /**
+           * possibly this could be dynamic, but is current specific to SME Server (https://contribs.org)
+           * which has a Learn feature (https://wiki.koozali.org/Learn)
+           */
+					_context.append(
+            $('<a href="#" class="d-none"></a>')
+            .on( 'click', function( e) {
+              e.stopPropagation();e.preventDefault();
+
+              let _me = $(this);
+              let _data = _me.data();
+              // console.log( _data);
+
+              _row.trigger('execute-action', {
+                action : 'copy-message',
+                targetFolder : _data.folder
+
+              });
+
+              _context.close();
+
+            })
+            .on( 'check-availability', function(e) {
+              let _me = $(this);
+              featureLearnAsSpam().then( d => {
+                if ( d.available) {
+                  // console.log( _me, d);
+                  _me
+                  .html('<i class="bi bi-shield-check text-success"></i>Learn as Spam')
+                  .data('folder', d.folder)
+                  .removeClass('d-none');
+
+                }
+
+              });
+
+            })
+            .trigger( 'check-availability')
+
+          );
+
+        }
+        else {
+          console.log( 'folder', _data.folder);
+
+        }
 
 				if ( !!defaultFolders) {
           if ( _data.folder == defaultFolders.Trash || _data.folder == 'junkmail') {

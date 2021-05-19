@@ -727,6 +727,11 @@ class client {
 
 	}
 
+  public function accountName() : string {
+    return $this->_account;
+
+  }
+
 	public function clearflag( $id, $flag) {
 		$ret = false;
 		$total = imap_num_msg( $this->_stream );
@@ -1161,6 +1166,16 @@ class client {
 		}
 
 		return false;
+
+	}
+
+	public function renamemailbox( $fldr, $fldrNew) {
+    $_fldr = imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldr));
+    $_fldrNew = imap_utf7_encode( sprintf( '{%s}%s', $this->_server, $fldrNew));
+    // \sys::logger( sprintf('<%s => %s> %s', $_fldr, $_fldrNew, __METHOD__));
+		return @imap_renamemailbox( $this->_stream, $_fldr, $_fldrNew);
+    // return false;
+
 
 	}
 

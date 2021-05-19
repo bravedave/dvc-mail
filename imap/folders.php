@@ -112,9 +112,33 @@ class folders {
 							 * linux type server
 							 */
 
-							$sub = trim( preg_replace( sprintf( '@^%s\.@', $fldr), '', $fn ), '/ ');
+              if ( preg_match('@\s$@', $fn)) {
+                // can I fix it ?
+                if( false === array_search( trim( strtolower( $fn)), array_map('strtolower', $list))) {
+                  if ( $this->rename( $fn, trim( $fn))) {
+                    \sys::logger( sprintf('<fixed problem : %s> %s', $fn, __METHOD__));
+                    $sub = trim( preg_replace( sprintf( '@^%s\.@', $fldr), '', $fn ), '/ ');
+
+                  }
+                  else {
+                    \sys::logger( sprintf('<failed to fix problem : %s> %s', $fn, __METHOD__));
+                    $sub = trim( preg_replace( sprintf( '@^%s\.@', $fldr), '', $fn ), '/');
+
+                  }
+
+                }
+                else {
+                  \sys::logger( sprintf('<unfixable problem : %s> <%s> %s', $fn, $this->_client->accountName(), __METHOD__));
+                  $sub = trim( preg_replace( sprintf( '@^%s\.@', $fldr), '', $fn ), '/');
+
+                }
+
+              }
+              else {
+                $sub = trim( preg_replace( sprintf( '@^%s\.@', $fldr), '', $fn ), '/');
+
+              }
 							$a['subfolders'][] = $sub;
-							// sys::logger( sprintf('%s => %s : %s', $fn, $sub, __METHOD__));
 
 						}
 						else {
@@ -131,6 +155,8 @@ class folders {
 								$append = false;
 
 							}
+
+              // \sys::logger( sprintf('<%s> %s', $fn, __METHOD__));
 							$fldr = $fn;
 							$a = ['name' => $fn];
 							$append = true;
@@ -281,7 +307,33 @@ class folders {
 
 	}
 
-	function getByPath( $path) {
+	public function rename( string $folder, string $newName) : bool {
+		$ret = false;
+		if ( $this->_client->open( false)) {
+      // \sys::logger( sprintf('<%s> => <%s> %s', $folder, $newName, __METHOD__));
+			$fldr = trim( \str_replace( '/', self::$delimiter, $folder), './');
+			$newFldr = trim( \str_replace( '/', self::$delimiter, $newName), './');
+      if ( $this->_client->renamemailbox( $fldr, $newFldr)) {
+				$ret = true;
+
+
+			}
+			else {
+				$error = sprintf( 'rename mailbox failed : %s', imap_last_error());
+				$this->errors[] = $error;
+				sys::logger( sprintf( '%s : <%s> => <%s> : <%s> => <%s> : %s', $error, $folder, $fldr, $newName, $newFldr, __METHOD__));
+
+			}
+
+			$this->_client->close();
+
+		}
+
+    return $ret;
+
+  }
+
+	public function getByPath( $path) {
 		if ( $fldrs = $this->getAll('json')) {
 			foreach ( $fldrs as $fldr) {
 				if ( $path == $fldr->map) {
@@ -297,7 +349,7 @@ class folders {
 
 	}
 
-	function getAll( $format = '') {
+	public function getAll( $format = '') {
 		$res = $this->_getAll();
 		return ( $format == 'json' ? $this->_allToJson( $res) : $res);
 
