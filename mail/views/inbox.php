@@ -1643,7 +1643,7 @@ $(document).on('resize-main-content-wrapper', function( e) {
                 if ( d.available) {
                   // console.log( _me, d);
                   _me
-                  .html('<i class="bi bi-shield-check text-success"></i>Learn as Spam')
+                  .html('<i class="bi bi-shield-check text-danger"></i>Learn as Spam')
                   .data('folder', d.folder)
                   .removeClass('d-none');
 
