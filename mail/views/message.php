@@ -172,27 +172,34 @@ $colStyle = 'width: 5rem; font-size: small;';
     <span style="float: right;"><?= strings::asLocalDate( $msg->Recieved, $time = true) ?></span>
     <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
     <?php
-    $_style = '';
     if ( $this->data->default_folders['Sent'] == $msg->Folder) {
-      printf( '<div style="float: left; %s"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
-        $_style,
-        htmlentities( $msg->To),
-        htmlentities( $msg->To)
-      );
+      $_to = array_map( function( $v) {
+        return sprintf(
+          '<strong data-role="from" data-email="%s">%s</strong>',
+          htmlentities( $v),
+          htmlentities( $v),
+
+        );
+
+      }, explode(',', $msg->To));
+
+      printf( '<div style="float: left;"><small>to&nbsp;</small>%s</div>', implode( ', ', $_to));
+      // printf( '<div style="float: left;"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
+      //   htmlentities( $msg->To),
+      //   htmlentities( $msg->To)
+      // );
 
     }
     else {
       if ( $msg->From && $msg->From != $msg->fromEmail) {
-        printf( '<div style="float: left; %s"><strong data-role="from" data-email="%s">%s</strong></div>',
-          $_style,
+        printf( '<div style="float: left;"><strong data-role="from" data-email="%s">%s</strong></div>',
           htmlentities( $msg->From),
           htmlentities( $msg->From)
         );
 
       }
       else {
-        printf( '<div style="float: left; %s"><strong data-role="from" data-email="%s">%s</strong></div>',
-          $_style,
+        printf( '<div style="float: left;"><strong data-role="from" data-email="%s">%s</strong></div>',
           htmlentities( $msg->fromEmail),
           $msg->fromEmail
         );
