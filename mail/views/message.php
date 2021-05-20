@@ -183,7 +183,11 @@ $colStyle = 'width: 5rem; font-size: small;';
 
       }, explode(',', $msg->To));
 
-      printf( '<div style="float: left;"><small>to&nbsp;</small>%s</div>', implode( ', ', $_to));
+      printf(
+        '<div style="float: left;"><small>to&nbsp;</small>%s</div>',
+        implode( ', ', $_to)
+
+      );
       // printf( '<div style="float: left;"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
       //   htmlentities( $msg->To),
       //   htmlentities( $msg->To)
