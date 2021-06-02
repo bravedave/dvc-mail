@@ -357,13 +357,13 @@ class message {
 					$img->setAttribute('data-safe-src', $src);
 					$img->setAttribute('src', \dvc\icon::base64_data( \dvc\icon::image));
 
-					if ( $debug) \sys::logger( "processing .....$src" );
+					if ( $debug) \sys::logger( sprintf('<processing attachments for inlinement> %s', __METHOD__));
+
 					// $_attachments = [];
 					foreach ( $this->attachments as $key => $data ) {
 						if ( !isset( $data->Name)) continue;
 						if ( !isset( $data->ContentId)) continue;
 						$name = $data->Name;
-						if ( $debug) \sys::logger( "attachment .....$name, $data->ContentId" );
 
 						if (
 							$src == $name ||
@@ -373,6 +373,7 @@ class message {
 							) {
 
 							// \sys::dump( $data);
+              if ( $debug) \sys::logger( sprintf('<%s == %s> <attachment> <processing> %s', $src, $name, $data->ContentId, __METHOD__));
 
 							if ( preg_match( "@.gif$@i", $name )) {
 								$_uid = strings::rand();
@@ -486,13 +487,9 @@ class message {
 							$unsets[] = $key;
 							if ( $debug) \sys::logger( sprintf('unsetting %s : %s', $key, __METHOD__));
 
-							//~ unset( $this->attachments[$name] );
-							//~ if ( isset( $this->cids[$name] ))
-								//~ unset( $this->cids[$name]);
-
 						}
 						else {
-							if ( $debug) \sys::logger( sprintf( 'not processing .....%s == %s', $src, $name ));
+              // if ( $debug) \sys::logger( sprintf('<%s:%s> <not processing attachment> %s', $name, $data->ContentId, __METHOD__));
 
 						}
 
@@ -516,7 +513,7 @@ class message {
 			}
 
 			if ( isset( $this->cids[$u] )) {
-				if ( $debug) \sys::logger( sprintf('unset %s : %s : cid ', $u, __METHOD__));
+				if ( $debug) \sys::logger( sprintf('<unset cid : %s> %s', $u, __METHOD__));
 				unset( $this->cids[$u]);
 
 			}
@@ -524,6 +521,18 @@ class message {
 		}
 
 		if ( $debug) \sys::logger( sprintf('... attachments %d : %s ', count( $this->attachments), __METHOD__));
+
+		$frameQ = [];
+    foreach($doc->getElementsByTagName('iframe') as $frame) {
+      $frameQ[] = $frame;
+
+    }
+
+    foreach ($frameQ as $frame) {
+      $frame->parentNode->removeChild( $frame);
+      // \sys::logger( sprintf('<%s> %s', 'remove iframe', __METHOD__));
+
+    }
 
 		// $html = $doc->saveHTML();
 		$tmpfile = \tempnam( \config::dataPath(), 'msg_');

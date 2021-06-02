@@ -201,7 +201,7 @@ class RawMessage {
 
 				if ( isset( $params['filename'] )) {
 
-					if ( $debug) \sys::logger( sprintf('<%s> :plaintext: %s', $params['filename'], __METHOD__));
+					if ( $debug) \sys::logger( sprintf('<%s> <filename> %s', $params['filename'], __METHOD__));
 
 					$filename = $params['filename'];
 					$attach = new attachment;
@@ -216,7 +216,7 @@ class RawMessage {
 				}
 				elseif ( isset( $params['name'])) {
 
-					if ( $debug) \sys::logger( sprintf('<%s> :plaintext: %s', $params['name'], __METHOD__));
+					if ( $debug) \sys::logger( sprintf('<%s> <name> %s', $params['name'], __METHOD__));
 
 					$filename = $params['name'];
 					$attach = new attachment;
@@ -232,7 +232,7 @@ class RawMessage {
 				}
 				elseif ( $p->type == 5 && $data && isset( $p->id)) {
 
-					if ( $debug) \sys::logger( sprintf('<%s> :plaintext: %s', 'type 5', __METHOD__));
+					if ( $debug) \sys::logger( sprintf('<%s> %s', 'type 5', __METHOD__));
 
 					$id = preg_replace( array( "@(<|>)@" ), "", $p->id );
 					$attach = new attachment;
@@ -314,16 +314,33 @@ class RawMessage {
 						$a[] = '';
 
 						$this->messageType = 'html';
-						$this->messageHTML .= implode( '<br />', $a);
+						$this->messageHTML .= implode( '<br>', $a);
 
 					}
 
 				}
 				else {
-					$this->messageType = 'html';
-					$this->messageHTML .= \str_replace( chr(146), "'", $data);	// . "<br /><br />";
-					if ( $debugPart) sys::logger( sprintf( 'html(%s)[%s] : %s', strlen( $data), $p->subtype, __METHOD__ ));
-					// die( $this->messageHTML);
+          if ( isset( $p->disposition) && 'attachment' == $p->disposition) {
+            if ( $debugPart) {
+              \sys::logger( sprintf('<%s attachment> %s', strtolower( $p->subtype), __METHOD__));
+              // \sys::dump( $p, null, false);
+
+            }
+
+            $id = preg_replace( array( "@(<|>)@" ), "", $p->id );
+            $attach = new attachment;
+            $attach->Name = $attach->ContentId = $id;
+            $attach->Content = $data;
+            $this->attachments[] = $attach;
+
+          }
+          else {
+            $this->messageType = 'html';
+            $this->messageHTML .= \str_replace( chr(146), "'", $data);	// . "<br /><br />";
+            if ( $debugPart) sys::logger( sprintf( 'html(%s)[%s] : %s', strlen( $data), $p->subtype, __METHOD__ ));
+            // die( $this->messageHTML);
+
+          }
 
 				}
 
