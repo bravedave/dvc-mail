@@ -327,11 +327,14 @@ class RawMessage {
 
             }
 
-            $id = preg_replace( array( "@(<|>)@" ), "", $p->id );
-            $attach = new attachment;
-            $attach->Name = $attach->ContentId = $id;
-            $attach->Content = $data;
-            $this->attachments[] = $attach;
+            if ( isset( $p->id)) {
+              $id = preg_replace( array( "@(<|>)@" ), "", $p->id );
+              $attach = new attachment;
+              $attach->Name = $attach->ContentId = $id;
+              $attach->Content = $data;
+              $this->attachments[] = $attach;
+
+            }
 
           }
           else {
