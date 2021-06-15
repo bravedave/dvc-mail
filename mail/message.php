@@ -248,8 +248,8 @@ class message {
         if ($debug) \sys::logger(sprintf('<converted : %s to utf8> %s', $encoding, __METHOD__));
 
 			}
-			// $_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
-      // if ($debug) \sys::logger(sprintf('<converted : utf8 to html-entities> %s', __METHOD__));
+			$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+      if ($debug) \sys::logger(sprintf('<converted : utf8 to html-entities> %s', __METHOD__));
 
 		}
 		else {
