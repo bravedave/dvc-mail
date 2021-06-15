@@ -161,6 +161,16 @@ class message {
 
 	}
 
+	public function hasBuggyMso() {
+    if ($this->Body) {
+      return strpos( $this->Body, '"MsoNormal"') !== false;
+
+		}
+
+		return false;
+
+	}
+
 	public function hasMso() {
 		$header = trim( $this->getHtmlHeader());
     if ( preg_match( '@^<!--\[if \!mso\]>@', $header)) {
@@ -220,6 +230,7 @@ class message {
     elseif ( in_array( $this->CharSet, mb_list_encodings())) {
       if ( !in_array( $this->CharSet, ['UTF-8'])) {
         $_string = iconv( $this->CharSet, 'utf-8', $_string);
+        if ($debug) \sys::logger(sprintf('<converted : %s to utf8> %s', $this->CharSet, __METHOD__));
 
       }
 
@@ -234,26 +245,29 @@ class message {
 			}
 			if ( strtolower( $encoding) != 'utf-8') {
 				$_string = mb_convert_encoding( $_string, 'utf-8', $encoding);
+        if ($debug) \sys::logger(sprintf('<converted : %s to utf8> %s', $encoding, __METHOD__));
 
 			}
-			$_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+			// $_string = mb_convert_encoding( $_string, 'html-entities', 'utf-8');
+      // if ($debug) \sys::logger(sprintf('<converted : utf8 to html-entities> %s', __METHOD__));
 
 		}
 		else {
 			if ( $debug) sys::logger( sprintf('no encoding on string :: %s', __METHOD__));
-			// sys::dump( $this);
-			// die( $_string . '<br />die...');
-			$_string = str_replace( '&rsquo;', chr(146), $_string);
-			$_string = str_replace( '&nbsp;', '__hardspace__', $_string);
-			$_string = str_replace( '&rsquo;', '’', $_string);
-			$_string = str_replace( chr(150), '-', $_string);
-			// $_string = str_replace( 'style="mso-fareast-language:EN-US"', '', $_string);
-			// $_string = str_replace( '<o:p>', '<div style="p">', $_string);
-			// $_string = str_replace( '</o:p>', '</div style="p">', $_string);
-			// $_string = str_replace( '<o:', '<div namespace="o" ', $_string);
-			// $_string = str_replace( '</o:', '</div namespace="o" ', $_string);
 
-		}
+    }
+
+    // sys::dump( $this);
+    // die( $_string . '<br />die...');
+    $_string = str_replace( '&rsquo;', chr(146), $_string);
+    $_string = str_replace( '&nbsp;', '__hardspace__', $_string);
+    $_string = str_replace( '&rsquo;', '’', $_string);
+    $_string = str_replace( chr(150), '-', $_string);
+    // $_string = str_replace( 'style="mso-fareast-language:EN-US"', '', $_string);
+    // $_string = str_replace( '<o:p>', '<div style="p">', $_string);
+    // $_string = str_replace( '</o:p>', '</div style="p">', $_string);
+    // $_string = str_replace( '<o:', '<div namespace="o" ', $_string);
+    // $_string = str_replace( '</o:', '</div namespace="o" ', $_string);
 
 		if ( $debug) {
 			$f = sprintf('%s/temp-1-start.html', \config::dataPath());
@@ -273,7 +287,7 @@ class message {
 		libxml_clear_errors();
 		// ini_set ('error_reporting', "6143");
 		if ( $debug) {
-			$f = sprintf('%s/temp-just-after.html', \config::dataPath());
+			$f = sprintf('%s/temp-2-just-after.html', \config::dataPath());
 			if ( \file_exists($f)) unlink( $f);
 			$doc->saveHTMLfile( $f);
 			// print $doc->saveHTML();
@@ -478,7 +492,7 @@ class message {
 								}
 								elseif ( $debug) {
 									\sys::logger( $mimetype);
-									\sys::logger( "what about : $src, $name, cid:$cid");
+									\sys::logger( "what about : $src, $name");
 
 								}
 
@@ -539,6 +553,12 @@ class message {
 		$doc->saveHTMLfile( $tmpfile);
 		$html = \file_get_contents( $tmpfile);
 		unlink( $tmpfile);
+
+    if ($debug) {
+      $f = sprintf('%s/temp-2-middle-0.html', \config::dataPath());
+      if (\file_exists($f)) unlink($f);
+      \file_put_contents($f, $html);
+    }
 
 		foreach ( $cidContent as $cid) {
 			$html = \str_replace( $cid->refer, $cid->content, $html);

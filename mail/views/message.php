@@ -13,6 +13,7 @@ $debug = false;
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
 // sys::dump( $msg);
+if ($debug) \sys::logger(sprintf('<start> %s', __METHOD__));
 
 /**
  * process the safe html before listing the attachments
@@ -101,9 +102,24 @@ elseif ( $msg->hasMso()) {
 
   );
 
+  if ($debug) \sys::logger(sprintf('<hasMso> %s', __METHOD__));
+
+}
+elseif ( $msg->hasBuggyMso()) {
+  $msgHtml = sprintf(
+    '<style>p { margin: 0; }</style> %s',
+    preg_replace( [
+      '@class="WordSection1"@'
+    ], '', $msg->safehtml())
+
+  );
+
+  if ($debug) \sys::logger(sprintf('<hasBuggyMso> %s', __METHOD__));
+
 }
 else {
   $msgHtml = $msg->safehtml();
+  if ($debug) \sys::logger(sprintf('<else> %s', __METHOD__));
   // $msgHtml = $msg->Body;
   // \sys::logger( sprintf('<%s> %s', strlen( $msgHtml), __METHOD__));
 
@@ -126,6 +142,7 @@ $colStyle = 'width: 5rem; font-size: small;';
 
   ::-webkit-scrollbar-track {
       -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   }
 
   ::-webkit-scrollbar-thumb {
@@ -161,6 +178,8 @@ $colStyle = 'width: 5rem; font-size: small;';
       font-family: Monaco,Menlo,Consolas,'Courier New',monospace;
 
   }
+
+  p.MsoNormal { margin: 0 }
 
   div[message] { padding: 8px; margin: 0 0 1rem; }
   div[message] > div[data-x_type="body"] { margin: -8px; padding: 8px; }
