@@ -25,7 +25,7 @@ $activeMessage = 'open-message';
     background-color: #cce5ff;
   }
 
-  .<?= $uidCSS_dropHere = strings::rand(); ?> {
+  .<?= $uidCSS_dropHere = strings::rand() ?> {
     border: 2px solid #ddd;
     background-color: #eee
   }
