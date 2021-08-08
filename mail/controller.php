@@ -487,6 +487,7 @@ class controller extends \Controller {
         ]);
       }
     } elseif ($options['uid']) {
+
       $msg = $inbox->GetItemByUID(
         $options['uid'],
         $includeAttachments = true,
@@ -495,6 +496,14 @@ class controller extends \Controller {
 
       if ($msg) {
         if (count($msg->attachments)) {
+          \sys::logger(sprintf(
+            '<%s/%s => %s> %s',
+            $options['folder'],
+            $options['uid'],
+            $options['item'],
+            __METHOD__
+          ));
+
           // printf( '%s<br />', $options['item']);
           $finfo = new \finfo(FILEINFO_MIME);
           foreach ($msg->attachments as $attachment) {
@@ -509,8 +518,6 @@ class controller extends \Controller {
                 header(sprintf('Content-Disposition: attachment; filename="%s"', $attachment->Name));
                 print $attachment->Content;
                 return;
-
-                // printf( 'found %s', $finfo->buffer( $attachment->Content));
 
               }
             } elseif ('string' == gettype($attachment)) {
@@ -768,7 +775,7 @@ class controller extends \Controller {
         $this->_file([
           'creds' => $this->creds,
           'folder' => $this->getParam('folder', 'default'),
-          'item' => $this->getParam('item'),
+          'item' => $file,
           'msg' => $msg,
           'uid' => $uid
 

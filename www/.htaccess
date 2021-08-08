@@ -9,7 +9,7 @@ Options -Indexes
 RewriteEngine Off
 
 # If the public file does not exist, redirect through our router
-FallbackResource /_dvc.php
+FallbackResource /_mvp.php
 
 php_value post_max_size 40M
 php_value upload_max_filesize 40M

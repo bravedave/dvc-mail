@@ -1,15 +1,54 @@
 #!/bin/bash
 
-php=php
-if [[ -x /usr/bin/php8 ]]; then php=php8; fi
+WD=`pwd`
+PORT=$[RANDOM%1000+1024]
+PORT=1080
+apache=`command -v httpd`
 
-# this script is for linux, perhaps MAC ? environments
+if [[ "" == $apache ]]; then
+  cd www
 
-# this script will make the environment available on
-# port 8080 - you can make it availabled o port 80
-# running as root
+  php=php
+  if [[ -x /usr/bin/php8 ]]; then php=php8; fi
 
-current_dir=`pwd`
-cd www
-$php -S localhost:1080 _dvc.php
-cd $current_dir
+  echo "this application is available at http://localhost:$PORT"
+  $php -S localhost:$PORT _mvp.php
+
+  cd $WD
+
+else
+  data="`pwd`/application/data"
+  error_log="$data/error.log"
+  access_log="$data/access.log"
+  config="$data/httpd.conf"
+  pidFile="$data/httpd.pid"
+  [[ ! -f $error_log ]] || rm $error_log
+  [[ ! -f $access_log ]] || rm $access_log
+  if [[ ! -f $config ]]; then
+    cp $WD/httpd-minimal.conf $config
+    echo "ErrorLogFormat \"[%t] %M\"" >>$config
+    echo "Listen $PORT" >>$config
+    echo "ErrorLog $error_log" >>$config
+    echo "CustomLog $access_log common" >>$config
+    echo "DocumentRoot `pwd`/www" >>$config
+    echo "<Directory `pwd`/www>" >>$config
+    echo "  AllowOverride all" >>$config
+    echo "  Require all granted" >>$config
+    echo "</Directory>" >>$config
+
+  fi
+
+  if [[ -f $pidFile ]] ; then
+    echo "running ..`cat $pidFile`"
+
+  else
+    echo "this application is available at http://localhost:$PORT"
+      # -D FOREGROUND \
+    httpd \
+      -f $config \
+      -c "PidFile $pidFile"
+    tail -f $data/error.log
+
+  fi
+
+fi

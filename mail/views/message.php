@@ -351,9 +351,9 @@ if ( $iMsgCount = count( $msg->attachments)) {
                   $finfo = new \finfo(FILEINFO_MIME);
                   $mimetype = $finfo->buffer( $attachment->Content);
 
+                  // target="_blank"
                   printf('<tr><td><a
                     href="%s"
-                    target="_blank"
                     data-rel="attachment"
                     data-id="%s"
                     data-mimetype="%s"
