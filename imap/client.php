@@ -971,7 +971,7 @@ class client {
 
 			if ( !$ret) {
 				if ( self::$debug) {
-					sys::logger( sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+					sys::logger( sprintf('not found : %s/%s : %s', $folder, $msgno, __METHOD__));
 
 				}
 
