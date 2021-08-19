@@ -492,7 +492,7 @@ $activeMessage = 'open-message';
                 verbatim: 'create a new folder'
 
               }).then(d => {
-                if (/[^a-zA-Z0-9_ ]/.test(d)) {
+                if (/[^a-zA-Z0-9_\- ]/.test(d)) {
                   _.ask.warning({
                     title: 'warning',
                     text: 'invalid characters detected'
