@@ -203,11 +203,13 @@ class message {
 		}
 
 		$decodecs = [
-			'@(“|”|’|‘|' . chr(146) . ')@',
+			'@(’|‘|' . chr(145) . '|' . chr(146) . ')@',
+			'@(“|”)@',
 			'@<!DOCTYPE[^>]*>@'
 		];
 		$decodeca = [
-			'&rsquo;',
+      '&#39;',
+      '&#34;',
 			''
 		];
 
@@ -230,13 +232,24 @@ class message {
     elseif ( in_array( $this->CharSet, mb_list_encodings())) {
       if ( !in_array( $this->CharSet, ['UTF-8'])) {
         $_string = iconv( $this->CharSet, 'utf-8', $_string);
-        if ($debug) \sys::logger(sprintf('<converted : %s to utf8> %s', $this->CharSet, __METHOD__));
+        if ($debug) {
+          \sys::logger(sprintf('<converted : %s to utf8> %s', $this->CharSet, __METHOD__));
+        }
+
+      }
+      elseif ($debug) {
+        \sys::logger(sprintf('<not converting : %s> %s', $this->CharSet, __METHOD__));
 
       }
 
     }
 
 		$_string = preg_replace( $decodecs, $decodeca, $_string);
+    if ($debug) {
+      $f = sprintf('%s/temp-00-start.html', \config::dataPath());
+      if (\file_exists($f)) unlink($f);
+      \file_put_contents($f, $_string);
+    }
     $encoding = mb_detect_encoding($_string);
 		if ( $encoding) {
 			if ( !\in_array( strtolower( $encoding), [ 'ascii', 'utf-8'])) {
@@ -259,9 +272,9 @@ class message {
 
     // sys::dump( $this);
     // die( $_string . '<br />die...');
-    $_string = str_replace( '&rsquo;', chr(146), $_string);
+    $_string = str_replace( '&rsquo;', '&#8217;', $_string);
+    // $_string = str_replace( '&rsquo;', '’', $_string);
     $_string = str_replace( '&nbsp;', '__hardspace__', $_string);
-    $_string = str_replace( '&rsquo;', '’', $_string);
     $_string = str_replace( chr(150), '-', $_string);
     // $_string = str_replace( 'style="mso-fareast-language:EN-US"', '', $_string);
     // $_string = str_replace( '<o:p>', '<div style="p">', $_string);

@@ -40,6 +40,8 @@ class RawMessage {
 		$this->plainText = $plainText;
 
 		// BODY
+    if ( $debug) \sys::logger( sprintf('<-----------------[debug]-----------------> %s', __METHOD__));
+
 		$s = imap_fetchstructure( $stream, $email_number );
 		if ( !isset( $s->parts ) || !$s->parts ) { // simple
 			if ( $debug) sys::logger( sprintf('simple : %s', __METHOD__));
@@ -102,9 +104,10 @@ class RawMessage {
 			$data = quoted_printable_decode( $data);
 
 			// \sys::logger( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
-			// $f = sprintf('%s/temp-1-rawmessage.txt', \config::dataPath());
+			// $f = sprintf('%s/temp-1-%s-rawmessage.txt', \config::dataPath(), $partno);
 			// if ( \file_exists($f)) unlink( $f);
 			// \file_put_contents( $f, $data);
+			// \sys::logger( sprintf('<%s> %s', $f, __METHOD__));
 
 		}
 		elseif ( $p->encoding==3) {
