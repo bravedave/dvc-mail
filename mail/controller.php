@@ -496,13 +496,13 @@ class controller extends \Controller {
 
       if ($msg) {
         if (count($msg->attachments)) {
-          \sys::logger(sprintf(
-            '<%s/%s => %s> %s',
-            $options['folder'],
-            $options['uid'],
-            $options['item'],
-            __METHOD__
-          ));
+          // \sys::logger(sprintf(
+          //   '<%s/%s => %s> %s',
+          //   $options['folder'],
+          //   $options['uid'],
+          //   $options['item'],
+          //   __METHOD__
+          // ));
 
           // printf( '%s<br />', $options['item']);
           $finfo = new \finfo(FILEINFO_MIME);

@@ -214,6 +214,23 @@ class RawMessage {
 						$attach->ContentId = preg_replace( array( "@\<@", "@\>@" ), "", $p->id );
 
 					}
+
+          /**
+           * 25/09/2021
+           * Wierd file name with encoding in the string
+           * could this be double encoded ?
+           */
+          $filename = trim($filename, '?=');
+          if (preg_match('/ISO-8859-1/i', $filename)) {
+            $filename = preg_replace('/ISO-8859-1/i', '', $filename);
+            $filename = preg_replace('/\?[^\?]*\?/i', '', $filename);
+          }
+
+          $filename = strings::safe_file_name($filename);
+          if ($filename) {
+            $attach->Name = $filename;
+          }
+
 					$this->attachments[] = $attach;
 
 				}
