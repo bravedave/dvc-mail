@@ -8,11 +8,15 @@
  *
 */
 
+namespace dvc\mail;
+
+use dvc\imap\config;
+
 $debug = false;
 // $debug = true;
 // print \config::$PAGE_TEMPLATE;
 $msg = $this->data->message;
-// sys::dump( $msg);
+// \sys::dump( $msg);
 if ($debug) \sys::logger(sprintf('<start> %s', __METHOD__));
 
 /**
@@ -23,7 +27,7 @@ if ($debug) \sys::logger(sprintf('<start> %s', __METHOD__));
 
 $msgHtml = '';
 if ('text' == strtolower($msg->BodyType)) {
-  $encoding = mb_detect_encoding($msg->Body);
+  $encoding = mb_detect_encoding($msg->Body, config::mb_detect_encoding_array);
 
   if ($debug) \sys::logger(sprintf('<encoding : %s> %s', $encoding, __METHOD__));
 
@@ -47,6 +51,14 @@ if ('text' == strtolower($msg->BodyType)) {
     // if ( \file_exists($f)) unlink( $f);
     // \file_put_contents( $f, $_msg);
 
+  } elseif (in_array($encoding, config::mb_detect_encoding_array)) {
+    $_msg = mb_convert_encoding($msg->Body, 'HTML-ENTITIES', $encoding);
+    // $_msg = $msg->Body;
+    // \sys::logger( sprintf('<%s> %s', 'no conversion', __METHOD__));
+    // $f = sprintf('%s/temp-4-message.txt', \config::dataPath());
+    // if ( \file_exists($f)) unlink( $f);
+    // \file_put_contents( $f, $_msg);
+
   } elseif (!$encoding) {
     /**
      * this list will grow I suspect, could probably just pull them from php
@@ -62,6 +74,7 @@ if ('text' == strtolower($msg->BodyType)) {
 
     if (in_array(strtolower($msg->CharSet), $otherEncodings)) {
       $_msg = mb_convert_encoding($msg->Body, 'HTML-ENTITIES', strtoupper($msg->CharSet));
+      if ($debug) \sys::logger(sprintf('<charset : %s> %s', $msg->CharSet, __METHOD__));
     } else {
 
       // there is no encoding
@@ -81,6 +94,7 @@ if ('text' == strtolower($msg->BodyType)) {
   // $msgHtml = sprintf( "<pre>%s</pre>", htmlentities( $_msg));
   // $_msg = htmlspecialchars_decode( $_msg);
   $msgHtml = sprintf("<pre>%s</pre>", htmlspecialchars($_msg, $flags = ENT_COMPAT, $encoding = null, $double_encode = false));
+  // die($msgHtml);
   // $msgHtml = sprintf( "<pre>%s</pre>", $_msg);
   // $msgHtml = str_replace( "\n", '<br />', $_msg);
 
@@ -240,7 +254,7 @@ $colStyle = 'width: 5rem; font-size: small;';
       <small label>to&nbsp;</small>
       <?php
       // $tos = explode( ',', $msg->To);
-      $tos = dvc\mail\strings::splitEmails($msg->To);
+      $tos = strings::splitEmails($msg->To);
       if (($ito = count($tos)) > 1) {
         $uid = strings::rand();
         printf('<span style="font-size: small;" data-role="to" data-email="%s">%s</span>', htmlspecialchars($tos[0]), htmlentities($tos[0]));
@@ -271,7 +285,7 @@ $colStyle = 'width: 5rem; font-size: small;';
       <?php
       // printf( '<!-- --[%s]-- -->', $msg->CC);
 
-      $ccs = dvc\mail\strings::splitEmails($msg->CC);
+      $ccs = strings::splitEmails($msg->CC);
       if (($icc = count($ccs)) > 1) {
         $uid = strings::rand();
         printf(
@@ -366,7 +380,7 @@ if ($iMsgCount = count($msg->attachments)) {
                   );
                 } else {
                   if (preg_match('@^BEGIN:VCALENDAR@', $attachment)) {
-                    $vcalendar = Sabre\VObject\Reader::read($attachment);
+                    $vcalendar = \Sabre\VObject\Reader::read($attachment);
                     /**
                      * BEGIN:VCALENDAR
                      * PRODID:-//Google Inc//Google Calendar 70.9054//EN
