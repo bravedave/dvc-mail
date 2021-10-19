@@ -203,6 +203,11 @@ $colStyle = 'width: 5rem; font-size: small;';
     margin: -8px;
     padding: 8px;
   }
+
+  b,
+  strong {
+    font-weight: bold;
+  }
 </style>
 
 <div class="grid-container">
