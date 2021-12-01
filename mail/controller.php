@@ -12,7 +12,7 @@ namespace dvc\mail;
 
 // use dvc\mail\credentials;
 
-use Json;
+use dvc\Json;
 use Response;
 use strings;
 use sys;
