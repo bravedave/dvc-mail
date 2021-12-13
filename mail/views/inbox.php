@@ -1418,9 +1418,12 @@ $activeMessage = 'open-message';
                       let _time = $('[data-role="time"]', _document).text();
                       if ('' != String(_time)) {
                         if ('' != String(_to)) {
-                          let m = _.dayjs(_time);
-                          if (m.isValid()) {
-                            _time = m.format('ll');
+                          if (_.isDateValid(_time)) {
+                            let m = _.dayjs(_time);
+                            if (m.isValid() && m.unix() > 0) {
+                              _time = m.format('lll');
+
+                            }
 
                           }
                           _wrap.prepend('from ' + encodeHTMLEntities(_to) + ' - ' + _time + '<br><br>');
