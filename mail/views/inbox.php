@@ -1426,7 +1426,7 @@ $activeMessage = 'open-message';
                             }
 
                           }
-                          _wrap.prepend('from ' + encodeHTMLEntities(_to) + ' - ' + _time + '<br><br>');
+                          _wrap.prepend('from ' + encodeHTMLEntities(_to) + ' on ' + _time + '<br><br>');
 
                         } else {
                           _wrap.prepend('message on ' + _time + ' contained:');
