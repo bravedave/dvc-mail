@@ -27,7 +27,7 @@ $activeMessage = 'open-message';
 
   .<?= $uidCSS_dropHere = strings::rand() ?> {
     border: 2px solid #ddd;
-    background-color: #eee
+    background-color: #eee;
   }
 
   ::-webkit-scrollbar {
