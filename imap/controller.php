@@ -122,7 +122,7 @@ class controller extends \Controller {
 					'title' => $this->title = $msg->Subject,
 					'template' => 'dvc\mail\pages\minimal',
 					'content' => 'message',
-					'navbar' => []
+					'navbar' => ''
 
 				]);
 
