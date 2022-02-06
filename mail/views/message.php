@@ -11,6 +11,7 @@
 namespace dvc\mail;
 
 use dvc\imap\config;
+use Sabre\VObject;
 
 $debug = false;
 // $debug = true;
@@ -385,7 +386,7 @@ if ($iMsgCount = count($msg->attachments)) {
                   );
                 } else {
                   if (preg_match('@^BEGIN:VCALENDAR@', $attachment)) {
-                    $vcalendar = \Sabre\VObject\Reader::read($attachment);
+                    $vcalendar = VObject\Reader::read($attachment, VObject\Reader::OPTION_IGNORE_INVALID_LINES);
                     /**
                      * BEGIN:VCALENDAR
                      * PRODID:-//Google Inc//Google Calendar 70.9054//EN
