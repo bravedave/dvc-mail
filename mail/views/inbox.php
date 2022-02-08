@@ -806,14 +806,14 @@ $activeMessage = 'open-message';
         });
 
         _prepender.unshift('---------------------');
-        _prepender.unshift('Subject: ' + _subject);
-        if (_ccs.length > 0) _prepender.unshift('CC: ' + encodeHTMLEntities(_ccs.join(', ')));
-        if (_tos.length > 0) _prepender.unshift('To: ' + encodeHTMLEntities(_tos.join(', ')));
+        _prepender.unshift('<strong>Subject:</strong> ' + _subject);
+        if (_ccs.length > 0) _prepender.unshift('<strong>Cc:</strong> ' + encodeHTMLEntities(_ccs.join(', ')));
+        if (_tos.length > 0) _prepender.unshift('<strong>To:</strong> ' + encodeHTMLEntities(_tos.join(', ')));
 
         let __time = $('[data-role="time"]', _document).text();
-        if (__time != '') _prepender.unshift('Sent: ' + __time);
+        if (__time != '') _prepender.unshift('<strong>Sent:</strong> ' + __time);
 
-        if (_tos.length > 0) _prepender.unshift('From: ' + encodeHTMLEntities(_to));
+        if (_tos.length > 0) _prepender.unshift('<strong>From:</strong> ' + encodeHTMLEntities(_to));
 
       } else if ('' != String(_time)) {
         if ('' != String(_to)) {
