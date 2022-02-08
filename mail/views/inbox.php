@@ -31,9 +31,7 @@ $activeMessage = 'open-message';
       background-color: #eee;
     }',
     $uidCSS_dropHere = strings::rand()
-  ) ?>
-
-  ::-webkit-scrollbar {
+  ) ?> ::-webkit-scrollbar {
     width: .5em;
   }
 
@@ -757,14 +755,14 @@ $activeMessage = 'open-message';
     let seed = String(parseInt(Math.random() * 1000000));
     let seedI = 0;
 
-    let encodeHTMLEntities = function(html) {
+    const encodeHTMLEntities = function(html) {
       let txt = document.createElement("span");
       txt.textContent = html;
       return txt.innerHTML;
 
     }
 
-    let reply = function(_data) {
+    const reply = function(_data) {
       let frame = $('iframe', '#<?= $uidViewer ?>');
       if (frame.length < 1) return;
 
@@ -774,34 +772,77 @@ $activeMessage = 'open-message';
       let _wrap = $('<div data-role="original-message" style="border-left: 2px solid #eee; padding-left: 5px;"></div>');
       _wrap.html(_body.clone().html());
 
-      $('p', _wrap).each(function() {
-        let _me = $(this);
-        if (_me.html().length == 0)
-          _me.remove();
-
+      // cleanup empty p tags
+      $('p', _wrap).each((i, el) => {
+        let _el = $(el);
+        if (_el.html().length == 0)
+          _el.remove();
       });
+
+      let role = $(this).data('role');
 
       let _subject = $('[data-role="subject"]', _document).text().trim();
       let _to = $('[data-role="from"]', _document).text();
       let _time = $('[data-role="time"]', _document).text();
-      if ('' != String(_time)) {
+
+      /*
+        write information about the message into the start of the message
+        more formal for a forwarded message, replys are more casual */
+      let _prepender = [];
+
+      if ('forward' == role) {
+        let _tos = [];
+        let _ccs = [];
+        $('[data-role="to"]', _document).each((i, el) => {
+          let _data = $(el).data();
+          let em = String(_data.email).getEmail();
+          if ('' != em && _tos.indexOf(em) < 0) _tos.push(em);
+        });
+
+        $('[data-role="cc"]', _document).each((i, el) => {
+          let _data = $(el).data();
+          let em = String(_data.email).getEmail();
+          if ('' != em && _ccs.indexOf(em) < 0) _ccs.push(_data.email);
+        });
+
+        _prepender.unshift('---------------------');
+        _prepender.unshift('Subject: ' + _subject);
+        if (_ccs.length > 0) _prepender.unshift('CC: ' + _ccs.join(', '));
+        if (_tos.length > 0) _prepender.unshift('To: ' + _tos.join(', '));
+
+        let __time = $('[data-role="time"]', _document).text();
+        if (__time != '') _prepender.unshift('Sent: ' + __time);
+
+        if (_tos.length > 0) _prepender.unshift('From: ' + _to);
+
+      } else if ('' != String(_time)) {
         if ('' != String(_to)) {
           if (_.isDateValid(_time)) {
             let m = _.dayjs(_time);
             _time = m.format('lll');
-
           }
-          _wrap.prepend('from ' + encodeHTMLEntities(_to) + ' - ' + _time + '<br><br>');
-          // _wrap.prepend('on ' + _time + ' ' + encodeHTMLEntities( _to) + ' wrote:');
+          _prepender.push('from ' + encodeHTMLEntities(_to) + ' - ' + _time + '<br><br>');
 
         } else {
-          _wrap.prepend('message on ' + _time + ' contained:');
-
+          _prepender.push('message on ' + _time + ' contained:');
         }
-
+      } else if ('' != String(_to)) {
+        if (_.isDateValid(_time)) {
+          let m = _.dayjs(_time);
+          _time = m.format('lll');
+        }
+        _prepender.push('from ' + encodeHTMLEntities(_to) + '<br><br>');
       }
 
-      if (!/^re: /i.test(_subject)) _subject = 're: ' + _subject;
+      _wrap.prepend(_prepender.join('<br>'));
+
+      if ('forward' == role) {
+        if (!/^fwd: /i.test(_subject)) _subject = 'fwd: ' + _subject;
+
+      } else {
+        if (!/^re: /i.test(_subject)) _subject = 're: ' + _subject;
+
+      }
 
       let _frm = $('#<?= $uidFrm ?>');
       let _frm_data = _frm.serializeFormJSON();
@@ -818,7 +859,6 @@ $activeMessage = 'open-message';
       // console.log( _data);
       // console.log( _data.message);
       // console.log( this);
-      let role = $(this).data('role');
       // console.log( role);
       if (/^reply(-all)?/.test(role)) {
         j.in_reply_to = _data.message.messageid;
@@ -837,39 +877,28 @@ $activeMessage = 'open-message';
         if ('reply-all' == role && _to != undefined) {
           let _gots = [];
           let _ccs = [];
-          $('[data-role="to"]', _document).each(function(i, el) {
+          $('[data-role="to"]', _document).each((i, el) => {
             let _el = $(el);
             let _data = _el.data();
 
             let em = String(_data.email).getEmail();
             if ('' != em && em != _.currentUser.email && _to != em && _gots.indexOf(em) < 0) {
-              // console.log( _data);
               _gots.push(em);
               _ccs.push(_data.email);
-
             }
 
           });
 
-          $('[data-role="cc"]', _document).each(function(i, el) {
+          $('[data-role="cc"]', _document).each((i, el) => {
             let _el = $(el);
             let _data = _el.data();
 
             let em = String(_data.email).getEmail();
             if ('' != em && em != _.currentUser.email && _to != em && _gots.indexOf(em) < 0) {
-              // console.log( _data);
               _gots.push(em);
               _ccs.push(_data.email);
-
             }
-
           });
-          // var e, a = [];
-          // e = container.data('to');
-          // if ( e != undefined) a.push(e);
-
-          // e = container.data('cc');
-          // if ( e != undefined) a.push(e);
 
           if (_ccs.length > 0) j.cc = _ccs.join(',');
 
@@ -1187,42 +1216,29 @@ $activeMessage = 'open-message';
 
             })();
 
-            (function() {
-              let btn = $('<button type="button" data-role="reply"><i class="bi bi-reply"></i></button>');
-              btn
-                .addClass(params.btnClass)
-                .on('click', () => {
-                  reply.call(btn, _data)
-                });
+            const _rbbtn_Click = function() {
+              reply.call(this, _data)
+            };
 
-              btns.push(btn);
+            btns.push(
+              $('<button type="button" data-role="reply"><i class="bi bi-reply"></i></button>')
+              .addClass(params.btnClass)
+              .on('click', _rbbtn_Click)
+            );
 
-            })();
 
-            (function() {
-              // if ( _.browser.isMobileDevice) return;
-              let btn = $('<button type="button" data-role="reply-all"><i class="bi bi-reply-all"></i></button>');
-              btn
-                .addClass(params.btnClass)
-                .on('click', () => {
-                  reply.call(btn, _data)
-                });
+            btns.push(
+              $('<button type="button" data-role="reply-all"><i class="bi bi-reply-all"></i></button>')
+              .addClass(params.btnClass)
+              .on('click', _rbbtn_Click)
 
-              btns.push(btn);
+            );
 
-            })();
-
-            (function() {
-              let btn = $('<button type="button" data-role="forward"><i class="bi bi-reply" style="display: flex; transform: scale(-1,1);"></i></button>');
-              btn
-                .addClass(params.btnClass)
-                .on('click', () => {
-                  reply.call(btn, _data)
-                });
-
-              btns.push(btn);
-
-            })();
+            btns.push(
+              $('<button type="button" data-role="forward"><i class="bi bi-reply" style="display: flex; transform: scale(-1,1);"></i></button>')
+              .addClass(params.btnClass)
+              .on('click', _rbbtn_Click)
+            );
 
             (function() {
               if (_.browser.isMobileDevice) return;
