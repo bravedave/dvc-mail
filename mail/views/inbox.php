@@ -807,13 +807,13 @@ $activeMessage = 'open-message';
 
         _prepender.unshift('---------------------');
         _prepender.unshift('Subject: ' + _subject);
-        if (_ccs.length > 0) _prepender.unshift('CC: ' + _ccs.join(', '));
-        if (_tos.length > 0) _prepender.unshift('To: ' + _tos.join(', '));
+        if (_ccs.length > 0) _prepender.unshift('CC: ' + encodeHTMLEntities(_ccs.join(', ')));
+        if (_tos.length > 0) _prepender.unshift('To: ' + encodeHTMLEntities(_tos.join(', ')));
 
         let __time = $('[data-role="time"]', _document).text();
         if (__time != '') _prepender.unshift('Sent: ' + __time);
 
-        if (_tos.length > 0) _prepender.unshift('From: ' + _to);
+        if (_tos.length > 0) _prepender.unshift('From: ' + encodeHTMLEntities(_to));
 
       } else if ('' != String(_time)) {
         if ('' != String(_to)) {
@@ -834,6 +834,7 @@ $activeMessage = 'open-message';
         _prepender.push('from ' + encodeHTMLEntities(_to) + '<br><br>');
       }
 
+      console.table(_prepender);
       _wrap.prepend(_prepender.join('<br>'));
 
       if ('forward' == role) {
