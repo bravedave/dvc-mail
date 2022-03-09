@@ -59,7 +59,7 @@ $activeMessage = 'open-message';
   }
 
   [data-role="content"] {
-    padding: 0 15px 0 5px !important;
+    padding: 0 15px !important;
   }
 </style>
 
