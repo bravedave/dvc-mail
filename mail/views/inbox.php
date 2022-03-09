@@ -3088,10 +3088,8 @@ $activeMessage = 'open-message';
 
     $(document).ready(() => {
 
-      $(document).trigger('resize-main-content-wrapper');
-
+      $('div[data-role="content"], div[data-role="main-content-wrapper"]').removeClass('pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
       $('html, body, div[data-role="main-content-wrapper"] > .row, div[data-role="main-content-wrapper"] > .row > .col').addClass('h-100');
-      $('div[data-role="content"]').removeClass('pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
 
       $(document)
         .trigger('mail-messages')
