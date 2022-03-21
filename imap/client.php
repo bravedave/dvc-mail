@@ -1048,6 +1048,7 @@ class client {
             foreach ($errors as $error) {
               sys::logger(sprintf('<%s> %s', $error, __METHOD__));
             }
+            if ($debug) sys::trace('imap open error');
           }
 
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
