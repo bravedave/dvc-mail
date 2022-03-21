@@ -632,7 +632,7 @@ class client {
 
       ], $this->_folder);
 
-      // \sys::logger( sprintf('<%s:%s> %s', 'imap', $this->_server, __METHOD__));
+      if ($debug) \sys::logger(sprintf('<opened imap socket %s:%s> %s', $this->_server, $this->_port, __METHOD__));
 
       return $this->_socket;
     } else {
