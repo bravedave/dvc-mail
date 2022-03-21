@@ -653,6 +653,9 @@ class client {
     $this->_account = $account;
     $this->_password = $password;
     $this->_interface = $interface;
+
+    if ( self::$debug) sys::logger( sprintf('<%s> %s', $this->_port, __METHOD__));
+
   }
 
   public function __destruct() {
@@ -684,7 +687,7 @@ class client {
   }
 
   public function clearflagByUID($uid, $flag) {
-    // \sys::logger( sprintf('<%s> %s', $uid, __METHOD__));
+    // sys::logger( sprintf('<%s> %s', $uid, __METHOD__));
     $this->_flush_cache($uid);
     return imap_clearflag_full($this->_stream, $uid, $flag, ST_UID);
   }
@@ -781,23 +784,23 @@ class client {
 
     ], $params);
 
-    if ($debug) \sys::logger(sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
+    if ($debug) sys::logger(sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
     $data = [
       'msgCount' => imap_num_msg($this->_stream)
 
     ];
-    if ($debug) \sys::logger(sprintf('<msgCount : %s> <%s> %s', $data['msgCount'], \application::timer()->elapsed(), __METHOD__));
+    if ($debug) sys::logger(sprintf('<msgCount : %s> <%s> %s', $data['msgCount'], \application::timer()->elapsed(), __METHOD__));
 
-    // \sys::logger( sprintf('<%s> <msgCount:%s> %s', \application::timer()->elapsed(), $data['msgCount'], __METHOD__));
+    // sys::logger( sprintf('<%s> <msgCount:%s> %s', \application::timer()->elapsed(), $data['msgCount'], __METHOD__));
     // $headers = $this->_getheaders();
-    // \sys::logger( sprintf('<%s> <headers:%s> %s', \application::timer()->elapsed(), count( $headers), __METHOD__));
+    // sys::logger( sprintf('<%s> <headers:%s> %s', \application::timer()->elapsed(), count( $headers), __METHOD__));
 
     $ret = [];
     if ($data['msgCount'] > 500) {
       $start = max($data['msgCount'] - ((int)$options->page * (int)$options->pageSize) - ((int)$options->page > 0 ? 1 : 0), 0);
       $emails = \range($start, max($start - $options->pageSize, 0), -1);
       foreach ($emails as $email_number) {
-        // \sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
+        // sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
 
         $msg = $this->_overview($email_number);
         $msg->Folder = $this->_folder;
@@ -805,19 +808,19 @@ class client {
       }
     } else {
       if ($emails = imap_sort($this->_stream, SORTARRIVAL, true, SE_NOPREFETCH)) {
-        if ($debug) \sys::logger(sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
+        if ($debug) sys::logger(sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
         // sys::dump( $emails);
         $start = $i = 0;
         $_start = (int)$options->page * (int)$options->pageSize;
-        // \sys::logger( sprintf('<%s/%s> %s', $start, $_start, __METHOD__));
+        // sys::logger( sprintf('<%s/%s> %s', $start, $_start, __METHOD__));
 
         foreach ($emails as $email_number) {
-          if ($debug) \sys::logger(sprintf('<%s> %s', $email_number, __METHOD__));
+          if ($debug) sys::logger(sprintf('<%s> %s', $email_number, __METHOD__));
 
           if ($start++ >= $_start) {
             if ($i++ >= $options->pageSize) break;
             $msg = $this->_overview($email_number);
-            // \sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
+            // sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
             $msg->Folder = $this->_folder;
             $ret[] = $msg;
           }
@@ -825,7 +828,7 @@ class client {
       }
     }
 
-    if ($debug) \sys::logger(sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
+    if ($debug) sys::logger(sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
     return $ret;
   }
 
