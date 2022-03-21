@@ -144,7 +144,7 @@ class client {
           ));
         }
 
-        $funnyText = substr( $newString, 12,1);
+        $funnyText = substr($newString, 12, 1);
         // \sys::logger( sprintf('<%s> (%s) %s', $funnyText, ord($funnyText), __METHOD__));
         // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
 
@@ -987,53 +987,77 @@ class client {
       $nogssapi = ['DISABLE_AUTHENTICATOR' => 'GSSAPI'];
 
       if ($full) {
-        if ($debug) sys::logger(sprintf(
-          'imap_open( %s, %s, %s)',
-          $this->_server_path . $folder,
-          $this->_account,
-          'password'
-        ));
+        if ($debug) {
+          sys::logger(sprintf(
+            '<imap_open( %s, %s, %s)> %s',
+            $this->_server_path . $folder,
+            $this->_account,
+            'password',
+            __METHOD__
+          ));
+        }
 
         /* connect server */
         if ($this->_stream = @imap_open($this->_server_path . $folder, $this->_account, $this->_password, 0, 1, $nogssapi)) {
           $this->_open = true;
           $this->_folder = $folder;
-          if ($debug) sys::logger(sprintf(
-            'successfully opened:imap_open(%s,%s,%s)',
-            $this->_server_path . $folder,
-            $this->_account,
-            'password'
-          ));
+
+          if ($debug) {
+            sys::logger(sprintf(
+              '<successfully opened:imap_open( %s, %s, %s)> %s',
+              $this->_server_path . $folder,
+              $this->_account,
+              'password',
+              __METHOD__
+            ));
+          }
         } else {
+          if ($errors = imap_errors()) {
+            foreach ($errors as $error) {
+              sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+            }
+          }
+
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
-          sys::logger($this->_error);
+          sys::logger(sprintf('<%s> %s', $this->_error, __METHOD__));
         }
       } else {
         if ($debug) sys::logger(sprintf(
-          'imap_open( %s, %s, %s, OP_HALFOPEN)',
+          '<imap_open( %s, %s, %s, OP_HALFOPEN)> %s',
           $this->_server_path . $folder,
           $this->_account,
-          'password'
+          'password',
+          __METHOD__
         ));
 
         /* connect server */
         if ($this->_stream = @imap_open($this->_server_path . $folder, $this->_account, $this->_password, OP_HALFOPEN, 1, $nogssapi)) {
           $this->_open = true;
           $this->_folder = $folder;
+
           if ($debug) sys::logger(sprintf(
-            'successfully half-opened:imap_open(%s,%s,%s)',
+            '<successfully half-opened:imap_open(%s,%s,%s)> %s',
             $this->_server_path . $folder,
             $this->_account,
-            'password'
+            'password',
+            __METHOD__
           ));
         } else {
+          if ($errors = imap_errors()) {
+            foreach ($errors as $error) {
+              sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+            }
+          }
+
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
+          sys::logger(sprintf('<%s> %s', $this->_error, __METHOD__));
         }
       }
 
       return ($this->_open);
     } else {
       $this->_error = 'invalid server';
+      sys::logger(sprintf('<%s> %s', $this->_error, __METHOD__));
     }
 
     return false;
