@@ -374,12 +374,32 @@ class RawMessage {
       // \file_put_contents( config::dataPath() . '/you_want_this.dat', $data);
       // sys::dump( $data);
 
-      $msg = new MimeMessage($data);
       if ('html' == $this->messageType) {
-        $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getHeaders());  // . "<br /><br />";
-        $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getMessage());  // . "<br /><br />";
+        /**
+         * this is an attachment
+         */
+
+        // sys::dump( $data);
+        // sys::dump( $p);
+
+        $attach = new attachment;
+        if (isset($p->id)) {
+          $id = preg_replace(array("@(<|>)@"), "", $p->id);
+          $attach->Name = $attach->ContentId = $id;
+        } else {
+          $attach->Name = $attach->ContentId = sprintf('message-%d.eml', count($this->attachments) + 1);
+        }
+
+        $attach->Content = $data;
+        $this->attachments[] = $attach;
+
+        // $msg = new MimeMessage($data);
+        // $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getHeaders());  // . "<br /><br />";
+        // $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getMessage());  // . "<br /><br />";
+        if ($debugPart) sys::logger(sprintf('part type 2/RFC822(%s) - html : %s', strlen($data), __METHOD__));
 
       } else {
+        $msg = new MimeMessage($data);
         $this->message .= $msg->getMessage() . "\n\n";
       }
       if ($debugPart) sys::logger(sprintf('part type 2 : %s', __METHOD__));
@@ -399,7 +419,7 @@ class RawMessage {
           if ($debugPart) sys::logger(sprintf('part type 2(%s) : %s', strlen($data), __METHOD__));
         }
       } else {
-        \sys::logger( sprintf('<%s> %s', 'attachment with no data', __METHOD__));
+        if ( $debug) \sys::logger( sprintf('<%s> %s', 'attachment with no data', __METHOD__));
 
       }
 

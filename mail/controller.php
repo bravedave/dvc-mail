@@ -18,6 +18,7 @@ use strings;
 use sys;
 use dvc\cssmin;
 use dvc\imap\config;
+use dvc\imap\MimeMessage;
 use userAgent;
 // use url;
 
@@ -507,20 +508,58 @@ class controller extends \Controller {
           // printf( '%s<br />', $options['item']);
           $finfo = new \finfo(FILEINFO_MIME);
           foreach ($msg->attachments as $attachment) {
-            if ('object' == gettype($attachment)) {
+            $attachmentType = gettype($attachment);
+            // \sys::logger(sprintf('<%s> %s', $attachmentType, __METHOD__));
+
+            if ('object' == $attachmentType) {
               // printf( '%s<br />', $attachment->ContentId);
               if ($options['item'] == $attachment->ContentId) {
 
                 $type = $finfo->buffer($attachment->Content);
-                // \sys::logger(sprintf('<%s> %s', $type, __METHOD__));
+                if (false) {
+                  /**
+                   * There is potential here to view the attachment ...
+                   */
+                  if (preg_match('@message/rfc822@', $type)) {
+                    $parser = new parser;
+                    $parser->setText($attachment->Content);
+                    $msg = $parser->asMessage();
+
+                    $this->data = (object)[
+                      'user_id' => $this->creds->user_id,
+                      'default_folders' => inbox::default_folders($this->creds),
+                      'message' => $msg
+
+                    ];
+
+                    $this->render([
+                      'css' => [
+                        sprintf(
+                          '<link type="text/css" rel="stylesheet" media="all" href="%s" />',
+                          strings::url($this->route . '/normalizecss')
+
+                        )
+
+                      ],
+                      'title' => $this->title = $msg->Subject,
+                      'template' => 'dvc\mail\pages\minimal',
+                      'content' => ['message'],
+                      'navbar' => '',
+
+                    ]);
+                    // 'charset' => $msg->CharSet,
+
+                    \sys::logger(sprintf('<%s> %s', $type, __METHOD__));
+                    return;
+                  }
+                }
 
                 header(sprintf('Content-type: %s', $type));
                 header(sprintf('Content-Disposition: attachment; filename="%s"', $attachment->Name));
                 print $attachment->Content;
                 return;
-
               }
-            } elseif ('string' == gettype($attachment)) {
+            } elseif ('string' == $attachmentType) {
               if (preg_match('@^BEGIN:VCALENDAR@', $attachment)) {
                 header('Content-type: text/calendar');
                 header('Content-Disposition: inline; filename="invite.ics"');
