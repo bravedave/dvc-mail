@@ -478,6 +478,13 @@ class inbox {
 				$ret = $this->_client->search( $options);
 				$this->_client->close();
 
+        // added this 2022.04.12
+        if ($errors = imap_errors()) {
+          \sys::logger( sprintf('<%s> %s', $options['folder'], __METHOD__));
+          foreach ($errors as $error) {
+            sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+          }
+        }
 			}
 
 		}
