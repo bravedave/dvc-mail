@@ -407,7 +407,7 @@ class controller extends \Controller {
 
       Json::ack($action)
         ->add('messages', $this->_search($params));
-      \sys::logger(sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
+      \sys::logger(sprintf('<%s - %s (%s)> %s', $action, $params['folder'], $this->timer->elapsed(), __METHOD__));
     } elseif ('send email' == $action) {
       $to = $this->getPost('to');
       $subject = $this->getPost('subject');
