@@ -203,14 +203,30 @@ class RawMessage {
 
           /**
            * 25/09/2021
-           * Wierd file name with encoding in the string
+           * Weird file name with encoding in the string
            * could this be double encoded ?
            */
+          // \sys::logger(sprintf('<%s> %s', $filename, __METHOD__));
+          // \sys::logger(sprintf('<%s> %s', imap_utf8($filename), __METHOD__));
+          // \sys::dump($p);
+
+          /**
+           * 15/04/2022
+           * https://cmss.darcy.com.au/forum/view/9713
+           *
+           * added the imap_utf8() call to the filename,
+           * this probably should have been always here and
+           * the test for encoding can be removed,
+           * imap_utf8() seems to do the job
+           */
+          $filename = imap_utf8($filename);
+          // this probably should be removed
           $filename = trim($filename, '?=');
           if (preg_match('/ISO-8859-1/i', $filename)) {
             $filename = preg_replace('/ISO-8859-1/i', '', $filename);
             $filename = preg_replace('/\?[^\?]*\?/i', '', $filename);
           }
+          // end : this probably should be removed
 
           $filename = strings::safe_file_name($filename);
           if ($filename) {
@@ -397,7 +413,6 @@ class RawMessage {
         // $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getHeaders());  // . "<br /><br />";
         // $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getMessage());  // . "<br /><br />";
         if ($debugPart) sys::logger(sprintf('part type 2/RFC822(%s) - html : %s', strlen($data), __METHOD__));
-
       } else {
         $msg = new MimeMessage($data);
         $this->message .= $msg->getMessage() . "\n\n";
@@ -419,8 +434,7 @@ class RawMessage {
           if ($debugPart) sys::logger(sprintf('part type 2(%s) : %s', strlen($data), __METHOD__));
         }
       } else {
-        if ( $debug) \sys::logger( sprintf('<%s> %s', 'attachment with no data', __METHOD__));
-
+        if ($debug) \sys::logger(sprintf('<%s> %s', 'attachment with no data', __METHOD__));
       }
 
       if (isset($p->parts) && $p->parts) { // SUBPART RECURSION
