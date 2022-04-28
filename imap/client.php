@@ -153,15 +153,39 @@ class client {
         $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
       }
     }
+    if ($debug) \sys::logger(sprintf('<%s> <exit> %s', $newString, __METHOD__));
     return $newString;
   }
 
   protected static function funnies($string) {
-    return str_replace(
-      ['’',  '…', chr(150)],
-      ['\'',  '...', '-'],
-      $string
-    );
+    $s = [];
+    $r = [];
+
+    $s[] = '’';
+    $r[] = '\'';
+
+    $s[] = '…';
+    $r[] = '...';
+
+    $s[] = chr(150);
+    $r[] = '-';
+
+    $s[] =  chr(hexdec('ca'));  // \xca
+    $r[] =  '';
+
+    $s[] =  chr(hexdec('e8'));  //  \xe8
+    $r[] =  '';
+
+    $s[] =  chr(hexdec('a7'));  // \xa7
+    $r[] =  '';
+
+    $s[] =  chr(hexdec('b5'));  // \xb5
+    $r[] =  '';
+
+    $s[] =  chr(hexdec('cd'));  // \xcd
+    $r[] =  '';
+
+    return str_replace($s, $r, $string);
   }
 
   static function default_folders(): array {
@@ -654,8 +678,7 @@ class client {
     $this->_password = $password;
     $this->_interface = $interface;
 
-    if ( self::$debug) sys::logger( sprintf('<%s> %s', $this->_port, __METHOD__));
-
+    if (self::$debug) sys::logger(sprintf('<%s> %s', $this->_port, __METHOD__));
   }
 
   public function __destruct() {

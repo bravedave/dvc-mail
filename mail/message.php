@@ -109,9 +109,9 @@ class message {
     $ret = json_encode($input, JSON_PRETTY_PRINT);
 
     if (!$ret) {
-      foreach ($input as $k => $v) {
-        \sys::logger(sprintf('<%s => %s> %s', $k, print_r($v,true), __METHOD__));
-      }
+      // foreach ($input as $k => $v) {
+      //   \sys::logger(sprintf('<%s => %s> %s', $k, print_r($v,true), __METHOD__));
+      // }
 
       \sys::logger(sprintf('<%s> %s', json_last_error_msg(), __METHOD__));
     }

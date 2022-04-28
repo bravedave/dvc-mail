@@ -41,7 +41,8 @@
   },
   "scripts": {
     "socket": "tests\\tests::socket",
-    "inbox-status": "tests\\tests::status"
+    "inbox-status": "tests\\tests::status",
+    "start": "bash ./run.sh"
   }
 
 }
