@@ -69,7 +69,7 @@ class RawMessage {
   protected function getpart($mbox, $mid, $p, $partno) {
     $debug = $this->debug;
     $debugPart = $debug;
-    // $debugPart = true;
+    $debugPart = true;
     // $debug = 0 == $p->type;
     // $debug = true;
 
@@ -341,7 +341,7 @@ class RawMessage {
             // sys::dump($p);
 
             $this->messageType = 'html';
-            if ($params['charset'] ?? '' == 'windows-1251') {
+            if (($params['charset'] ?? '') == 'windows-874') {
               // sys::dump($data);
               $this->messageHTML .= util::decodeWin874($data);  // . "<br /><br />";
             } else {
