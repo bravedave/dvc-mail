@@ -337,9 +337,24 @@ class RawMessage {
               $this->attachments[] = $attach;
             }
           } else {
+
+            // sys::dump($p);
+
             $this->messageType = 'html';
-            $this->messageHTML .= \str_replace(chr(146), "'", $data);  // . "<br /><br />";
-            if ($debugPart) sys::logger(sprintf('html(%s)[%s] : %s', strlen($data), $p->subtype, __METHOD__));
+            if ($params['charset'] ?? '' == 'windows-1251') {
+              // sys::dump($data);
+              $this->messageHTML .= util::decodeWin874($data);  // . "<br /><br />";
+            } else {
+              $this->messageHTML .= \str_replace(chr(146), "'", $data);  // . "<br /><br />";
+            }
+
+            if ($debugPart) sys::logger(sprintf(
+              'html(%s)[%s] [%s]: %s',
+              strlen($data),
+              $p->subtype,
+              $params['charset'] ?? '',
+              __METHOD__
+            ));
             // die( $this->messageHTML);
 
           }

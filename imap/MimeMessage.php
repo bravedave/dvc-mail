@@ -22,7 +22,7 @@ class MimeMessage {
      * acts just as it does in extract_headers method.
      */
     try {
-      // \sys::logger( sprintf('<%s> %s', 'ooh ...', __METHOD__));
+      \sys::logger( sprintf('<%s> %s', 'ooh ...', __METHOD__));
       $body = $msg->extract_body( MAILPARSE_EXTRACT_RETURN);
       return htmlentities( $body);
 

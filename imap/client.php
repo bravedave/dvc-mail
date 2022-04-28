@@ -87,107 +87,6 @@ class client {
     return $txt;
   }
 
-  protected static function decodeMimeStr($string, $charset = 'UTF-8') {
-    $debug = false;
-    // $debug = true;
-
-    $unsupportedEncodings = [
-      'ks_c_5601-1987'
-
-    ];
-
-    $newString = '';
-    $elements = imap_mime_header_decode($string);
-    for ($i = 0; $i < count($elements); $i++) {
-      if ('default' == $elements[$i]->charset) {
-        $elements[$i]->charset = 'iso-8859-1';
-      }
-
-      /**
-       * Add checking to see if conversion is required
-       * but:
-       *  it may still rewquire work to add the //IGNORE flag, just that caused
-       *  an error when converting utf-8 to utf-8, so elected to just go
-       *  with checking at this stage - 3/3/2021
-       *
-       * possible more info:
-       *  * https://stackoverflow.com/questions/26092388/iconv-detected-an-incomplete-multibyte-character-in-input-string
-       *  * https://www.php.net/manual/en/function.iconv.php
-       *
-       * the thunderbird encodings are referenced here
-       *  * https://github.com/php-mime-mail-parser/php-mime-mail-parser/issues/26
-       *
-       */
-      if ('ks_c_5601-1987' == $elements[$i]->charset) {
-        $elements[$i]->charset = 'EUC-KR';  // thunderbird
-
-      }
-
-      if ($debug) \sys::logger(sprintf('<?%s:%s?> %s', $elements[$i]->charset, $charset, __METHOD__));
-      if (strtolower($elements[$i]->charset) == strtolower($charset)) {
-        if ($debug) \sys::logger(sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        $newString .= $elements[$i]->text;
-      } elseif (in_array($elements[$i]->charset, $unsupportedEncodings)) {
-        \sys::logger(sprintf('<unsupported encoding> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        $newString .= $elements[$i]->text;
-        // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
-
-      } elseif ('windows-874' == $elements[$i]->charset) {
-        $newString .= self::funnies($elements[$i]->text);
-        if ($debug) {
-          \sys::logger(sprintf(
-            '<%s encoding> <%s> <%s> %s',
-            $elements[$i]->charset,
-            $newString,
-            $charset,
-            __METHOD__
-          ));
-        }
-
-        $funnyText = substr($newString, 12, 1);
-        // \sys::logger( sprintf('<%s> (%s) %s', $funnyText, ord($funnyText), __METHOD__));
-        // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
-
-      } else {
-        if ($debug) \sys::logger(sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
-      }
-    }
-    if ($debug) \sys::logger(sprintf('<%s> <exit> %s', $newString, __METHOD__));
-    return $newString;
-  }
-
-  protected static function funnies($string) {
-    $s = [];
-    $r = [];
-
-    $s[] = '’';
-    $r[] = '\'';
-
-    $s[] = '…';
-    $r[] = '...';
-
-    $s[] = chr(150);
-    $r[] = '-';
-
-    $s[] =  chr(hexdec('ca'));  // \xca
-    $r[] =  '';
-
-    $s[] =  chr(hexdec('e8'));  //  \xe8
-    $r[] =  '';
-
-    $s[] =  chr(hexdec('a7'));  // \xa7
-    $r[] =  '';
-
-    $s[] =  chr(hexdec('b5'));  // \xb5
-    $r[] =  '';
-
-    $s[] =  chr(hexdec('cd'));  // \xcd
-    $r[] =  '';
-
-    return str_replace($s, $r, $string);
-  }
-
   static function default_folders(): array {
     return folders::$default_folders;
   }
@@ -358,14 +257,14 @@ class client {
     }
 
     $ret = new \dvc\mail\message;
-    $ret->Subject = self::decodeMimeStr((string)$_headers_rfc822->Subject);
+    $ret->Subject = util::decodeMimeStr((string)$_headers_rfc822->Subject);
 
-    $ret->From = self::decodeMimeStr((string)$from);
+    $ret->From = util::decodeMimeStr((string)$from);
     $ea = new EmailAddress($ret->From);
     $ret->fromEmail = $ea->email;
 
-    $ret->To = self::decodeMimeStr((string)$to);
-    $ret->CC = self::decodeMimeStr((string)$cc);
+    $ret->To = util::decodeMimeStr((string)$to);
+    $ret->CC = util::decodeMimeStr((string)$cc);
     $ret->MessageID = $_headers_rfc822->message_id;
     $ret->Recieved = $headerDate;
 
@@ -529,7 +428,7 @@ class client {
         $a = [];
         foreach ($headers->to as $to) {
           if (isset($to->personal)) {
-            $name = self::decodeMimeStr((string)$to->personal);
+            $name = util::decodeMimeStr((string)$to->personal);
             // \sys::logger( sprintf('<%s> %s', $name, __METHOD__));
 
             if (false != strstr($name, "'")) {
@@ -558,16 +457,16 @@ class client {
       if (isset($msg->answered)) $ret->answered = ($msg->answered ? 'yes' : 'no');
 
       if (!$ret->To) {
-        if (isset($msg->to)) $ret->To = self::decodeMimeStr((string)$msg->to);
+        if (isset($msg->to)) $ret->To = util::decodeMimeStr((string)$msg->to);
         // \sys::logger( sprintf('<%s> %s', $msg->to, __METHOD__));
 
       }
 
-      if (isset($msg->subject)) $ret->Subject = self::decodeMimeStr($msg->subject);
+      if (isset($msg->subject)) $ret->Subject = util::decodeMimeStr($msg->subject);
       if ($debug) \sys::logger(sprintf('<Subject %s> %s', $ret->Subject, __METHOD__));
 
       if (isset($msg->from)) {
-        $ret->From = self::decodeMimeStr($msg->from);
+        $ret->From = util::decodeMimeStr($msg->from);
         if ($debug) \sys::logger(sprintf('<%s> %s', $msg->from, __METHOD__));
         $ea = new EmailAddress($ret->From);
         $ret->fromEmail = $ea->email;
