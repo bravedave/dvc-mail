@@ -184,6 +184,13 @@ class message {
   }
 
   public function safehtml() {
+    /**
+     * to anyone who comes after me
+     * anytime you attend this file increment this counter by 1
+     * to represent the number of hours wasted here
+     *
+     * 132 hours
+     */
     $debug = false;
     // $debug = true;
 
@@ -272,6 +279,12 @@ class message {
       if (\file_exists($f)) unlink($f);
       \file_put_contents($f, $_string);
       // $_string = \file_get_contents( $f);
+
+    }
+
+    if (str_contains($_string,'<![if !supportLists]>')) {
+      if ( $debug) \sys::logger(sprintf('<%s> %s', 'removing corrupt microsoft lists', __METHOD__));
+      $_string = preg_replace('/\<!\[if !supportLists\]>.*?<!\[endif\]>/', '&bull;&nbsp;', $_string);
 
     }
 
