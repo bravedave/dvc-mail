@@ -457,7 +457,8 @@ class controller extends \Controller {
       'item' => false,
       'folder' => 'default',
       'msg' => false,
-      'uid' => false
+      'uid' => false,
+      'stream' => false,
 
     ], $params);
 
@@ -555,7 +556,7 @@ class controller extends \Controller {
                 }
 
                 header(sprintf('Content-type: %s', $type));
-                header(sprintf('Content-Disposition: attachment; filename="%s"', $attachment->Name));
+                if ( !$options['stream']) header(sprintf('Content-Disposition: attachment; filename="%s"', $attachment->Name));
                 print $attachment->Content;
                 return;
               }
@@ -816,8 +817,8 @@ class controller extends \Controller {
           'folder' => $this->getParam('folder', 'default'),
           'item' => $file,
           'msg' => $msg,
-          'uid' => $uid
-
+          'uid' => $uid,
+          'stream' => 'yes' == $this->getParam('stream'),
         ]);
       } else {
         $this->render([
