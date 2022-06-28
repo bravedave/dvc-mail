@@ -264,27 +264,44 @@ class message {
 
     // sys::dump( $this);
     // die( $_string . '<br />die...');
-    $_string = str_replace('&rsquo;', '&#8217;', $_string);
-    // $_string = str_replace( '&rsquo;', '’', $_string);
-    $_string = str_replace('&nbsp;', '__hardspace__', $_string);
-    $_string = str_replace(chr(150), '-', $_string);
-    // $_string = str_replace( 'style="mso-fareast-language:EN-US"', '', $_string);
-    // $_string = str_replace( '<o:p>', '<div style="p">', $_string);
-    // $_string = str_replace( '</o:p>', '</div style="p">', $_string);
-    // $_string = str_replace( '<o:', '<div namespace="o" ', $_string);
-    // $_string = str_replace( '</o:', '</div namespace="o" ', $_string);
+
+    /**
+     * rationale: some elements are destroyed by libxml, preserve them using a placeholder
+     *
+     * $funnyBreak : array of elements to preserve
+     * [
+     *  [the element, placeholder, and the final replacement]
+     * ]
+     */
+    $funnyBreak = [
+      ['&rsquo;', '&#8217;', '&rsquo;'],
+      ['’', '__quote__', '&rsquo;'],
+      ['&nbsp;', '__hardspace__', '&nbsp;'],
+      [chr(150), '-', '-'],
+      ['<![if !supportLists]>', '__supportlists__', '<![if !supportLists]>'],
+      ['<![endif]>', '__endif__', '<![endif]>'],
+    ];
+    array_walk($funnyBreak, function ($v) use (&$_string) {
+      $_string = str_replace($v[0], $v[1], $_string);
+    });
+
+    // $_string = str_replace('&rsquo;', '&#8217;', $_string);
+    // // $_string = str_replace( '&rsquo;', '’', $_string);
+    // $_string = str_replace('&nbsp;', '__hardspace__', $_string);
+    // $_string = str_replace(chr(150), '-', $_string);
+    // $_string = str_replace('<![if !supportLists]>', '__supportlists__', $_string);
+    // $_string = str_replace('<![endif]>', '__endif__', $_string);
+    // // $_string = str_replace( 'style="mso-fareast-language:EN-US"', '', $_string);
+    // // $_string = str_replace( '<o:p>', '<div style="p">', $_string);
+    // // $_string = str_replace( '</o:p>', '</div style="p">', $_string);
+    // // $_string = str_replace( '<o:', '<div namespace="o" ', $_string);
+    // // $_string = str_replace( '</o:', '</div namespace="o" ', $_string);
 
     if ($debug) {
       $f = sprintf('%s/temp-1-start.html', \config::dataPath());
       if (\file_exists($f)) unlink($f);
       \file_put_contents($f, $_string);
       // $_string = \file_get_contents( $f);
-
-    }
-
-    if (str_contains($_string,'<![if !supportLists]>')) {
-      if ( $debug) \sys::logger(sprintf('<%s> %s', 'removing corrupt microsoft lists', __METHOD__));
-      $_string = preg_replace('/\<!\[if !supportLists\]>.*?<!\[endif\]>/', '&bull;&nbsp;', $_string);
 
     }
 
@@ -551,27 +568,36 @@ class message {
       \file_put_contents($f, $html);
     }
 
-    // $html = str_replace( '<div style="p">', '<o:p>', $html);
-    // $html = str_replace( '</div style="p">', '</o:p>', $html);
-    // $html = str_replace( '<div namespace="o" ', '<o:', $html);
-    // $html = str_replace( '</div namespace="o" ', '</o:', $html);
-    // sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
-    $html = preg_replace(
-      [
-        sprintf('@%s@', chr(146)),
-        '@__hardspace__@',
-        '@’@',
-      ],
-      [
-        '&rsquo;',
-        '&nbsp;',
-        '&rsquo;',
-      ],
-      $html
-    );
-    // sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
-    // $html = str_replace( chr(146), '&rsquo;', $html);
-    // $html = str_replace( chr(160), '&nbsp;', $html);
+    array_walk($funnyBreak, function ($v) use (&$html) {
+      $html = str_replace($v[1], $v[2], $html);
+    });
+
+
+    // // $html = str_replace( '<div style="p">', '<o:p>', $html);
+    // // $html = str_replace( '</div style="p">', '</o:p>', $html);
+    // // $html = str_replace( '<div namespace="o" ', '<o:', $html);
+    // // $html = str_replace( '</div namespace="o" ', '</o:', $html);
+    // // sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
+    // $html = preg_replace(
+    //   [
+    //     sprintf('@%s@', chr(146)),
+    //     '@__hardspace__@',
+    //     '@’@',
+    //     '@__supportlists__@',
+    //     '@__endif__@',
+    //   ],
+    //   [
+    //     '&rsquo;',
+    //     '&nbsp;',
+    //     '&rsquo;',
+    //     '<![if !supportLists]>',
+    //     '<![endif]>',
+    //   ],
+    //   $html
+    // );
+    // // sys::logger( sprintf('%s : %s', mb_detect_encoding($html), __METHOD__));
+    // // $html = str_replace( chr(146), '&rsquo;', $html);
+    // // $html = str_replace( chr(160), '&nbsp;', $html);
 
     if ($debug) {
       $f = sprintf('%s/temp-3-middle.html', \config::dataPath());
@@ -601,8 +627,6 @@ class message {
       // experimental empty <p></p>
       $_html = preg_replace('@<p></p>@', '', $_html);
       // sys::logger( sprintf('%s : %s', 'remove empty <p></p> tags', __METHOD__));
-
-
     }
 
     return $_html;
