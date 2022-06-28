@@ -220,18 +220,35 @@ class RawMessage {
            * imap_utf8() seems to do the job
            */
           $filename = imap_utf8($filename);
-          // this probably should be removed
-          $filename = trim($filename, '?=');
-          if (preg_match('/ISO-8859-1/i', $filename)) {
-            $filename = preg_replace('/ISO-8859-1/i', '', $filename);
-            $filename = preg_replace('/\?[^\?]*\?/i', '', $filename);
+
+          if (preg_match('/^=\?ISO-8859-1/i', $filename)) {
+
+            $filename = trim(mb_decode_mimeheader($filename));
+
+            /**
+             * https://cmss.darcy.com.au/forum/view/9990
+             *
+             * Origin_electricity_invoice_400037334069_22062022_211241. pdf
+             * should be => Origin_electricity_invoice_400037334069_22062022_211241.pdf
+             * so;
+             *    is there a dot + space and lookahead for a 3 character extension
+             *    if so, then remove the space after the dot
+             */
+            if (preg_match('/\.\s(?=[a-zA-Z]{3}$)/', $filename)) {
+              $filename = preg_replace('/\.\s(?=[a-zA-Z]{3}$)/i', '.', $filename);
+            }
           }
+
+          // this probably should be removed
+          // $filename = trim($filename, '?=');
+          // if (preg_match('/ISO-8859-1/i', $filename)) {
+          //   $filename = preg_replace('/ISO-8859-1/i', '', $filename);
+          //   $filename = preg_replace('/\?[^\?]*\?/i', '', $filename);
+          // }
           // end : this probably should be removed
 
           $filename = strings::safe_file_name($filename);
-          if ($filename) {
-            $attach->Name = $filename;
-          }
+          if ($filename) $attach->Name = $filename;
 
           $this->attachments[] = $attach;
         } elseif (isset($params['name'])) {
