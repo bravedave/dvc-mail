@@ -41,10 +41,10 @@ else
     if [[ ! -f $config ]]; then
       cp $WD/vendor/bravedave/dvc/httpd-minimal.conf $config
 
-      echo "AcceptFilter http none" >>$config
-      echo "ErrorLogFormat \"[%t] %M\"" >>$config
-      echo "ErrorLog /dev/stderr" >>$config
-      echo "# TransferLog /dev/stdout" >>$config
+      # echo "AcceptFilter http none" >>$config
+      # echo "ErrorLogFormat \"[%t] %M\"" >>$config
+      # echo "ErrorLog /dev/stderr" >>$config
+      # echo "# TransferLog /dev/stdout" >>$config
       echo "CustomLog $access_log common" >>$config
       echo "DocumentRoot `pwd`/www" >>$config
       echo "<Directory `pwd`/www>" >>$config
