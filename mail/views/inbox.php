@@ -838,7 +838,7 @@ $activeMessage = 'open-message';
         _prepender.push('from ' + encodeHTMLEntities(_to) + '<br><br>');
       }
 
-      console.table(_prepender);
+      // console.table(_prepender);
       _wrap.prepend(_prepender.join('<br>'));
 
       if ('forward' == role) {
