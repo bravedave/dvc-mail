@@ -1364,7 +1364,7 @@ $activeMessage = 'open-message';
                 let _el = $(el);
                 let width = String(_el.css('width')).replace(/px$/, '');
                 if ('IMG' == el.tagName || (Number(width) > 0 && Number(width) > window.innerWidth)) {
-                  console.log(width);
+                  // console.log(width);
                   _el.css({
                     'width': '',
                     'max-width': '100%'
