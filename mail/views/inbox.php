@@ -855,7 +855,7 @@ $activeMessage = 'open-message';
 
       // message: _.browser.isMobileDevice ? '' : '<br><br>' + _wrap[0].outerHTML,
       let j = {
-        message: _wrap[0].outerHTML,
+        message: '<br><br>' + _wrap[0].outerHTML,
         original: _wrap[0].outerHTML,
         subject: _subject,
         user_id: _frm_data.user_id
