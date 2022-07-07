@@ -853,7 +853,7 @@ $activeMessage = 'open-message';
       let _frm_data = _frm.serializeFormJSON();
       // console.log( _frm_data);
 
-      message: _.browser.isMobileDevice ? '' : '<br><br>' + _wrap[0].outerHTML,
+      // message: _.browser.isMobileDevice ? '' : '<br><br>' + _wrap[0].outerHTML,
       let j = {
         message: _wrap[0].outerHTML,
         original: _wrap[0].outerHTML,
