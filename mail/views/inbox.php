@@ -787,7 +787,12 @@ $activeMessage = 'open-message';
 
       let _subject = $('[data-role="subject"]', _document).text().trim();
       let _to = $('[data-role="reply-to"]', _document).text();
-      let _to = $('[data-role="from"]', _document).text();
+      // console.log('to (reply-to)', _to);
+      if (!_to) {
+        _to = $('[data-role="from"]', _document).text();
+        // console.log('to (from)', _to);
+      }
+
       let _time = $('[data-role="time"]', _document).text();
 
       /*
@@ -877,8 +882,7 @@ $activeMessage = 'open-message';
           if ('' != em && em != _.currentUser.email) {
             j.to = _to;
 
-          }
-          else {
+          } else {
             console.log('not setting to to my email !');
           }
 
@@ -931,9 +935,7 @@ $activeMessage = 'open-message';
         _.email.activate(j).then(ec => {
           if ('function' == typeof ec.onActivate) {
             ec.onActivate();
-
           }
-
         });
 
       } else {
@@ -946,7 +948,7 @@ $activeMessage = 'open-message';
 
         // })( j.original);
 
-        console.log(role, _to);
+        // console.log(role, _to);
         console.log(j);
         _.ask.warning({
           title: 'alert',

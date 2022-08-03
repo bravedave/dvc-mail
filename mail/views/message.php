@@ -260,7 +260,7 @@ $colStyle = 'width: 5rem; font-size: small;';
 
     if ($msg->ReplyTo) {
       printf(
-        '<div class="grid-item mail-text-truncate" data-role="reply-to">
+        '<div class="grid-item mail-text-truncate">
             <small label>reply to&nbsp;</small>
             <strong data-role="reply-to" data-email="%s">%s</strong>
           </div>',
