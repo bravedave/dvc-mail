@@ -11,7 +11,7 @@
 namespace dvc\imap;
 
 abstract class util {
-  protected static function funnies($string) {
+  protected static function funnies(string $string): string {
     $s = [];
     $r = [];
 
@@ -27,7 +27,7 @@ abstract class util {
     return str_replace($s, $r, $string);
   }
 
-  public static function decodeMimeStr($string, $charset = 'UTF-8') {
+  public static function decodeMimeStr(string $string, $charset = 'UTF-8'): string {
     $debug = false;
     // $debug = true;
 
@@ -110,7 +110,7 @@ abstract class util {
     return $newString;
   }
 
-  public static function decodeWin874($string) {
+  public static function decodeWin874(string $string) : string {
     /**
      * http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP874.TXT
      */

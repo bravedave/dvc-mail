@@ -12,7 +12,7 @@ namespace dvc\imap;
 
 use dvc\mail\credentials;
 use dvc\EmailAddress;
-use sys;
+use strings, sys;
 
 class client {
   // static $debug = true;
@@ -178,21 +178,28 @@ class client {
       $overview = $this->_Overview($msgno);
     }
     // sys::dump( $overview, 'overview');
+    // sys::dump($_headers_rfc822, 'overview');
 
     $overview = (object)$overview;
 
     /* add code here to get date, from, to, cc, subject... */
-    $from = "";
+    $from = '';
     if (isset($_headers_rfc822->from) && count($_headers_rfc822->from)) {
-      $afrom = array_shift($_headers_rfc822->from);
-      $from = $afrom->mailbox . "@" . $afrom->host;
+      $_mbox = array_shift($_headers_rfc822->from);
+      $from = util::decodeMimeStr($_mbox->mailbox) . '@' . util::decodeMimeStr($_mbox->host);
 
-      if (isset($afrom->personal)) {
-        if (preg_match('/,/', $afrom->personal)) {
-          $from = sprintf('"%s" <%s>', $afrom->personal, $from);
-        } else {
-          $from = sprintf('%s <%s>', $afrom->personal, $from);
-        }
+      if (isset($_mbox->personal)) {
+        $from = strings::rfc822($from, util::decodeMimeStr($_mbox->personal));
+      }
+    }
+
+    $replyto = '';
+    if (isset($_headers_rfc822->reply_to) && count($_headers_rfc822->reply_to)) {
+      $_mbox = array_shift($_headers_rfc822->reply_to);
+      $replyto = util::decodeMimeStr($_mbox->mailbox) . '@' . util::decodeMimeStr($_mbox->host);
+
+      if (isset($_mbox->personal)) {
+        $replyto = strings::rfc822($replyto, util::decodeMimeStr($_mbox->personal));
       }
     }
 
@@ -259,9 +266,16 @@ class client {
     $ret = new \dvc\mail\message;
     $ret->Subject = util::decodeMimeStr((string)$_headers_rfc822->Subject);
 
-    $ret->From = util::decodeMimeStr((string)$from);
-    $ea = new EmailAddress($ret->From);
+    $ret->From = $from;
+    $ea = new EmailAddress($from);
     $ret->fromEmail = $ea->email;
+
+    if ($replyto) {
+      $ea = new EmailAddress($replyto);
+      if ($ret->fromEmail != $ea->email) {
+        $ret->ReplyTo = $replyto;
+      }
+    }
 
     $ret->To = util::decodeMimeStr((string)$to);
     $ret->CC = util::decodeMimeStr((string)$cc);
@@ -295,6 +309,7 @@ class client {
     $ret->cids = $mess->cids;
 
     //~ if ( \currentUser::isDavid()) \sys::dump( $ret);
+    // \sys::dump($ret);
     if ($debug) sys::logger(sprintf('exit : %s', __METHOD__));
 
     return ($ret);
@@ -407,6 +422,13 @@ class client {
 
 
       if (isset($headers->message_id)) $ret->MessageID = $headers->message_id;
+      // foreach ($headers as $k => $v) {
+      //   # code...
+      //   if ('string' == gettype($v)) {
+      //     \sys::logger(sprintf('<%s => %s> %s', $k, $v, __METHOD__));
+      //   }
+      // }
+
       if (isset($headers->to)) {
         /**
          *
@@ -447,6 +469,12 @@ class client {
         if ($a) {
           $ret->To = implode(',', $a);
         }
+      }
+
+      if (isset($headers->reply_toaddress)) {
+        $ret->ReplyTo = util::decodeMimeStr($headers->reply_toaddress);
+        // \sys::logger( sprintf('<%s> %s', $ret->ReplyTo, __METHOD__));
+
       }
     }
 
@@ -514,12 +542,12 @@ class client {
 
     if ($_cache) {
       if (file_exists($_cache)) {
-        \unlink($_cache);
+        unlink($_cache);
         clearstatcache(true);
       }
 
       if ($json = $ret->asJson()) {
-        \file_put_contents($_cache, $json);
+        file_put_contents($_cache, $json);
       } else {
         \sys::logger(sprintf('<did not cache message> %s', json_last_error_msg(), __METHOD__));
         \sys::logger(sprintf('<%s> %s', json_last_error_msg(), __METHOD__));

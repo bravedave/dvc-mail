@@ -255,7 +255,21 @@ $colStyle = 'width: 5rem; font-size: small;';
   </div><!-- div class="grid-item" -->
 
   <?php
-  if ($this->data->default_folders['Sent'] != $msg->Folder) {    ?>
+
+  if ($this->data->default_folders['Sent'] != $msg->Folder) {
+
+    if ($msg->ReplyTo) {
+      printf(
+        '<div class="grid-item mail-text-truncate" data-role="reply-to">
+            <small label>reply to&nbsp;</small>
+            <strong data-role="reply-to" data-email="%s">%s</strong>
+          </div>',
+        htmlspecialchars($msg->ReplyTo),
+        htmlentities($msg->ReplyTo)
+      );
+    }
+  ?>
+
     <div class="grid-item mail-text-truncate" data-role="recipients">
       <small label>to&nbsp;</small>
       <?php
@@ -263,15 +277,27 @@ $colStyle = 'width: 5rem; font-size: small;';
       $tos = strings::splitEmails($msg->To);
       if (($ito = count($tos)) > 1) {
         $uid = strings::rand();
-        printf('<span style="font-size: small;" data-role="to" data-email="%s">%s</span>', htmlspecialchars($tos[0]), htmlentities($tos[0]));
+        printf(
+          '<span style="font-size: small;" data-role="to" data-email="%s">%s</span>',
+          htmlspecialchars($tos[0]),
+          htmlentities($tos[0])
+        );
+
         printf('&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito - 1);
         array_shift($tos);
-        $_tos = [];
-        foreach ($tos as $to) {
-          $_tos[] = sprintf('<span data-role="to" data-email="%s">%s</span>', htmlspecialchars($to), htmlentities($to));
-        }
+        $_tos = array_map(function ($to) {
+          return sprintf(
+            '<span data-role="to" data-email="%s">%s</span>',
+            htmlspecialchars($to),
+            htmlentities($to)
+          );
+        }, $tos);
 
-        printf('<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode(', ', $_tos));
+        printf(
+          '<span style="display: none; font-size: small;" id="%s">, %s</span>',
+          $uid,
+          implode(', ', $_tos)
+        );
       } else {
         printf(
           '<span data-role="to" data-email="%s">%s</span>',

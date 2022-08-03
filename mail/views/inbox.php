@@ -786,6 +786,7 @@ $activeMessage = 'open-message';
       let role = $(this).data('role');
 
       let _subject = $('[data-role="subject"]', _document).text().trim();
+      let _to = $('[data-role="reply-to"]', _document).text();
       let _to = $('[data-role="from"]', _document).text();
       let _time = $('[data-role="time"]', _document).text();
 
@@ -877,6 +878,9 @@ $activeMessage = 'open-message';
             j.to = _to;
 
           }
+          else {
+            console.log('not setting to to my email !');
+          }
 
         }
 
@@ -942,12 +946,13 @@ $activeMessage = 'open-message';
 
         // })( j.original);
 
-        console.table(j);
-        $('.modal-header', _.modal({
+        console.log(role, _to);
+        console.log(j);
+        _.ask.warning({
           title: 'alert',
           text: 'no email program to run ..'
 
-        })).removeClass('bg-primary bg-secondary').addClass('bg-warning');
+        });
 
       }
       // console.log( _to, _time, _body);

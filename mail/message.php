@@ -30,6 +30,7 @@ class message {
   public $Body = '';
   public $Folder = '';
   public $From = '';
+  public $ReplyTo = '';
   public $ItemId = '';
   public $MessageID = '';
   public $Recieved = '';
