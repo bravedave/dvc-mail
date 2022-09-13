@@ -92,9 +92,9 @@ if ('text' == strtolower($msg->BodyType)) {
 
   }
 
-  // $msgHtml = sprintf( "<pre>%s</pre>", htmlentities( $_msg));
+  // $msgHtml = sprintf( "<pre>%s</pre>", strings::htmlentities( $_msg));
   // $_msg = htmlspecialchars_decode( $_msg);
-  $msgHtml = sprintf("<pre>%s</pre>", htmlspecialchars($_msg, $flags = ENT_COMPAT, $encoding = null, $double_encode = false));
+  $msgHtml = sprintf("<pre>%s</pre>", strings::htmlspecialchars($_msg, $flags = ENT_COMPAT, $encoding = null, $double_encode = false));
   // die($msgHtml);
   // $msgHtml = sprintf( "<pre>%s</pre>", $_msg);
   // $msgHtml = str_replace( "\n", '<br />', $_msg);
@@ -220,8 +220,8 @@ $colStyle = 'width: 5rem; font-size: small;';
       $_to = array_map(function ($v) {
         return sprintf(
           '<strong data-role="from" data-email="%s">%s</strong>',
-          htmlentities($v),
-          htmlentities($v),
+          strings::htmlspecialchars($v),
+          strings::htmlentities($v),
 
         );
       }, explode(',', $msg->To));
@@ -232,22 +232,22 @@ $colStyle = 'width: 5rem; font-size: small;';
 
       );
       // printf( '<div style="float: left;"><small>to&nbsp;</small><strong data-role="from" data-email="%s">%s</strong></div>',
-      //   htmlentities( $msg->To),
-      //   htmlentities( $msg->To)
+      //   strings::htmlspecialchars( $msg->To),
+      //   strings::htmlentities( $msg->To)
       // );
 
     } else {
       if ($msg->From && $msg->From != $msg->fromEmail) {
         printf(
           '<div style="float: left;"><strong data-role="from" data-email="%s">%s</strong></div>',
-          htmlentities($msg->From),
-          htmlentities($msg->From)
+          strings::htmlspecialchars($msg->From),
+          strings::htmlentities($msg->From)
         );
       } else {
         printf(
           '<div style="float: left;"><strong data-role="from" data-email="%s">%s</strong></div>',
-          htmlentities($msg->fromEmail),
-          $msg->fromEmail
+          strings::htmlspecialchars($msg->fromEmail),
+          strings::htmlentities($msg->fromEmail)
         );
       }
     }
@@ -264,8 +264,8 @@ $colStyle = 'width: 5rem; font-size: small;';
             <small label>reply to&nbsp;</small>
             <strong data-role="reply-to" data-email="%s">%s</strong>
           </div>',
-        htmlspecialchars($msg->ReplyTo),
-        htmlentities($msg->ReplyTo)
+        strings::htmlspecialchars($msg->ReplyTo),
+        strings::htmlentities($msg->ReplyTo)
       );
     }
   ?>
@@ -279,8 +279,8 @@ $colStyle = 'width: 5rem; font-size: small;';
         $uid = strings::rand();
         printf(
           '<span style="font-size: small;" data-role="to" data-email="%s">%s</span>',
-          htmlspecialchars($tos[0]),
-          htmlentities($tos[0])
+          strings::htmlspecialchars($tos[0]),
+          strings::htmlentities($tos[0])
         );
 
         printf('&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $ito - 1);
@@ -288,8 +288,8 @@ $colStyle = 'width: 5rem; font-size: small;';
         $_tos = array_map(function ($to) {
           return sprintf(
             '<span data-role="to" data-email="%s">%s</span>',
-            htmlspecialchars($to),
-            htmlentities($to)
+            strings::htmlspecialchars($to),
+            strings::htmlentities($to)
           );
         }, $tos);
 
@@ -301,8 +301,8 @@ $colStyle = 'width: 5rem; font-size: small;';
       } else {
         printf(
           '<span data-role="to" data-email="%s">%s</span>',
-          htmlspecialchars($msg->To),
-          htmlentities($msg->To)
+          strings::htmlspecialchars($msg->To),
+          strings::htmlentities($msg->To)
         );
       } ?>
 
@@ -322,8 +322,8 @@ $colStyle = 'width: 5rem; font-size: small;';
         $uid = strings::rand();
         printf(
           '<span data-role="cc" style="font-size: small" data-email="%s">%s</span>',
-          htmlentities($ccs[0]),
-          htmlentities($ccs[0])
+          strings::htmlspecialchars($ccs[0]),
+          strings::htmlentities($ccs[0])
         );
         printf('&nbsp;<a href="#" data-role="extra-recipients" data-target="%s">+%d more</a>', $uid, $icc - 1);
         array_shift($ccs);
@@ -331,16 +331,16 @@ $colStyle = 'width: 5rem; font-size: small;';
         foreach ($ccs as $cc) {
           $_ccs[] = sprintf(
             '<span data-role="cc" data-email="%s">%s</span>',
-            htmlentities($cc),
-            htmlentities($cc)
+            strings::htmlspecialchars($cc),
+            strings::htmlentities($cc)
           );
         }
         printf('<span style="display: none; font-size: small;" id="%s">, %s</span>', $uid, implode(', ', $_ccs));
       } else {
         printf(
           '<span data-role="cc" data-email="%s">%s</span>',
-          htmlentities($msg->CC),
-          htmlentities($msg->CC)
+          strings::htmlspecialchars($msg->CC),
+          strings::htmlentities($msg->CC)
         );
       } ?>
 
@@ -350,7 +350,7 @@ $colStyle = 'width: 5rem; font-size: small;';
   }   // if ( $msg->CC)
   ?>
 
-  <div class="grid-item" data-role="subject" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= htmlentities($msg->Subject) ?>">
+  <div class="grid-item" data-role="subject" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= strings::htmlspecialchars($msg->Subject) ?>">
     <?= $msg->Subject ?>
 
   </div>
@@ -476,7 +476,7 @@ if ($iMsgCount = count($msg->attachments)) {
                       json_encode((string)$vcalendar->VEVENT->LOCATION, JSON_UNESCAPED_SLASHES),
                       json_encode((string)$vcalendar->VEVENT->DTSTART, JSON_UNESCAPED_SLASHES),
                       json_encode((string)$vcalendar->VEVENT->DTEND, JSON_UNESCAPED_SLASHES),
-                      htmlentities($vcalendar->VEVENT->SUMMARY),
+                      strings::htmlentities($vcalendar->VEVENT->SUMMARY),
                       $start,
                       $end,
                       PHP_EOL

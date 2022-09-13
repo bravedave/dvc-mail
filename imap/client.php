@@ -192,6 +192,7 @@ class client {
         $from = strings::rfc822($from, util::decodeMimeStr($_mbox->personal));
       }
     }
+    if ($debug) sys::logger(sprintf('<from : %s> %s', $from, __METHOD__));
 
     $replyto = '';
     if (isset($_headers_rfc822->reply_to) && count($_headers_rfc822->reply_to)) {
@@ -225,6 +226,7 @@ class client {
       }
     }
     $to = implode(',', $to);
+    if ($debug) sys::logger(sprintf('<to : %s> %s', $to, __METHOD__));
 
     $cc = [];
     if (isset($_headers_rfc822->cc) && $_headers_rfc822->cc) {
@@ -468,6 +470,7 @@ class client {
 
         if ($a) {
           $ret->To = implode(',', $a);
+          // \sys::logger( sprintf('<%s> %s', $ret->To, __METHOD__));
         }
       }
 
