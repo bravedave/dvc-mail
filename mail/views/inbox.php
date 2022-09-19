@@ -542,21 +542,19 @@ $activeMessage = 'open-message';
             let fldrCheck = {
               folders: docData.default_folders,
               default: function(fldr) {
-                let b = false
+                let b = false;
 
-                $.each(this.folders, function(i, s) {
-                  if (fldr == s) {
+                $.each(this.folders, (i, s) => {
+
+                  if (String(fldr).toLowerCase() == String(s).toLowerCase()) {
+
                     b = true;
                     return false;
-
                   }
-
                 });
 
                 return b;
-
               }
-
             };
 
             if (_data.folder == docData.default_folders.Trash) {
