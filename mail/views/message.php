@@ -188,6 +188,7 @@ $colStyle = 'width: 5rem; font-size: small;';
     word-wrap: break-word;
     white-space: pre-wrap;
     font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;
+    margin: 0;
 
   }
 
