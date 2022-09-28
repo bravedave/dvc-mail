@@ -407,7 +407,7 @@ class controller extends \Controller {
 
       Json::ack($action)
         ->add('messages', $this->_search($params));
-      \sys::logger(sprintf('<%s - %s (%s)> %s', $action, $params['folder'], $this->timer->elapsed(), __METHOD__));
+      // \sys::logger(sprintf('<%s - %s (%s)> %s', $action, $params['folder'], $this->timer->elapsed(), __METHOD__));
     } elseif ('send email' == $action) {
       $to = $this->getPost('to');
       $subject = $this->getPost('subject');
@@ -746,7 +746,7 @@ class controller extends \Controller {
       // Json::ack( $action)->add( 'message', $msg);
 
     } else {
-      sys::logger(sprintf('%s/%s : %s', $options['folder'], $options['msg'], __METHOD__));
+      // sys::logger(sprintf('%s/%s : %s', $options['folder'], $options['msg'], __METHOD__));
 
       $this->render([
         'title' => $this->title = 'View Message',
