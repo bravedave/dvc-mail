@@ -300,6 +300,8 @@ class client {
     $mess = new RawMessage($this->_stream, $msgno);
     $ret->CharSet = $mess->charset;
 
+    $ret->text = $mess->message;
+
     if ($mess->messageHTML) {
       $ret->Body = $mess->messageHTML;
       $ret->BodyType = 'HTML';

@@ -28,6 +28,7 @@ class message {
 
   public $BodyType = '';
   public $Body = '';
+  public $Text = '';
   public $Folder = '';
   public $From = '';
   public $ReplyTo = '';
