@@ -44,7 +44,7 @@ class client {
 
   const INBOX = 'Inbox';
 
-  protected static function _instance(credentials $cred = null) {
+  protected static function _instance(credentials $cred = null): ?self {
     if (is_null($cred))
       $cred = credentials::getCurrentUser();
 
@@ -64,10 +64,10 @@ class client {
 
       // }
 
-      return ($client);
+      return $client;
     }
 
-    return (false);
+    return null;
   }
 
   protected static function header_decode($text) {
@@ -91,22 +91,22 @@ class client {
     return folders::$default_folders;
   }
 
-  static function instance(credentials $cred = null) {
+  static function instance(credentials $cred = null): ?self {
     if ($client = self::_instance($cred)) {
       // if ( isset( \config::$exchange_timezone))
       // 	$client->setTimezone( \config::$exchange_timezone);
 
     }
 
-    return ($client);
+    return $client;
   }
 
-  static function instanceForDelete(credentials $cred = null) {
-    return (self::_instance($cred));
+  static function instanceForDelete(credentials $cred = null): ?self {
+    return self::_instance($cred);
   }
 
-  static function instanceForSync(credentials $cred = null) {
-    return (self::_instance($cred));
+  static function instanceForSync(credentials $cred = null): ?self {
+    return self::_instance($cred);
   }
 
   protected function _cache_prefix() {
