@@ -347,8 +347,8 @@ class client {
     return $text;
   }
 
-  protected function _getMessageHeader($id, $folder = "default") {
-    //~ $stat = $this->_status( $folder );
+  protected function _getMessageHeader($id) {
+
     $total = imap_num_msg($this->_stream);
     /**
      * Reverse chunk sort in pages of 20
@@ -378,7 +378,7 @@ class client {
       }
     }
 
-    if (self::$debug) sys::logger(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+    if (self::$debug) sys::logger(sprintf('not found : %s : %s', $id, __METHOD__));
   }
 
   /** get information for this specific email */
@@ -791,26 +791,36 @@ class client {
     return imap_list($this->_stream, '{' . $this->_server . '}', $spec);
   }
 
-  public function getmessage($id, $folder = "default") {
-    $ret = false;
-    if ($this->open(true, $folder)) {
-      if ($msg = $this->_getMessageHeader($id, $folder)) {
-        $ret = $this->_getmessage($msg->msgno, $msg);
-        $ret->Folder = $folder;
-      }
+  public function getmessageOnOpenStream($id) {
 
-      if (!$ret) {
-        if (self::$debug) {
-          sys::logger(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
-        }
+    if ($msg = $this->_getMessageHeader($id)) {
+
+      return $this->_getmessage($msg->msgno, $msg);
+    }
+
+    return null;
+  }
+
+  public function getmessage($id, $folder = "default") {
+    $msg = false;
+
+    if ($this->open(true, $folder)) {
+
+      if ($msg = $this->getmessageOnOpenStream($id)) {
+
+        $msg->Folder = $folder;
+      } else {
+
+        if (self::$debug) sys::logger(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
       }
 
       $this->close();
     } else {
+
       sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
-    return ($ret);
+    return $msg;
   }
 
   public function getmessageByMsgNo($msgno, $folder = "default") {
