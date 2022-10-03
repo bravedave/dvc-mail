@@ -791,36 +791,26 @@ class client {
     return imap_list($this->_stream, '{' . $this->_server . '}', $spec);
   }
 
-  public function getmessageOnOpenStream($id) {
-
-    if ($msg = $this->_getMessageHeader($id)) {
-
-      return $this->_getmessage($msg->msgno, $msg);
-    }
-
-    return null;
-  }
-
   public function getmessage($id, $folder = "default") {
-    $msg = false;
-
+    $ret = false;
     if ($this->open(true, $folder)) {
+      if ($msg = $this->_getMessageHeader($id, $folder)) {
+        $ret = $this->_getmessage($msg->msgno, $msg);
+        $ret->Folder = $folder;
+      }
 
-      if ($msg = $this->getmessageOnOpenStream($id)) {
-
-        $msg->Folder = $folder;
-      } else {
-
-        if (self::$debug) sys::logger(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+      if (!$ret) {
+        if (self::$debug) {
+          sys::logger(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+        }
       }
 
       $this->close();
     } else {
-
       sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
-    return $msg;
+    return ($ret);
   }
 
   public function getmessageByMsgNo($msgno, $folder = "default") {
