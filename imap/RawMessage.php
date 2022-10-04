@@ -79,8 +79,8 @@ class RawMessage {
 
     // DECODE DATA
     $data = ($partno) ?
-      imap_fetchbody($mbox, $mid, $partno) :  // multipart
-      imap_body($mbox, $mid);  // simple
+      imap_fetchbody($mbox, $mid, $partno, FT_PEEK) :  // multipart
+      imap_body($mbox, $mid, FT_PEEK);  // simple
 
     //~ if ( $debug) sys::logger( sprintf( 'encoding : %s : %s',  $p->encoding, $data));
     //~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
@@ -441,22 +441,12 @@ class RawMessage {
         $attach->Content = $data;
         $this->attachments[] = $attach;
 
-        // $msg = new MimeMessage($data);
-        // $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getHeaders());  // . "<br /><br />";
-        // $this->messageHTML .= sprintf('<pre>%s</pre>', $msg->getMessage());  // . "<br /><br />";
         if ($debugPart) sys::logger(sprintf('part type 2/RFC822(%s) - html : %s', strlen($data), __METHOD__));
       } else {
         $msg = new MimeMessage($data);
         $this->message .= $msg->getMessage() . "\n\n";
       }
       if ($debugPart) sys::logger(sprintf('part type 2 : %s', __METHOD__));
-
-      // $attach = new attachment;
-      // $attach->Name = sprintf( '%s.txt', $emailSubject);
-      // $attach->ContentId = $id;
-      // $attach->Content = $data;
-      // $this->attachments[] = $attach;
-
     } else {
       if ($data) {
         if ($p->type == 2) {
