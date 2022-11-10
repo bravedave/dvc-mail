@@ -516,6 +516,15 @@ class client {
       if (isset($msg->references)) $ret->references = $msg->references;
     }
 
+    if ($errors = imap_errors()) {
+
+      foreach ($errors as $error) {
+
+        if (str_starts_with($error, 'Unterminated mailbox:')) continue;
+        \sys::logger(sprintf('<overview : %s> %s', $error, __METHOD__));
+      }
+    }
+
     $_headers = imap_fetchheader($this->_stream, $email_number);
     $headerLines = explode("\n", $_headers);
     foreach ($headerLines as $l) {
@@ -560,8 +569,10 @@ class client {
     }
 
     if ($errors = imap_errors()) {
+
       foreach ($errors as $error) {
-        \sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+
+        \sys::logger(sprintf('<error : %s> %s', $error, __METHOD__));
       }
     }
     return ($ret);
