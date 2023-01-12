@@ -32,18 +32,18 @@ class imap {
 
           return inbox::instance( $creds);
 
-          $host = preg_replace( '@^ssl://@', '', $creds->server);
-          $port = preg_match( '@^ssl://@', $creds->server) ? 993 : 143;
+          // $host = preg_replace( '@^ssl://@', '', $creds->server);
+          // $port = preg_match( '@^ssl://@', $creds->server) ? 993 : 143;
 
-          return new ImapSocket([
-            'server' => $host,
-            'port' => $port,
-            'login' => $creds->account,
-            'password' => $creds->password,
-            'tls' => false,
-            'ssl' => (bool)preg_match( '@^ssl://@', $creds->server),
+          // return new ImapSocket([
+          //   'server' => $host,
+          //   'port' => $port,
+          //   'login' => $creds->account,
+          //   'password' => $creds->password,
+          //   'tls' => false,
+          //   'ssl' => (bool)preg_match( '@^ssl://@', $creds->server),
 
-          ], $mailbox);
+          // ], $mailbox);
 
 				}
 

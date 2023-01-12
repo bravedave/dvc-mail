@@ -46,6 +46,8 @@ class message {
   public $in_reply_to = '';  // imap
   public $references = '';  // imap
   public $cids = '';  // imap
+  public $headers;
+  public $comments = '';
 
   protected function getHtmlHeader() {
     $search = array(
