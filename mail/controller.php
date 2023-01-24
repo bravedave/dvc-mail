@@ -12,14 +12,11 @@ namespace dvc\mail;
 
 // use dvc\mail\credentials;
 
+use Response, strings, sys;
+use bravedave\dvc\jslib;
 use dvc\Json;
-use Response;
-use strings;
-use sys;
 use dvc\cssmin;
 use dvc\imap\config;
-use dvc\imap\MimeMessage;
-use userAgent;
 // use url;
 
 class controller extends \Controller {
