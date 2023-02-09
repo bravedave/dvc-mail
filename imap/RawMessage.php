@@ -10,6 +10,7 @@
 
 namespace dvc\imap;
 
+use bravedave\dvc\logger;
 use dvc\mail\attachment;
 use strings;
 use sys;
@@ -40,22 +41,22 @@ class RawMessage {
     $this->plainText = $plainText;
 
     // BODY
-    if ($debug) \sys::logger(sprintf('<-----------------[debug]-----------------> %s', __METHOD__));
+    if ($debug) logger::debug(sprintf('<-----------------[debug]-----------------> %s', __METHOD__));
 
     $s = imap_fetchstructure($stream, $email_number);
     if (!isset($s->parts) || !$s->parts) { // simple
       if ($debug) sys::logger(sprintf('simple : %s', __METHOD__));
       $this->getpart($stream, $email_number, $s, 0);  // pass 0 as part-number
-      if ($debug) \sys::logger(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
+      if ($debug) logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
     } else {  // multipart: cycle through each part
       foreach ($s->parts as $partno0 => $p) {
-        if ($debug) \sys::logger(sprintf('<type %s> %s', $p->type, __METHOD__));
+        if ($debug) logger::debug(sprintf('<type %s> %s', $p->type, __METHOD__));
         $this->getpart($stream, $email_number, $p, $partno0 + 1);
       }
 
       if ($debug) {
-        \sys::logger(sprintf('get parts :e: %s', __METHOD__));
-        \sys::logger(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
+        logger::debug(sprintf('get parts :e: %s', __METHOD__));
+        logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
         // \sys::trace( sprintf('exit : %s', __METHOD__));
         // \sys::dump( $this);
 
@@ -90,20 +91,20 @@ class RawMessage {
       if ($debug) sys::logger(sprintf('quoted_printable_decode : %s', __METHOD__));
       // if ( $debug) sys::logger( sprintf('quoted_printable_decode : %s : %s', print_r( $p, true), __METHOD__));
 
-      // \sys::logger( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
+      // logger::debug( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
       // $f = sprintf('%s/temp-0-rawmessage.txt', \config::dataPath());
       // if ( \file_exists($f)) unlink( $f);
       // \file_put_contents( $f, $data);
 
-      if ($debug) \sys::logger(sprintf('<%s> %s', $this->plainText ? 'text' : 'html', __METHOD__));
+      if ($debug) logger::debug(sprintf('<%s> %s', $this->plainText ? 'text' : 'html', __METHOD__));
 
       $data = quoted_printable_decode($data);
 
-      // \sys::logger( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
+      // logger::info( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
       // $f = sprintf('%s/temp-1-%s-rawmessage.txt', \config::dataPath(), $partno);
       // if ( \file_exists($f)) unlink( $f);
       // \file_put_contents( $f, $data);
-      // \sys::logger( sprintf('<%s> %s', $f, __METHOD__));
+      // logger::info( sprintf('<%s> %s', $f, __METHOD__));
 
     } elseif ($p->encoding == 3) {
       // if ( $debug) sys::logger( sprintf('imap_base64 :s: %s', __METHOD__));
@@ -163,7 +164,7 @@ class RawMessage {
     if ($p->parameters) {
       foreach ($p->parameters as $x) {
         $params[strtolower($x->attribute)] = $x->value;
-        // if ( $debug) \sys::logger( sprintf('parameter %s => %s : %s', $x->attribute, $x->value, __METHOD__));
+        // if ( $debug) logger::debug( sprintf('parameter %s => %s : %s', $x->attribute, $x->value, __METHOD__));
 
       }
     }
@@ -191,7 +192,7 @@ class RawMessage {
 
         if (isset($params['filename'])) {
 
-          if ($debug) \sys::logger(sprintf('<%s> <filename> %s', $params['filename'], __METHOD__));
+          if ($debug) logger::debug(sprintf('<%s> <filename> %s', $params['filename'], __METHOD__));
 
           $filename = $params['filename'];
           $attach = new attachment;
@@ -206,8 +207,8 @@ class RawMessage {
            * Weird file name with encoding in the string
            * could this be double encoded ?
            */
-          // \sys::logger(sprintf('<%s> %s', $filename, __METHOD__));
-          // \sys::logger(sprintf('<%s> %s', imap_utf8($filename), __METHOD__));
+          // logger::info(sprintf('<%s> %s', $filename, __METHOD__));
+          // logger::info(sprintf('<%s> %s', imap_utf8($filename), __METHOD__));
           // \sys::dump($p);
 
           /**
@@ -253,7 +254,7 @@ class RawMessage {
           $this->attachments[] = $attach;
         } elseif (isset($params['name'])) {
 
-          if ($debug) \sys::logger(sprintf('<%s> <name> %s', $params['name'], __METHOD__));
+          if ($debug) logger::debug(sprintf('<%s> <name> %s', $params['name'], __METHOD__));
 
           $filename = $params['name'];
           $attach = new attachment;
@@ -265,7 +266,7 @@ class RawMessage {
           $this->attachments[] = $attach;
         } elseif ($p->type == 5 && $data && isset($p->id)) {
 
-          if ($debug) \sys::logger(sprintf('<%s> %s', 'type 5', __METHOD__));
+          if ($debug) logger::debug(sprintf('<%s> %s', 'type 5', __METHOD__));
 
           $id = preg_replace(array("@(<|>)@"), "", $p->id);
           $attach = new attachment;
@@ -273,7 +274,7 @@ class RawMessage {
           $attach->Content = $data;
           $this->attachments[] = $attach;
         } else {
-          if ($debug) \sys::logger(sprintf('<%s> %s', 'not plaintext attachment', __METHOD__));
+          if ($debug) logger::debug(sprintf('<%s> %s', 'not plaintext attachment', __METHOD__));
           // sys::dump($p, null, false);
           // sys::dump($data);
         }
@@ -300,7 +301,7 @@ class RawMessage {
       //~ if ( $debug && $p->ifsubtype) sys::logger( sprintf( '    type :: subtype : %s :: %s',  $p->type, $p->subtype));
 
       if ('plain' == strtolower($p->subtype)) {
-        if ($debug) \sys::logger(sprintf('<%s> %s', 'plaintext - plain', __METHOD__));
+        if ($debug) logger::debug(sprintf('<%s> %s', 'plaintext - plain', __METHOD__));
 
         $this->messageType = 'text';
         $this->message .= $data;  // . "\n\n";
@@ -341,7 +342,7 @@ class RawMessage {
         } else {
           if (isset($p->disposition) && 'attachment' == $p->disposition) {
             if ($debugPart) {
-              \sys::logger(sprintf('<%s attachment> %s', strtolower($p->subtype), __METHOD__));
+              logger::debug(sprintf('<%s attachment> %s', strtolower($p->subtype), __METHOD__));
               // \sys::dump( $p, null, false);
 
             }
@@ -456,15 +457,15 @@ class RawMessage {
           if ($debugPart) sys::logger(sprintf('part type 2(%s) : %s', strlen($data), __METHOD__));
         }
       } else {
-        if ($debug) \sys::logger(sprintf('<%s> %s', 'attachment with no data', __METHOD__));
+        if ($debug) logger::debug(sprintf('<%s> %s', 'attachment with no data', __METHOD__));
       }
 
       if (isset($p->parts) && $p->parts) { // SUBPART RECURSION
         foreach ($p->parts as $partno0 => $p2) {
-          // \sys::logger( sprintf('<%s -----------------------------------------------------------------------------> %s', $p2->type, __METHOD__));
+          // logger::info( sprintf('<%s -----------------------------------------------------------------------------> %s', $p2->type, __METHOD__));
           // \sys::dump( $p2);
           $this->getpart($mbox, $mid, $p2, $partno . '.' . ($partno0 + 1));  // 1.2, 1.2.1, etc.
-          // \sys::logger( sprintf('</%s -----------------------------------------------------------------------------> %s', $p2->type, __METHOD__));
+          // logger::info( sprintf('</%s -----------------------------------------------------------------------------> %s', $p2->type, __METHOD__));
 
         }
       }

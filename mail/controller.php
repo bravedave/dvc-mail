@@ -12,12 +12,15 @@ namespace dvc\mail;
 
 // use dvc\mail\credentials;
 
-use Response, strings, sys;
-use bravedave\dvc\jslib;
-use dvc\Json;
-use dvc\cssmin;
+use strings, sys;
+use bravedave\dvc\{
+  cssmin,
+  jslib,
+  json,
+  logger,
+  Response
+};
 use dvc\imap\config;
-// use url;
 
 class controller extends \Controller {
   protected $creds = null;  // credentials
@@ -44,7 +47,7 @@ class controller extends \Controller {
         $dir = config::tempdir() . $tmpdir;
         if (\is_dir($dir)) {
 
-          // \sys::logger( sprintf('<%s> %s', $dir, __METHOD__));
+          // logger::info( sprintf('<%s> %s', $dir, __METHOD__));
           $it = new \FilesystemIterator($dir);
           $a = [];
           foreach ($it as $attachment) {
@@ -58,7 +61,7 @@ class controller extends \Controller {
           // $iterator = new \Globiterator( $dir . DIRECTORY_SEPARATOR . '*');
           // $a = [];
           // foreach ( $iterator as $attachment) {
-          // 	// \sys::logger( sprintf('<%s> %s', $attachment->getFilename(), __METHOD__));
+          // 	// logger::info( sprintf('<%s> %s', $attachment->getFilename(), __METHOD__));
           // 	$a[] = (object)[
           // 		'name' => $attachment->getFilename(),
           // 		'size' => self::formatBytes( $attachment->getSize(), 0)
@@ -67,21 +70,21 @@ class controller extends \Controller {
 
           // }
 
-          Json::ack($action)
+          json::ack($action)
             ->add('attachments', $a);
         } else {
-          Json::ack($action)
+          json::ack($action)
             ->add('attachments', []);
         }
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('attachments-upload' == $action) {
       // $debug = true;
       $debug = false;
 
       /*--- ---[uploads]--- ---*/
-      $j = Json::ack($action);
+      $j = json::ack($action);
 
       if (!($tmpdir = $this->getPost('tmpdir')))
         $tmpdir = "email_" . time();
@@ -163,9 +166,9 @@ class controller extends \Controller {
           rmdir($dir);
         }
 
-        Json::ack($action);
+        json::ack($action);
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('copy-message' == $action) {
       $msgID = $this->getPost('messageid');
@@ -180,39 +183,39 @@ class controller extends \Controller {
             $inbox->CopyItem($msgID, $srcFolder, $targetFolder);
 
           if ($res) {
-            \Json::ack($action);
+            json::ack($action);
           } else {
-            \Json::nak($action);
+            json::nak($action);
           }
         } else {
-          \Json::nak(sprintf('missing target folder : %s', $action));
+          json::nak(sprintf('missing target folder : %s', $action));
         }
       } else {
-        \Json::nak(sprintf('invalid message : %s', $action));
+        json::nak(sprintf('invalid message : %s', $action));
       }
     } elseif ('create-folder' == $action) {
       if ($folder = (string)$this->getPost('folder')) {
         $parent = (string)$this->getPost('parent');
         $folders = folders::instance($this->creds);
         if ($folders->create($folder, $parent)) {
-          Json::ack($action);
+          json::ack($action);
         } else {
-          Json::nak($action);
+          json::nak($action);
         }
       } else {
-        Json::nak(sprintf('specifiy a folder name: %s', $action));
+        json::nak(sprintf('specifiy a folder name: %s', $action));
       }
     } elseif ('delete-folder' == $action) {
       if ($folder = (string)$this->getPost('folder')) {
         $folders = folders::instance($this->creds);
         if ($folders->delete($folder)) {
-          \Json::ack($action);
+          json::ack($action);
         } else {
-          \Json::nak($action)
+          json::nak($action)
             ->add('errors', $folders->errors);
         }
       } else {
-        \Json::nak(sprintf('specifiy a folder name: %s', $action));
+        json::nak(sprintf('specifiy a folder name: %s', $action));
       }
     } elseif ('delete-message' == $action) {
       $msgID = $this->getPost('messageid');
@@ -226,43 +229,43 @@ class controller extends \Controller {
           $inbox->DeleteItem($msgID, $srcFolder);
 
         if ($res) {
-          \Json::ack($action);
+          json::ack($action);
         } else {
-          \Json::nak($action);
+          json::nak($action);
         }
       } else {
-        \Json::nak(sprintf('invalid message : %s', $action));
+        json::nak(sprintf('invalid message : %s', $action));
       }
     } elseif ('empty-trash' == $action) {
       if ($folder = (string)$this->getPost('folder')) {
         $inbox = inbox::instance($this->creds);
         if ($inbox->EmptyTrash($folder)) {
-          \Json::ack(sprintf('perhaps : %s', $action));
+          json::ack(sprintf('perhaps : %s', $action));
         } else {
-          \Json::nak(sprintf('error: %s', $action));
+          json::nak(sprintf('error: %s', $action));
         }
       } else {
-        \Json::nak(sprintf('missing folder name: %s', $action));
+        json::nak(sprintf('missing folder name: %s', $action));
       }
     } elseif ('get-default-folders' == $action) {
-      Json::ack($action)
+      json::ack($action)
         ->add('data', $this->_getDefaultFolders());
     } elseif ('get-folders' == $action) {
-      Json::ack($action)
+      json::ack($action)
         ->add('folders', $this->_folders());
     } elseif ('get-folders-learnasham' == $action) {
       if ($folder = $this->_folder_learnasham()) {
-        Json::ack($action)
+        json::ack($action)
           ->add('folder', $folder);
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('get-folders-learnasspam' == $action) {
       if ($folder = $this->_folder_learnasspam()) {
-        Json::ack($action)
+        json::ack($action)
           ->add('folder', $folder);
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('get-messages' == $action) {
       $params = [
@@ -277,7 +280,7 @@ class controller extends \Controller {
         $params['pageSize'] = $pageSize;
       }
 
-      Json::ack($action)
+      json::ack($action)
         ->add('folder', $params['folder'])
         ->add('messages', $this->_messages($params));
     } elseif ('get-info' == $action) {
@@ -293,11 +296,11 @@ class controller extends \Controller {
           $data->pages = $pageSize ? round(($data->Nmsgs / $pageSize) + .5, 0) : 0;
         }
 
-        Json::ack($action)
+        json::ack($action)
           ->add('folder', $folder)
           ->add('data', $data);
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('get-status' == $action) {
       $folder = $this->getPost('folder', 'default');
@@ -312,11 +315,11 @@ class controller extends \Controller {
           $data->pages = $pageSize ? round(($data->messages / $pageSize) + .5, 0) : 0;
         }
 
-        Json::ack($action)
+        json::ack($action)
           ->add('folder', $folder)
           ->add('data', $data);
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('mark-seen' == $action || 'mark-unseen' == $action) {
       $msgID = $this->getPost('messageid');
@@ -337,12 +340,12 @@ class controller extends \Controller {
         }
 
         if ($res) {
-          Json::ack($action);
+          json::ack($action);
         } else {
-          Json::nak($action);
+          json::nak($action);
         }
       } else {
-        Json::nak($action);
+        json::nak($action);
       }
     } elseif ('move-message' == $action) {
       $msgID = $this->getPost('messageid');
@@ -359,15 +362,15 @@ class controller extends \Controller {
             $inbox->MoveItem($msgID, $srcFolder, $targetFolder);
 
           if ($res) {
-            \Json::ack($action);
+            json::ack($action);
           } else {
-            \Json::nak($action);
+            json::nak($action);
           }
         } else {
-          \Json::nak(sprintf('missing target folder : %s', $action));
+          json::nak(sprintf('missing target folder : %s', $action));
         }
       } else {
-        \Json::nak(sprintf('invalid message : %s', $action));
+        json::nak(sprintf('invalid message : %s', $action));
       }
     } elseif ('search-all-messages' == $action) {
 
@@ -383,10 +386,10 @@ class controller extends \Controller {
 
       ];
 
-      \sys::logger(sprintf('<%s> %s', $params['body'], __METHOD__));
+      logger::info(sprintf('<%s> %s', $params['body'], __METHOD__));
 
 
-      Json::ack($action)
+      json::ack($action)
         ->add('messages', $this->_search($params));
     } elseif ('search-messages' == $action) {
 
@@ -402,9 +405,9 @@ class controller extends \Controller {
 
       ];
 
-      Json::ack($action)
+      json::ack($action)
         ->add('messages', $this->_search($params));
-      // \sys::logger(sprintf('<%s - %s (%s)> %s', $action, $params['folder'], $this->timer->elapsed(), __METHOD__));
+      // logger::info(sprintf('<%s - %s (%s)> %s', $action, $params['folder'], $this->timer->elapsed(), __METHOD__));
     } elseif ('send email' == $action) {
       $to = $this->getPost('to');
       $subject = $this->getPost('subject');
@@ -433,10 +436,10 @@ class controller extends \Controller {
       }
 
       if ($mail->send()) {
-        Json::ack($action);
+        json::ack($action);
       } else {
-        Json::nak($mail->ErrorInfo);
-        \sys::logger(sprintf('<failed : %s> %s', $mail->ErrorInfo, __METHOD__));
+        json::nak($mail->ErrorInfo);
+        logger::info(sprintf('<failed : %s> %s', $mail->ErrorInfo, __METHOD__));
       }
 
       /**----------------------------------- */
@@ -444,7 +447,7 @@ class controller extends \Controller {
       parent::postHandler();
     }
 
-    // \sys::logger( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
+    // logger::info( sprintf('<%s (%s)> %s', $action, $this->timer->elapsed(), __METHOD__));
 
   }
 
@@ -495,7 +498,7 @@ class controller extends \Controller {
 
       if ($msg) {
         if (count($msg->attachments)) {
-          // \sys::logger(sprintf(
+          // logger::info(sprintf(
           //   '<%s/%s => %s> %s',
           //   $options['folder'],
           //   $options['uid'],
@@ -507,7 +510,7 @@ class controller extends \Controller {
           $finfo = new \finfo(FILEINFO_MIME);
           foreach ($msg->attachments as $attachment) {
             $attachmentType = gettype($attachment);
-            // \sys::logger(sprintf('<%s> %s', $attachmentType, __METHOD__));
+            // logger::info(sprintf('<%s> %s', $attachmentType, __METHOD__));
 
             if ('object' == $attachmentType) {
               // printf( '%s<br />', $attachment->ContentId);
@@ -547,13 +550,13 @@ class controller extends \Controller {
                     ]);
                     // 'charset' => $msg->CharSet,
 
-                    \sys::logger(sprintf('<%s> %s', $type, __METHOD__));
+                    logger::info(sprintf('<%s> %s', $type, __METHOD__));
                     return;
                   }
                 }
 
                 header(sprintf('Content-type: %s', $type));
-                if ( !$options['stream']) header(sprintf('Content-Disposition: attachment; filename="%s"', $attachment->Name));
+                if (!$options['stream']) header(sprintf('Content-Disposition: attachment; filename="%s"', $attachment->Name));
                 print $attachment->Content;
                 return;
               }
@@ -602,7 +605,7 @@ class controller extends \Controller {
   protected function _folder_learnasham() {
     $folders = folders::instance($this->creds);
     $folder = $folders->getByPath('LearnAsHam');
-    // \sys::logger( sprintf('<%s> %s', $folder, __METHOD__));
+    // logger::info( sprintf('<%s> %s', $folder, __METHOD__));
 
     return $folder;
   }
@@ -629,10 +632,10 @@ class controller extends \Controller {
     ], $params);
 
     $inbox = inbox::instance($options['creds']);
-    \sys::logger(sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+    logger::info(sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
     $headers = (array)$inbox->headers($options);
 
-    \sys::logger(sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+    logger::info(sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
     return $headers;
   }
 
@@ -646,11 +649,11 @@ class controller extends \Controller {
 
     ], $params);
 
-    // \sys::logger( sprintf('<%s(%s)> %s', $options['folder'], $options['page'], __METHOD__));
+    // logger::info( sprintf('<%s(%s)> %s', $options['folder'], $options['page'], __METHOD__));
     $inbox = inbox::instance($options['creds']);
-    // \sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+    // logger::info( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
     $messages = (array)$inbox->finditems($options);
-    // \sys::logger( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
+    // logger::info( sprintf('<%s> %s', $this->timer->elapsed(), __METHOD__));
     // sys::dump( $messages);
 
     $a = [];
@@ -684,7 +687,7 @@ class controller extends \Controller {
     $msg = false;
     $inbox = inbox::instance($options['creds']);
     if ($options['msg']) {
-      \sys::logger(sprintf('<byMSG %s> %s', $options['msg'], __METHOD__));
+      logger::info(sprintf('<byMSG %s> %s', $options['msg'], __METHOD__));
 
       $msg = $inbox->GetItemByMessageID(
         $options['msg'],
@@ -693,7 +696,7 @@ class controller extends \Controller {
 
       );
     } elseif ($options['uid']) {
-      // \sys::logger( sprintf('<byUID %s> %s', $options['uid'], __METHOD__));
+      // logger::info( sprintf('<byUID %s> %s', $options['uid'], __METHOD__));
 
       $msg = $inbox->GetItemByUID(
         $options['uid'],
@@ -703,7 +706,7 @@ class controller extends \Controller {
       );
     }
 
-    // \sys::logger( sprintf('<done got msg> %s', __METHOD__));
+    // logger::info( sprintf('<done got msg> %s', __METHOD__));
 
     if ($msg) {
       // unset( $msg->attachments);
@@ -740,7 +743,7 @@ class controller extends \Controller {
       ]);
 
       // $msg->Body = strings::htmlSanitize( $msg->Body);
-      // Json::ack( $action)->add( 'message', $msg);
+      // json::ack( $action)->add( 'message', $msg);
 
     } else {
       // sys::logger(sprintf('%s/%s : %s', $options['folder'], $options['msg'], __METHOD__));
