@@ -11,7 +11,7 @@
 namespace dvc\imap;
 
 use dvc\mail\credentials;
-use dvc\EmailAddress;
+use bravedave\dvc\EmailAddress;
 use strings, sys;
 
 class client {

@@ -9,6 +9,7 @@
 */
 
 namespace dvc\imap;
+use bravedave\dvc\EmailAddress;
 use sys;
 
 class MimeMessage {
@@ -251,7 +252,7 @@ class MimeMessage {
 		if ( !is_writable( $attachmentPath)) throw new \dvc\Exceptions\DirNotWritable( $attachmentPath);
 
 		$from = $this->getHeader( 'From');
-		$em = new \dvc\EmailAddress( $from);
+		$em = new EmailAddress( $from);
 
 		$j = [
 			'fromName' => $em->name,
