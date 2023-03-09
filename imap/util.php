@@ -10,6 +10,8 @@
 
 namespace dvc\imap;
 
+use bravedave\dvc\logger;
+
 abstract class util {
   protected static function funnies(string $string): string {
     $s = [];
@@ -38,9 +40,8 @@ abstract class util {
     $newString = '';
     $elements = imap_mime_header_decode($string);
     for ($i = 0; $i < count($elements); $i++) {
-      if ('default' == $elements[$i]->charset) {
-        $elements[$i]->charset = 'iso-8859-1';
-      }
+
+      if ('default' == $elements[$i]->charset) $elements[$i]->charset = 'iso-8859-1';
 
       /**
        * Add checking to see if conversion is required
@@ -57,38 +58,25 @@ abstract class util {
        *  * https://github.com/php-mime-mail-parser/php-mime-mail-parser/issues/26
        *
        */
-      if ('ks_c_5601-1987' == $elements[$i]->charset) {
-        $elements[$i]->charset = 'EUC-KR';  // thunderbird
+      if ('ks_c_5601-1987' == $elements[$i]->charset) $elements[$i]->charset = 'EUC-KR';  // thunderbird
 
-      }
-
-      if ($debug) \sys::logger(sprintf('<?%s:%s?> %s', $elements[$i]->charset, $charset, __METHOD__));
+      if ($debug) logger::debug(sprintf('<?%s:%s?> %s', $elements[$i]->charset, $charset, __METHOD__));
       if (strtolower($elements[$i]->charset) == strtolower($charset)) {
-        if ($debug) \sys::logger(sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+
+        if ($debug) logger::debug(sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
         $newString .= $elements[$i]->text;
       } elseif (in_array($elements[$i]->charset, $unsupportedEncodings)) {
-        \sys::logger(sprintf('<unsupported encoding> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+
+        logger::info(sprintf('<unsupported encoding> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
         $newString .= $elements[$i]->text;
         // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
 
       } elseif ('windows-874' == $elements[$i]->charset) {
 
-        // $debug = true;
-        //
         $newString .= self::funnies(self::decodeWin874($elements[$i]->text));
-        // \sys::logger(sprintf('<%s> %s', $newString, __METHOD__));
 
-        // if (preg_match('/Your Rental Position/', $newString)) {
-        //   file_put_contents(config::dataPath() . '/debug.txt', implode(PHP_EOL, [
-        //     $elements[$i]->text,
-        //     $newString
-        //   ]));
-        //   \sys::logger(sprintf('<%s> %s', 'wrote', __METHOD__));
-        // }
-
-        // $newString .= self::funnies($elements[$i]->text);
         if ($debug) {
-          \sys::logger(sprintf(
+          logger::debug(sprintf(
             '<%s encoding> <%s> <%s> %s',
             $elements[$i]->charset,
             $newString,
@@ -98,19 +86,26 @@ abstract class util {
         }
 
         $funnyText = substr($newString, 12, 1);
-        // \sys::logger( sprintf('<%s> (%s) %s', $funnyText, ord($funnyText), __METHOD__));
-        // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
-
       } else {
-        if ($debug) \sys::logger(sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+
+        if ($debug) logger::debug(sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+        try {
+
+          $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+        } catch (\Throwable $th) {
+
+          logger::info( sprintf('<%s> %s', $th->getMessage(), __METHOD__));
+          logger::info( sprintf('<%s => %s> %s', $elements[$i]->charset, $charset, __METHOD__));
+          logger::dump( $elements[$i]->text, __METHOD__);
+        }
       }
     }
-    if ($debug) \sys::logger(sprintf('<%s> <exit> %s', $newString, __METHOD__));
+
+    if ($debug) logger::debug(sprintf('<exit : %s> %s', $newString, __METHOD__));
     return $newString;
   }
 
-  public static function decodeWin874(string $string) : string {
+  public static function decodeWin874(string $string): string {
     /**
      * http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP874.TXT
      */

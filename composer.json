@@ -22,11 +22,14 @@
 		}
 	],
 	"require": {
-		"bravedave/dvc": "*",
+		"bravedave/dvc": "dev-master",
 		"ext-mailparse": "*",
 		"ext-imap": "*",
 		"sabre/vobject": "^4.2",
 		"php-mime-mail-parser/php-mime-mail-parser": "^7.1"
+	},
+	"require-dev": {
+		"bravedave/dvc-ews": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {

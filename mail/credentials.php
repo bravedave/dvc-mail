@@ -1,14 +1,16 @@
 <?php
 /*
-	David Bray
-	BrayWorth Pty Ltd
-	e. david@brayworth.com.au
+ * David Bray
+ * BrayWorth Pty Ltd
+ * e. david@brayworth.com.au
+ *
+ * MIT License
+ *
+*/
 
-	This work is licensed under a Creative Commons Attribution 4.0 International Public License.
-		http://creativecommons.org/licenses/by/4.0/
-
-	*/
 namespace dvc\mail;
+
+use RuntimeException;
 
 class credentials {
 	public $account = '';
@@ -25,32 +27,26 @@ class credentials {
 
 	const ews = 2;
 
-	function __construct( $_user, $_pass, $_server = null) {
+	function __construct($_user, $_pass, $_server = null) {
 		$this->account = $_user;
 		$this->password = $_pass;
 
-		if ( is_null( $_server)) {
-			if ( isset( \config::$exchange_server)) {
+		if (is_null($_server)) {
+			if (isset(\config::$exchange_server)) {
 				$this->interface = self::ews;
 				$this->server = \config::$exchange_server;
+			} else {
 
+				throw new RuntimeException('Invalid Exchange Server');
 			}
-			else {
-				throw new Exceptions\InvalidExchangeServer;
+		} else {
 
-			}
-
-		}
-		else {
 			$this->server = $_server;
-
 		}
-
 	}
 
 	static function getCurrentUser() {
+
 		return \currentUser::exchangeAuth();
-
 	}
-
 }

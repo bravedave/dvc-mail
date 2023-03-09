@@ -185,44 +185,7 @@ $activeMessage = 'open-message';
 </div>
 <script>
   (_ => {
-    $(document).on('mail-change-user', function(e, id) {
-      $('input[name="user_id"]', '#<?= $uidFrm ?>').val(Number(id));
-      $('input[name="page"]', '<?= $uidFrm ?>').val(0);
-
-      $(document)
-        .trigger('mail-messages')
-        .trigger('mail-folderlist')
-        .trigger('mail-view-message-list');
-
-      let frm = $('#<?= $uidFrm ?>');
-      let frmData = frm.serializeFormJSON();
-      frmData.action = 'get-default-folders';
-      _.post({
-        url: _.url('<?= $this->route ?>'),
-        data: frmData
-
-      }).then(function(d) {
-        if ('ack' == d.response) {
-          // console.log(d);
-          $(document).data('default_folders', d.data);
-
-        }
-
-      })
-
-    });
-
-    $(document).on('mail-clear-reloader', function(e) {
-      (i => {
-        if (!!i) {
-          window.clearTimeout(i);
-          $(document).removeData('mail-messages-reloader');
-
-        }
-
-      })($(document).data('mail-messages-reloader'));
-
-    });
+    const form = $('#<?= $uidFrm ?>');
 
     let _learnAsHam = {
       available: false,
@@ -232,43 +195,35 @@ $activeMessage = 'open-message';
         this.available = false;
         this.checked = false;
         this.folder = '';
-
       }
-
     };
 
-    let featureLearnAsHam = () => {
-      return new Promise(resolve => {
-        if (_learnAsHam.checked) {
-          resolve(_learnAsHam);
+    const featureLearnAsHam = () => new Promise(resolve => {
 
-        } else {
-          let frm = $('#<?= $uidFrm ?>');
-          let data = frm.serializeFormJSON();
+      if (_learnAsHam.checked) {
 
-          data.action = 'get-folders-learnasham';
+        resolve(_learnAsHam);
+      } else {
 
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: data,
+        let data = form.serializeFormJSON();
+        data.action = 'get-folders-learnasham';
 
-          }).then(d => {
-            if ('ack' == d.response) {
-              // console.log( d);
-              _learnAsHam.checked = true;
-              _learnAsHam.available = '' != String(d.folder.fullname);
-              _learnAsHam.folder = d.folder.fullname;
-              resolve(_learnAsHam);
+        _.post({
+          url: _.url('<?= $this->route ?>'),
+          data: data,
+        }).then(d => {
 
-            }
+          if ('ack' == d.response) {
 
-          });
-
-        }
-
-      });
-
-    }
+            // console.log( d);
+            _learnAsHam.checked = true;
+            _learnAsHam.available = '' != String(d.folder.fullname);
+            _learnAsHam.folder = d.folder.fullname;
+            resolve(_learnAsHam);
+          }
+        });
+      }
+    });
 
     let _learnAsSpam = {
       available: false,
@@ -278,45 +233,37 @@ $activeMessage = 'open-message';
         this.available = false;
         this.checked = false;
         this.folder = '';
-
       }
-
     };
 
-    let featureLearnAsSpam = () => {
-      return new Promise(resolve => {
-        if (_learnAsSpam.checked) {
-          resolve(_learnAsSpam);
+    const featureLearnAsSpam = () => new Promise(resolve => {
 
-        } else {
-          let frm = $('#<?= $uidFrm ?>');
-          let data = frm.serializeFormJSON();
+      if (_learnAsSpam.checked) {
 
-          data.action = 'get-folders-learnasspam';
-          // console.log( data.action);
+        resolve(_learnAsSpam);
+      } else {
 
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: data,
+        let data = form.serializeFormJSON();
+        data.action = 'get-folders-learnasspam';
+        // console.log( data.action);
 
-          }).then(d => {
-            if ('ack' == d.response) {
-              _learnAsSpam.checked = true;
-              _learnAsSpam.available = '' != String(d.folder.fullname);
-              _learnAsSpam.folder = d.folder.fullname;
-              resolve(_learnAsSpam);
+        _.post({
+          url: _.url('<?= $this->route ?>'),
+          data: data,
+        }).then(d => {
 
-            }
+          if ('ack' == d.response) {
 
-          });
+            _learnAsSpam.checked = true;
+            _learnAsSpam.available = '' != String(d.folder.fullname);
+            _learnAsSpam.folder = d.folder.fullname;
+            resolve(_learnAsSpam);
+          }
+        });
+      }
+    });
 
-        }
-
-      });
-
-    }
-
-    let _list = (folders, cacheData) => {
+    const _list = (folders, cacheData) => {
       // console.log( folders);
 
       // general reset on learning features
@@ -698,18 +645,51 @@ $activeMessage = 'open-message';
 
     };
 
-    $(document).on('mail-folderlist', function(e) {
-      let lastFolders = sessionStorage.getItem('<?= $keyLastFolders ?>');
-      // console.log( key, lastFolders);
-      if (!!lastFolders) {
-        _list(JSON.parse(lastFolders), true);
-        sessionStorage.removeItem('<?= $keyLastFolders ?>');
+    $(document)
+      .on('mail-change-user', (e, id) => {
 
-      }
+        form.find('input[name="user_id"]').val(Number(id));
+        form.find('input[name="page"]').val(0);
 
-      $(document).trigger('mail-folderlist-reload');
+        $(document)
+          .trigger('mail-messages')
+          .trigger('mail-folderlist')
+          .trigger('mail-view-message-list');
 
-    });
+        let frmData = form.serializeFormJSON();
+        frmData.action = 'get-default-folders';
+
+        _.post({
+          url: _.url('<?= $this->route ?>'),
+          data: frmData
+        }).then(d => {
+
+          if ('ack' == d.response) {
+
+            // console.log(d);
+            $(document).data('default_folders', d.data);
+          }
+        })
+      })
+      .on('mail-clear-reloader', e => {
+        let i = $(document).data('mail-messages-reloader');
+        if (!!i) {
+          window.clearTimeout(i);
+          $(document).removeData('mail-messages-reloader');
+        }
+      })
+      .on('mail-folderlist', function(e) {
+
+        let lastFolders = sessionStorage.getItem('<?= $keyLastFolders ?>');
+        // console.log( key, lastFolders);
+        if (!!lastFolders) {
+
+          _list(JSON.parse(lastFolders), true);
+          sessionStorage.removeItem('<?= $keyLastFolders ?>');
+        }
+
+        $(document).trigger('mail-folderlist-reload');
+      });
 
     $(document).on('mail-folderlist-reload', e => {
       let frm = $('#<?= $uidFrm ?>');
