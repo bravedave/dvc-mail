@@ -1919,6 +1919,8 @@ $activeMessage = 'open-message';
 
         row.swipeOn({
           left: function(e) {
+            e.stopPropagation();
+
             (function(el) {
               el.addClass('d-none');
               el.siblings('[message-control]').removeClass('col-10');
@@ -1929,6 +1931,8 @@ $activeMessage = 'open-message';
 
           },
           right: function(e) {
+
+            e.stopPropagation();
             (function(el) {
               el.removeClass('d-none');
               el.siblings('[message-control]').addClass('col-10');
