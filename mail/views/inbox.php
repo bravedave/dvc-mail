@@ -843,8 +843,9 @@ $activeMessage = 'open-message';
         original: _wrap[0].outerHTML,
         subject: _subject,
         user_id: _frm_data.user_id
-
       };
+
+      // console.log(_wrap[0].outerHTML);
 
       // console.log( _data);
       // console.log( _data.message);
