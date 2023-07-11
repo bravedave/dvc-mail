@@ -10,6 +10,7 @@
 
 namespace dvc\imap;
 
+use bravedave\dvc\logger;
 use sys;
 
 class inbox {
@@ -59,7 +60,7 @@ class inbox {
 			$ret = $this->_client->copy_message($itemID, $archiveFolder);
 			$this->_client->close();
 		} else {
-			sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+			logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 		}
 
 		return ($ret);
@@ -77,7 +78,7 @@ class inbox {
 			$ret = $this->_client->copy_message_byUID($uid, $archiveFolder);
 			$this->_client->close();
 		} else {
-			sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+			logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 		}
 
 		return ($ret);
@@ -101,7 +102,7 @@ class inbox {
 			$ret = $this->_client->delete_message($itemID);
 			$this->_client->close();
 		} else {
-			sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+			logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 		}
 
 		return ($ret);
@@ -118,7 +119,7 @@ class inbox {
 			$ret = $this->_client->delete_message_byUID($uid);
 			$this->_client->close();
 		} else {
-			sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+			logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 		}
 
 		return ($ret);
@@ -132,7 +133,7 @@ class inbox {
 				$ret = $this->_client->empty_trash();
 				$this->_client->close(CL_EXPUNGE);
 			} else {
-				sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+				logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 			}
 
 			return $ret;
@@ -152,7 +153,7 @@ class inbox {
 		], $params);
 
 		// sys::dump( $options);
-		// \sys::logger( sprintf('<%s> %s', $options['folder'], __METHOD__));
+		// logger::info( sprintf('<%s> %s', $options['folder'], __METHOD__));
 
 		$ret = [];
 		try {
@@ -161,7 +162,7 @@ class inbox {
 				$this->_client->close();
 			}
 		} catch (\Throwable $th) {
-			\sys::logger(sprintf('<%s> %s', $th->getMessage(), __METHOD__));
+			logger::info(sprintf('<%s> %s', $th->getMessage(), __METHOD__));
 		}
 
 		return ($ret);
@@ -184,9 +185,9 @@ class inbox {
 		$folder = 'default'
 	) {
 
-		// sys::logger( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
+		// logger::info( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
 		$ret = $this->_client->getmessage($MessageID, $folder);
-		// sys::logger( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
+		// logger::info( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
 		// sys::dump( $ret);
 
 		return $ret;
@@ -198,9 +199,9 @@ class inbox {
 		$folder = 'default'
 	) {
 
-		// sys::logger( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
+		// logger::info( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
 		$ret = $this->_client->getmessageByUID($UID, $folder);
-		// sys::logger( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
+		// logger::info( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
 
 		return $ret;
 	}
@@ -219,12 +220,12 @@ class inbox {
 
 			if ($errors = imap_errors()) {
 				foreach ($errors as $error) {
-					\sys::logger(sprintf('<%s> %s', $error, __METHOD__));
-					\sys::logger(sprintf('<%s> %s', $options['folder'], __METHOD__));
+					logger::info(sprintf('<%s> %s', $error, __METHOD__));
+					logger::info(sprintf('<%s> %s', $options['folder'], __METHOD__));
 				}
 			}
 		} catch (\Throwable $th) {
-			\sys::logger(sprintf('<%s> %s', $th->getMessage(), __METHOD__));
+			logger::info(sprintf('<%s> %s', $th->getMessage(), __METHOD__));
 		}
 
 		return ($ret);
@@ -247,7 +248,7 @@ class inbox {
 			$ret = $this->_client->move_message($itemID, $archiveFolder);
 			$this->_client->close();
 		} else {
-			sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+			logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 		}
 
 		return ($ret);
@@ -265,7 +266,7 @@ class inbox {
 			$ret = $this->_client->move_message_byUID($uid, $archiveFolder);
 			$this->_client->close();
 		} else {
-			sys::logger(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
+			logger::info(sprintf('can\'t open folder %s : %s', $folder, __METHOD__));
 		}
 
 		return ($ret);
@@ -309,10 +310,12 @@ class inbox {
 
 		$file = sprintf('%s/msg.json', $msgStore);
 		if (file_exists($file)) {
-			if ($debug) \sys::logger(sprintf('msg exists : %s :: %s', $file, __METHOD__));
+
+			if ($debug) logger::debug(sprintf('msg exists : %s :: %s', $file, __METHOD__));
 		} else {
+
 			file_put_contents($file, json_encode($j, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-			if ($debug) \sys::logger(sprintf('save msg : %s :: %s', $file, __METHOD__));
+			if ($debug) logger::debug(sprintf('save msg : %s :: %s', $file, __METHOD__));
 		}
 
 		$fileName = 0;
@@ -321,11 +324,19 @@ class inbox {
 			$file = sprintf('%s/%s', $attachmentPath, $attachment->Name ?? 'attachment' . $fileName++);
 			if (file_exists($file)) {
 
-				if ($debug) \sys::logger(sprintf('attachment exists : %s :: %s', $file, __METHOD__));
+				if ($debug) logger::debug(sprintf('attachment exists : %s :: %s', $file, __METHOD__));
 			} else {
 
-				file_put_contents($file, $attachment->Content);
-				if ($debug) \sys::logger(sprintf('saved attachment : %s :: %s', $file, __METHOD__));
+				if (is_string($attachment)) {
+
+					file_put_contents($file, $attachment);
+					// if ($debug)
+					logger::debug(sprintf('saved string attachment : %s :: %s', $file, __METHOD__));
+				} else {
+
+					file_put_contents($file, $attachment->Content);
+					if ($debug) logger::debug(sprintf('saved attachment : %s :: %s', $file, __METHOD__));
+				}
 			}
 		}
 
@@ -374,7 +385,7 @@ class inbox {
 			$term = \str_replace('"', '', $options['term']);
 			$terms = explode(',', $term);
 
-			// \sys::logger( sprintf('%s : %s', $options['folder'], __METHOD__));
+			// logger::debug( sprintf('%s : %s', $options['folder'], __METHOD__));
 			$_from = [];
 			$_subject = [];
 			$_text = [];
@@ -386,7 +397,7 @@ class inbox {
 				}
 				$_subject[] = sprintf('SUBJECT "%s"', trim($_term));
 				if ('yes' == $options['body']) {
-					// \sys::logger( sprintf('<%s> %s', 'add body', __METHOD__));
+					// logger::debug( sprintf('<%s> %s', 'add body', __METHOD__));
 					$_text[] = sprintf('BODY "%s"', trim($_term));
 				}
 			}
@@ -419,7 +430,7 @@ class inbox {
 			$options['criteria'][] = $subject;
 			if ($text) $options['criteria'][] = $text;
 
-			// sys::logger( sprintf('%s : %s', $from, __METHOD__));
+			// logger::debug( sprintf('%s : %s', $from, __METHOD__));
 
 
 			if ($this->_client->open(true, $options['folder'])) {
@@ -428,9 +439,9 @@ class inbox {
 
 				// added this 2022.04.12
 				if ($errors = imap_errors()) {
-					\sys::logger(sprintf('<%s> %s', $options['folder'], __METHOD__));
+					logger::info(sprintf('<%s> %s', $options['folder'], __METHOD__));
 					foreach ($errors as $error) {
-						sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+						logger::info(sprintf('<%s> %s', $error, __METHOD__));
 					}
 				}
 			}

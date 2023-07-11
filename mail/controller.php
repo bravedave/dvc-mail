@@ -14,6 +14,7 @@ namespace dvc\mail;
 
 use strings, sys;
 use bravedave\dvc\{
+  cache,
   cssmin,
   jslib,
   json,
@@ -537,10 +538,8 @@ class controller extends \Controller {
                       'css' => [
                         sprintf(
                           '<link type="text/css" rel="stylesheet" media="all" href="%s" />',
-                          strings::url($this->route . '/normalizecss')
-
+                          strings::url($this->route . '/normalizecss?t=' . $this->_get_normalizecss_timestamp())
                         )
-
                       ],
                       'title' => $this->title = $msg->Subject,
                       'template' => 'dvc\mail\pages\minimal',
@@ -729,17 +728,14 @@ class controller extends \Controller {
         'css' => [
           sprintf(
             '<link type="text/css" rel="stylesheet" media="all" href="%s" />',
-            strings::url($this->route . '/normalizecss')
-
+            strings::url($this->route . '/normalizecss?t=' . $this->_get_normalizecss_timestamp())
           )
-
         ],
         'title' => $this->title = $msg->Subject,
         'template' => 'dvc\mail\pages\minimal',
         'content' => ['message'],
         'navbar' => '',
         'charset' => $msg->CharSet,
-
       ]);
 
       // $msg->Body = strings::htmlSanitize( $msg->Body);
@@ -769,7 +765,6 @@ class controller extends \Controller {
         'deep' => true,
         'folder' => $Inbox->defaults()->inbox,
         'pageSize' => 2
-
       ]);
 
       sys::dump($response, null, false);
@@ -783,15 +778,23 @@ class controller extends \Controller {
       $folders = folders::instance($creds);
       $folders->checkDefaultFoldersExist($this->data->default_folders);
 
+      $cache = cache::instance();
+
+      $localTimeStamp = max([$this->_get_local_js_timestamp(), $cacheLocal = $cache->get('mail-js-local-timestamp')]);
+      $mailTimeStamp = max([$this->_get_mailjs_timestamp(), $cacheMail = $cache->get('mail-js-mail-timestamp')]);
+      if (config::$DB_CACHE == 'APC') {
+
+        if ($cacheLocal != $localTimeStamp) $cache->set('mail-js-local-timestamp', $localTimeStamp, 600);
+        if ($cacheMail != $mailTimeStamp) $cache->set('mail-js-mail-timestamp', $mailTimeStamp, 600);
+      }
+
       $this->render([
         'title' => $this->title = $this->label,
         'scripts' => [
-          strings::url(sprintf('%s/localjs', $this->route)),
-          strings::url(sprintf('%s/mailjs', $this->route))
-
+          strings::url(sprintf('%s/localjs?t=%s', $this->route, $localTimeStamp)),
+          strings::url(sprintf('%s/mailjs?t=%s', $this->route, $mailTimeStamp)),
         ],
         'content' => 'inbox'
-
       ]);
     }
   }
@@ -840,6 +843,16 @@ class controller extends \Controller {
     print '/* placeholder for local scripts */';
   }
 
+  protected function _get_local_js_timestamp(): string {
+    return '';
+  }
+
+  protected function _get_mailjs_timestamp(): string {
+    $file = config::tempdir()  . '_mailjs_tmp.js';
+    if (file_exists($file)) return filemtime($file);
+    return '';
+  }
+
   public function mailjs() {
     // 'leadKey' => '00.js',
     jslib::viewjs([
@@ -847,17 +860,34 @@ class controller extends \Controller {
       'libName' => 'mailjs',
       'jsFiles' => sprintf('%s/js/*.js', __DIR__),
       'libFile' => config::tempdir()  . '_mailjs_tmp.js'
-
     ]);
   }
 
+  protected function _get_normalizecss_timestamp(): string {
+
+    $file = config::tempdir()  . '_mail_normalize.css';
+    if (file_exists($file)) {
+
+      $mtime = filemtime($file);
+      $cache = cache::instance();
+      $TS = max([$mtime, $cacheLocal = $cache->get('mail-normalizecss-timestamp')]);
+      if (config::$DB_CACHE == 'APC') {
+
+        if ($cacheLocal != $TS) $cache->set('mail-js-local-timestamp', $TS, 600);
+      }
+
+      return $mtime;
+    }
+    return '';
+  }
+
   public function normalizecss() {
+
     cssmin::viewcss([
       'debug' => false,
       'libName' => 'mail/normalise',
       'cssFiles' => [__DIR__ . '/normalize.css'],
       'libFile' => config::tempdir()  . '_mail_normalize.css'
-
     ]);
   }
 
