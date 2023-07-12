@@ -185,8 +185,6 @@ $activeMessage = 'open-message';
 </div>
 <script>
   (_ => {
-    if (_.browser.isMobileDevice && !!_.mobileErrorHandler) window.onerror = _.mobileErrorHandler;
-
     const form = $('#<?= $uidFrm ?>');
 
     let _learnAsHam = {
@@ -865,7 +863,7 @@ $activeMessage = 'open-message';
 
       // message: _.browser.isMobileDevice ? '' : '<br><br>' + _wrap[0].outerHTML,
       let j = {
-        message: '<br><br>' + _wrap[0].outerHTML,
+        message: `<br><div>${_.currentUser.signoff}</div><br><br>${_wrap[0].outerHTML}`,
         original: _wrap[0].outerHTML,
         subject: _subject,
         user_id: _frm_data.user_id
