@@ -26,6 +26,10 @@ class message {
   public $tags = '';
   public $time = '';
 
+  public $SpamStatus = '';
+  public $SpamScore = '';
+  public $SpamDetail = [];
+
   public $BodyType = '';
   public $Body = '';
   public $Text = '';

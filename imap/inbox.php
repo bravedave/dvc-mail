@@ -11,6 +11,7 @@
 namespace dvc\imap;
 
 use bravedave\dvc\logger;
+use currentUser;
 use sys;
 
 class inbox {
@@ -199,17 +200,23 @@ class inbox {
 		$folder = 'default'
 	) {
 
-		// logger::info( sprintf('%s/%s :s: %s', $folder, $MessageID, __METHOD__));
+		// logger::info( sprintf('%s/%s :s: %s', $folder, $UID, __METHOD__));
 		$ret = $this->_client->getmessageByUID($UID, $folder);
 		// logger::info( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
+
+		// if (currentUser::isDavid()) {
+		// 	unset( $ret->attachments);
+		// 	unset( $ret->Body);
+		// 	sys::dump($ret);
+		// }
 
 		return $ret;
 	}
 
 	public function headers($params) {
+
 		$options = array_merge([
 			'folder' => $this->defaults()->inbox,
-
 		], $params);
 
 		// sys::dump( $options);

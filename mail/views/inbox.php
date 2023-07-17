@@ -1319,6 +1319,27 @@ $activeMessage = 'open-message';
               btns.push(btn);
             }
 
+            let spamReport = $('template.js-spam-status', _frame.contentDocument);
+            if (spamReport.length > 0) {
+
+              let _spamModal = spamReport[0].content.cloneNode(true);
+              // console.log('there is a spam report', _spamModal);
+              let btn = $('<button type="button" title="show spam report"><i class="bi bi-bug"></i></button>');
+              btn
+                .addClass(params.btnClass)
+                .on('click', function(e) {
+
+                  document.body.append(_spamModal);
+                  $('.modal')
+                    .on('hidden.bs.modal', function(e) {
+                      $(this).remove();
+                    })
+                    .modal('show');
+                });
+
+              btns.push(btn);
+            }
+
             btns.forEach(element => element.appendTo(params.toolbar));
 
             (toolbar => {

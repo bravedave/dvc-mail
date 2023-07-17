@@ -12,7 +12,9 @@ namespace dvc\mail;
 
 abstract class inbox {
   static public function instance( credentials $creds) {
+
     switch ($creds->interface) {
+
       case credentials::imap :
         return new \dvc\imap\inbox( $creds);
         break;
@@ -20,8 +22,6 @@ abstract class inbox {
       case credentials::ews :
         return new \dvc\ews\inbox( $creds);
         break;
-
-
     }
 
     return false;

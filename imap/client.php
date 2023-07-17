@@ -11,7 +11,8 @@
 namespace dvc\imap;
 
 use dvc\mail\credentials;
-use bravedave\dvc\EmailAddress;
+use bravedave\dvc\{EmailAddress, logger};
+use currentUser;
 use strings, sys;
 
 class client {
@@ -60,7 +61,7 @@ class client {
 
       // if ( isset( \config::$exchange_verifySSL) && !\config::$exchange_verifySSL) {
       // 	$client->setCurlOptions([CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST  => false]);
-      // 	sys::logger( 'ews\client :: disable verify SSL');
+      // 	logger::info( 'ews\client :: disable verify SSL');
 
       // }
 
@@ -142,11 +143,11 @@ class client {
       $_path = config::IMAP_CACHE() . $this->_cache_prefix() . '*';
       $iterator = new \GlobIterator($_path);
       foreach ($iterator as $item) {
-        // \sys::logger( sprintf('flush <%s>  %s', $item->getRealPath(), __METHOD__));
+        // logger::info( sprintf('flush <%s>  %s', $item->getRealPath(), __METHOD__));
         unlink($item->getRealPath());
       }
 
-      // \sys::logger( sprintf('flushed <%s>  %s', $_path, __METHOD__));
+      // logger::info( sprintf('flushed <%s>  %s', $_path, __METHOD__));
 
     } else {
       if (file_exists($path = $this->_cache_path($uid))) {
@@ -167,17 +168,46 @@ class client {
     // https://www.php.net/manual/en/function.imap-headerinfo.php#98809
 
     $_headers = imap_fetchheader($this->_stream, $msgno, 0);
-    $_headers_rfc822 = imap_rfc822_parse_headers($_headers);
-    if ($errors = imap_errors()) {
-      foreach ($errors as $error) {
-        \sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+    // Split on \n
+    $h_array = explode("\n", $_headers);
+    $_spamStatus = '';
+    $_spamScore = '';
+    $_spamDetail = [];
+    $f = false;
+    foreach ($h_array as $value) {
+
+      if ($f) {
+
+        if (preg_match('/^(\s|\t)/', $value)) {
+
+          $_spamDetail[] = trim($value);
+        } else {
+
+          // logger::info( sprintf('<%s> %s', $value, __METHOD__));
+          $f = false;
+        }
+      } else {
+
+        if (preg_match('/^X-Spam-Flag: /', $value)) $_spamStatus = trim(str_replace('X-Spam-Flag: ', '', $value));
+        if (preg_match('/^X-Spam-Status: /', $value)) $_spamScore = trim(preg_replace(['/^.*score=/', '/required=.*$/'], '', $value));
+
+        if (preg_match('/^X-Spam-Details: /', $value)) {
+
+          $f = true;
+          $_spamDetail[] = trim(str_replace('X-Spam-Details: ', '', $value));
+        }
       }
     }
 
-    if (!$overview) {
-      $overview = $this->_Overview($msgno);
-    }
-    // sys::dump( $overview, 'overview');
+    // if (currentUser::isDavid()) sys::dump($_spamDetails, '_spam_details : ' . $_spamStatus . ' : ' . $_spamScore);
+    // if (currentUser::isDavid()) sys::dump($_headers, 'headers');
+    // if (currentUser::isDavid()) sys::dump($h_array);
+
+    $_headers_rfc822 = imap_rfc822_parse_headers($_headers);
+    if ($errors = imap_errors()) array_walk($errors, fn ($error) => logger::info(sprintf('<%s> %s', $error, __METHOD__)));
+
+    if (!$overview) $overview = $this->_Overview($msgno);
+    // if (currentUser::isDavid()) sys::dump($overview, 'overview');
     // sys::dump($_headers_rfc822, 'overview');
 
     $overview = (object)$overview;
@@ -185,34 +215,40 @@ class client {
     /* add code here to get date, from, to, cc, subject... */
     $from = '';
     if (isset($_headers_rfc822->from) && count($_headers_rfc822->from)) {
-      $_mbox = array_shift($_headers_rfc822->from);
-      $from = util::decodeMimeStr($_mbox->mailbox) . '@' . util::decodeMimeStr($_mbox->host);
 
-      if (isset($_mbox->personal)) {
-        $from = strings::rfc822($from, util::decodeMimeStr($_mbox->personal));
+      $_mbox = array_shift($_headers_rfc822->from);
+      if (isset($_mbox->host)) {
+
+        $from = util::decodeMimeStr($_mbox->mailbox) . '@' . util::decodeMimeStr($_mbox->host);
+      } else {
+
+        $from = util::decodeMimeStr($_mbox->mailbox);
       }
+
+      if (isset($_mbox->personal)) $from = strings::rfc822($from, util::decodeMimeStr($_mbox->personal));
     }
-    if ($debug) sys::logger(sprintf('<from : %s> %s', $from, __METHOD__));
+    if ($debug) logger::debug(sprintf('<from : %s> %s', $from, __METHOD__));
 
     $replyto = '';
     if (isset($_headers_rfc822->reply_to) && count($_headers_rfc822->reply_to)) {
+
       $_mbox = array_shift($_headers_rfc822->reply_to);
       $replyto = util::decodeMimeStr($_mbox->mailbox) . '@' . util::decodeMimeStr($_mbox->host);
 
-      if (isset($_mbox->personal)) {
-        $replyto = strings::rfc822($replyto, util::decodeMimeStr($_mbox->personal));
-      }
+      if (isset($_mbox->personal)) $replyto = strings::rfc822($replyto, util::decodeMimeStr($_mbox->personal));
     }
 
     $to = [];
     if (isset($_headers_rfc822->to) && $_headers_rfc822->to) {
-      foreach ($_headers_rfc822->to as $e) {
-        $s = '';
-        if (isset($e->mailbox) && isset($e->host))
-          $s = $e->mailbox . "@" . $e->host;
 
-        elseif (isset($e->mailbox))
+      foreach ($_headers_rfc822->to as $e) {
+
+        $s = '';
+        if (isset($e->mailbox) && isset($e->host)) {
+          $s = $e->mailbox . "@" . $e->host;
+        } elseif (isset($e->mailbox)) {
           $s = $e->mailbox;
+        }
 
         if (isset($e->personal)) {
           if (preg_match('/,/', $e->personal)) {
@@ -226,19 +262,18 @@ class client {
       }
     }
     $to = implode(',', $to);
-    if ($debug) sys::logger(sprintf('<to : %s> %s', $to, __METHOD__));
+    if ($debug) logger::debug(sprintf('<to : %s> %s', $to, __METHOD__));
 
     $cc = [];
     if (isset($_headers_rfc822->cc) && $_headers_rfc822->cc) {
       foreach ($_headers_rfc822->cc as $e) {
-        $s = '';
-        if (isset($e->mailbox) && isset($e->host))
-          $s = $e->mailbox . "@" . $e->host;
 
-        elseif (isset($e->mailbox))
-          $s = $e->mailbox;
+        $s = '';
+        if (isset($e->mailbox) && isset($e->host)) $s = $e->mailbox . "@" . $e->host;
+        elseif (isset($e->mailbox)) $s = $e->mailbox;
 
         if (isset($e->personal)) {
+
           if (preg_match('/,/', $e->personal)) {
             $s = sprintf('"%s" <%s>', $e->personal, $s);
           } else {
@@ -251,21 +286,18 @@ class client {
     }
     $cc = implode(', ', $cc);
 
-    if (!isset($_headers_rfc822->message_id)) {
-      $_headers_rfc822->message_id = 'no-message-id';
-    }
+    // if ( currentUser::isDavid()) sys::dump( $_headers_rfc822);
+    if (!isset($_headers_rfc822->message_id)) $_headers_rfc822->message_id = 'no-message-id';
 
     $headerDate = '';
-    if (isset($_headers_rfc822->date)) {
-      $headerDate = $_headers_rfc822->date;
-    }
-
-    //~ sys::dump( $_headers_rfc822);
-    if (!isset($_headers_rfc822->Subject)) {
-      $_headers_rfc822->Subject = '(subject missing)';
-    }
+    if (isset($_headers_rfc822->date)) $headerDate = $_headers_rfc822->date;
+    if (!isset($_headers_rfc822->Subject)) $_headers_rfc822->Subject = '(subject missing)';
 
     $ret = new \dvc\mail\message;
+    $ret->SpamStatus = $_spamStatus;
+    $ret->SpamScore = $_spamScore;
+    $ret->SpamDetail = $_spamDetail;
+
     $ret->Subject = util::decodeMimeStr((string)$_headers_rfc822->Subject);
 
     $ret->From = $from;
@@ -314,7 +346,7 @@ class client {
 
     //~ if ( \currentUser::isDavid()) \sys::dump( $ret);
     // \sys::dump($ret);
-    if ($debug) sys::logger(sprintf('exit : %s', __METHOD__));
+    if ($debug) logger::debug(sprintf('exit : %s', __METHOD__));
 
     return ($ret);
   }
@@ -326,11 +358,11 @@ class client {
     $uid = \imap_uid($this->_stream, $msgno);
     $txtFile = $this->_cache_path($uid, true);
     if (\file_exists($txtFile)) {
-      if ($debug) \sys::logger(sprintf('<%s => from cache : %s> %s', $msgno, $txtFile, __METHOD__));
+      if ($debug) logger::debug(sprintf('<%s => from cache : %s> %s', $msgno, $txtFile, __METHOD__));
       return file_get_contents($txtFile);
     }
 
-    if ($debug) \sys::logger(sprintf('<%s> %s', $msgno, __METHOD__));
+    if ($debug) logger::debug(sprintf('<%s> %s', $msgno, __METHOD__));
     $msg = new RawMessage($this->_stream, $msgno, RawMessage::PLAINTEXT);
     $text = '';
     if ('html' == $msg->messageType) {
@@ -341,7 +373,7 @@ class client {
       $text = $msg->message;
     }
 
-    if ($debug) \sys::logger(sprintf('<%s =>%s> : %s : %s', $msgno, $uid, \strlen($text), __METHOD__));
+    if ($debug) logger::debug(sprintf('<%s =>%s> : %s : %s', $msgno, $uid, \strlen($text), __METHOD__));
     \file_put_contents($txtFile, $text);
 
     return $text;
@@ -378,58 +410,61 @@ class client {
       }
     }
 
-    if (self::$debug) sys::logger(sprintf('not found : %s : %s', $id, __METHOD__));
+    if (self::$debug) logger::debug(sprintf('not found : %s : %s', $id, __METHOD__));
   }
 
   /** get information for this specific email */
   protected function _overview($email_number = -1): \dvc\mail\message {
+
     $debug = false;
     // $debug = true;
+    // $debug = currentUser::isDavid();
 
-    if ($email_number < 0)
-      return (false);
+    if ($email_number < 0) return (false);
 
     $socket = $this->_socket();
 
     $ret = new \dvc\mail\message;
     $_cache = false;
-    if ($debug) \sys::logger(sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
+    if ($debug) logger::debug(sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
     $uid = imap_uid($this->_stream, $email_number);
-    if ($debug) \sys::logger(sprintf('<%s> [%s:%s] %s', \application::timer()->elapsed(), $email_number, $uid, __METHOD__));
+    if ($debug) logger::debug(sprintf('<%s> [%s:%s] %s', \application::timer()->elapsed(), $email_number, $uid, __METHOD__));
 
     $headers = imap_headerinfo($this->_stream, $email_number, 1);
     $_cache = $this->_cache_path($uid);
-    if (\file_exists($_cache)) {
-      $ret->fromJson(\file_get_contents($_cache));
-      // if ( isset( $headers->Unseen)) sys::logger( sprintf('seen <%s> : %s', $headers->Unseen, __METHOD__));
-      if (isset($headers->Unseen)) {
-        $ret->seen = ('U' == $headers->Unseen ? 'no' : 'yes');
-      }
+    if ($debug && \file_exists($_cache)) unlink($_cache);
 
-      if (isset($headers->Answered)) {
-        $ret->answered = ('A' == $headers->Answered ? 'yes' : 'no');
-      }
+    if (\file_exists($_cache)) {
+
+      $ret->fromJson(\file_get_contents($_cache));
+      // if ( isset( $headers->Unseen)) logger::info( sprintf('seen <%s> : %s', $headers->Unseen, __METHOD__));
+
+      if (isset($headers->Unseen)) $ret->seen = ('U' == $headers->Unseen ? 'no' : 'yes');
+      if (isset($headers->Answered)) $ret->answered = ('A' == $headers->Answered ? 'yes' : 'no');
 
       if ($socket) {
-        if ($debug) \sys::logger(sprintf('<%s> [%s] %s', \application::timer()->elapsed(), 'flags ...', __METHOD__));
+        if ($debug) logger::debug(sprintf('<%s> [%s] %s', \application::timer()->elapsed(), 'flags ...', __METHOD__));
         $flags = (array)$socket->get_flags($email_number);
-        if ($debug) \sys::logger(sprintf('<%s> [%s] %s', \application::timer()->elapsed(), implode(', ', $flags), __METHOD__));
+        if ($debug) logger::debug(sprintf('<%s> [%s] %s', \application::timer()->elapsed(), implode(', ', $flags), __METHOD__));
         $ret->forwarded = in_array('$Forwarded', $flags) ? 'yes' : 'no';
       }
 
-      if ($debug) \sys::logger(sprintf('<cache:%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
+      if ($debug) logger::debug(sprintf('<cache:%s> [%s] %s', \application::timer()->elapsed(), $_cache, __METHOD__));
       return $ret;
+    } else {
+
+      if ($debug) logger::debug(sprintf('<file was not cached:%s> %s', \application::timer()->elapsed(), __METHOD__));
     }
 
     if ($headers) {
-      $ret->Uid = $uid;
 
+      $ret->Uid = $uid;
 
       if (isset($headers->message_id)) $ret->MessageID = $headers->message_id;
       // foreach ($headers as $k => $v) {
       //   # code...
       //   if ('string' == gettype($v)) {
-      //     \sys::logger(sprintf('<%s => %s> %s', $k, $v, __METHOD__));
+      //     logger::info(sprintf('<%s => %s> %s', $k, $v, __METHOD__));
       //   }
       // }
 
@@ -455,7 +490,7 @@ class client {
         foreach ($headers->to as $to) {
           if (isset($to->personal)) {
             $name = util::decodeMimeStr((string)$to->personal);
-            // \sys::logger( sprintf('<%s> %s', $name, __METHOD__));
+            // logger::info( sprintf('<%s> %s', $name, __METHOD__));
 
             if (false != strstr($name, "'")) {
               $name = sprintf('"%s"', $name);
@@ -472,18 +507,20 @@ class client {
 
         if ($a) {
           $ret->To = implode(',', $a);
-          // \sys::logger( sprintf('<%s> %s', $ret->To, __METHOD__));
+          // logger::info( sprintf('<%s> %s', $ret->To, __METHOD__));
         }
       }
 
       if (isset($headers->reply_toaddress)) {
         $ret->ReplyTo = util::decodeMimeStr($headers->reply_toaddress);
-        // \sys::logger( sprintf('<%s> %s', $ret->ReplyTo, __METHOD__));
+        // logger::info( sprintf('<%s> %s', $ret->ReplyTo, __METHOD__));
 
       }
     }
 
     if ($overview = imap_fetch_overview($this->_stream, $email_number, 0)) {
+
+      // if ( currentUser::isDavid()) \sys::dump( $overview);
 
       $msg = $overview[0];
       if (isset($msg->seen)) $ret->seen = ($msg->seen ? 'yes' : 'no');
@@ -491,16 +528,16 @@ class client {
 
       if (!$ret->To) {
         if (isset($msg->to)) $ret->To = util::decodeMimeStr((string)$msg->to);
-        // \sys::logger( sprintf('<%s> %s', $msg->to, __METHOD__));
+        // logger::info( sprintf('<%s> %s', $msg->to, __METHOD__));
 
       }
 
       if (isset($msg->subject)) $ret->Subject = util::decodeMimeStr($msg->subject);
-      if ($debug) \sys::logger(sprintf('<Subject %s> %s', $ret->Subject, __METHOD__));
+      if ($debug) logger::debug(sprintf('<Subject %s> %s', $ret->Subject, __METHOD__));
 
       if (isset($msg->from)) {
         $ret->From = util::decodeMimeStr($msg->from);
-        if ($debug) \sys::logger(sprintf('<%s> %s', $msg->from, __METHOD__));
+        if ($debug) logger::debug(sprintf('<%s> %s', $msg->from, __METHOD__));
         $ea = new EmailAddress($ret->From);
         $ret->fromEmail = $ea->email;
       }
@@ -521,14 +558,14 @@ class client {
       foreach ($errors as $error) {
 
         if (str_starts_with($error, 'Unterminated mailbox:')) continue;
-        \sys::logger(sprintf('<overview : %s> %s', $error, __METHOD__));
+        logger::info(sprintf('<overview : %s> %s', $error, __METHOD__));
       }
     }
 
     $_headers = imap_fetchheader($this->_stream, $email_number);
     $headerLines = explode("\n", $_headers);
     foreach ($headerLines as $l) {
-      // sys::logger($l);
+      // logger::info($l);
       if (preg_match('/^Message-ID/', $l)) {
         /**
          * I'm sure this is to cope with a one time bug ...
@@ -555,26 +592,25 @@ class client {
     // $output.= '<div class="body"><pre>'.$message.'</pre></div>';
 
     if ($_cache) {
+
       if (file_exists($_cache)) {
+
         unlink($_cache);
         clearstatcache(true);
       }
 
       if ($json = $ret->asJson()) {
+
         file_put_contents($_cache, $json);
       } else {
-        \sys::logger(sprintf('<did not cache message> %s', json_last_error_msg(), __METHOD__));
-        \sys::logger(sprintf('<%s> %s', json_last_error_msg(), __METHOD__));
+
+        logger::info(sprintf('<did not cache message> %s', json_last_error_msg(), __METHOD__));
+        logger::info(sprintf('<%s> %s', json_last_error_msg(), __METHOD__));
       }
     }
 
-    if ($errors = imap_errors()) {
+    if ($errors = imap_errors()) array_walk($errors, fn ($error) => logger::info(sprintf('<error : %s> %s', $error, __METHOD__)));
 
-      foreach ($errors as $error) {
-
-        \sys::logger(sprintf('<error : %s> %s', $error, __METHOD__));
-      }
-    }
     return ($ret);
   }
 
@@ -599,7 +635,7 @@ class client {
 
       ], $this->_folder);
 
-      if ($debug) \sys::logger(sprintf('<opened imap socket %s:%s> %s', $this->_server, $this->_port, __METHOD__));
+      if ($debug) logger::debug(sprintf('<opened imap socket %s:%s> %s', $this->_server, $this->_port, __METHOD__));
 
       return $this->_socket;
     } else {
@@ -621,7 +657,7 @@ class client {
     $this->_password = $password;
     $this->_interface = $interface;
 
-    if (self::$debug) sys::logger(sprintf('<%s> %s', $this->_port, __METHOD__));
+    if (self::$debug) logger::debug(sprintf('<%s> %s', $this->_port, __METHOD__));
   }
 
   public function __destruct() {
@@ -653,7 +689,7 @@ class client {
   }
 
   public function clearflagByUID($uid, $flag) {
-    // sys::logger( sprintf('<%s> %s', $uid, __METHOD__));
+    // logger::info( sprintf('<%s> %s', $uid, __METHOD__));
     $this->_flush_cache($uid);
     return imap_clearflag_full($this->_stream, $uid, $flag, ST_UID);
   }
@@ -750,23 +786,23 @@ class client {
 
     ], $params);
 
-    if ($debug) sys::logger(sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
+    if ($debug) logger::debug(sprintf('<%s> %s', \application::timer()->elapsed(), __METHOD__));
     $data = [
       'msgCount' => imap_num_msg($this->_stream)
 
     ];
-    if ($debug) sys::logger(sprintf('<msgCount : %s> <%s> %s', $data['msgCount'], \application::timer()->elapsed(), __METHOD__));
+    if ($debug) logger::debug(sprintf('<msgCount : %s> <%s> %s', $data['msgCount'], \application::timer()->elapsed(), __METHOD__));
 
-    // sys::logger( sprintf('<%s> <msgCount:%s> %s', \application::timer()->elapsed(), $data['msgCount'], __METHOD__));
+    // logger::info( sprintf('<%s> <msgCount:%s> %s', \application::timer()->elapsed(), $data['msgCount'], __METHOD__));
     // $headers = $this->_getheaders();
-    // sys::logger( sprintf('<%s> <headers:%s> %s', \application::timer()->elapsed(), count( $headers), __METHOD__));
+    // logger::info( sprintf('<%s> <headers:%s> %s', \application::timer()->elapsed(), count( $headers), __METHOD__));
 
     $ret = [];
     if ($data['msgCount'] > 500) {
       $start = max($data['msgCount'] - ((int)$options->page * (int)$options->pageSize) - ((int)$options->page > 0 ? 1 : 0), 0);
       $emails = \range($start, max($start - $options->pageSize, 0), -1);
       foreach ($emails as $email_number) {
-        // sys::logger( sprintf('<%s> %s', $email_number, __METHOD__));
+        // logger::info( sprintf('<%s> %s', $email_number, __METHOD__));
 
         $msg = $this->_overview($email_number);
         $msg->Folder = $this->_folder;
@@ -774,19 +810,19 @@ class client {
       }
     } else {
       if ($emails = imap_sort($this->_stream, SORTARRIVAL, true, SE_NOPREFETCH)) {
-        if ($debug) sys::logger(sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
+        if ($debug) logger::debug(sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
         // sys::dump( $emails);
         $start = $i = 0;
         $_start = (int)$options->page * (int)$options->pageSize;
-        // sys::logger( sprintf('<%s/%s> %s', $start, $_start, __METHOD__));
+        // logger::info( sprintf('<%s/%s> %s', $start, $_start, __METHOD__));
 
         foreach ($emails as $email_number) {
-          if ($debug) sys::logger(sprintf('<%s> %s', $email_number, __METHOD__));
+          if ($debug) logger::debug(sprintf('<%s> %s', $email_number, __METHOD__));
 
           if ($start++ >= $_start) {
             if ($i++ >= $options->pageSize) break;
             $msg = $this->_overview($email_number);
-            // sys::logger( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
+            // logger::info( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
             $msg->Folder = $this->_folder;
             $ret[] = $msg;
           }
@@ -794,7 +830,7 @@ class client {
       }
     }
 
-    if ($debug) sys::logger(sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
+    if ($debug) logger::debug(sprintf('<%s> [fetched] %s', \application::timer()->elapsed(), __METHOD__));
     return $ret;
   }
 
@@ -803,6 +839,7 @@ class client {
   }
 
   public function getmessage($id, $folder = "default") {
+
     $ret = false;
     if ($this->open(true, $folder)) {
       if ($msg = $this->_getMessageHeader($id, $folder)) {
@@ -812,19 +849,22 @@ class client {
 
       if (!$ret) {
         if (self::$debug) {
-          sys::logger(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
+
+          logger::debug(sprintf('not found : %s/%s : %s', $folder, $id, __METHOD__));
         }
       }
 
       $this->close();
     } else {
-      sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+      logger::info(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
     return ($ret);
   }
 
   public function getmessageByMsgNo($msgno, $folder = "default") {
+
     $ret = false;
     if ($this->open(true, $folder)) {
       if ($msgno > 0) {
@@ -834,36 +874,44 @@ class client {
 
       if (!$ret) {
         if (self::$debug) {
-          sys::logger(sprintf('not found : %s/%s : %s', $folder, $msgno, __METHOD__));
+
+          logger::debug(sprintf('not found : %s/%s : %s', $folder, $msgno, __METHOD__));
         }
       }
 
       $this->close();
     } else {
-      sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+      logger::info(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
     return ($ret);
   }
 
   public function getmessageByUID($uid, $folder = "default") {
+
     $ret = false;
     if ($this->open(true, $folder)) {
+
       $msgno = imap_msgno($this->_stream, $uid);
       if ($msgno > 0) {
+
         if ($ret = $this->_getmessage($msgno)) {
+
           $ret->Folder = $folder;
-          if (self::$debug) sys::logger(sprintf('retrieved msgno via imap : %s :: %s : %s', $uid, $folder, __METHOD__));
+          if (self::$debug) logger::debug(sprintf('retrieved msgno via imap : %s :: %s : %s', $uid, $folder, __METHOD__));
         }
       }
 
       if (!$ret) {
-        if (self::$debug) sys::logger(sprintf('not found : %s/%s : %s', $folder, $uid, __METHOD__));
+
+        if (self::$debug) logger::debug(sprintf('not found : %s/%s : %s', $folder, $uid, __METHOD__));
       }
 
       $this->close();
     } else {
-      sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+
+      logger::info(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
     return ($ret);
@@ -875,7 +923,7 @@ class client {
       $ret = $this->_getheaders();
       $this->close();
     } else {
-      sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+      logger::info(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
     return ($ret);
@@ -887,7 +935,7 @@ class client {
       $ret = imap_mailboxmsginfo($this->_stream);
       $this->close();
     } else {
-      sys::logger(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
+      logger::info(sprintf('failed to open folder : %s :: %s : %s', $folder, $this->_error, __METHOD__));
     }
 
     return ($ret);
@@ -957,7 +1005,7 @@ class client {
 
       if ($full) {
         if ($debug) {
-          sys::logger(sprintf(
+          logger::debug(sprintf(
             '<imap_open( %s, %s, %s)> %s',
             $this->_server_path . $folder,
             $this->_account,
@@ -972,7 +1020,7 @@ class client {
           $this->_folder = $folder;
 
           if ($debug) {
-            sys::logger(sprintf(
+            logger::debug(sprintf(
               '<successfully opened:imap_open( %s, %s, %s)> %s',
               $this->_server_path . $folder,
               $this->_account,
@@ -983,16 +1031,16 @@ class client {
         } else {
           if ($errors = imap_errors()) {
             foreach ($errors as $error) {
-              sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+              logger::info(sprintf('<%s> %s', $error, __METHOD__));
             }
             if ($debug) sys::trace('imap open error');
           }
 
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
-          sys::logger(sprintf('<%s> %s', $this->_error, __METHOD__));
+          logger::info(sprintf('<%s> %s', $this->_error, __METHOD__));
         }
       } else {
-        if ($debug) sys::logger(sprintf(
+        if ($debug) logger::debug(sprintf(
           '<imap_open( %s, %s, %s, OP_HALFOPEN)> %s',
           $this->_server_path . $folder,
           $this->_account,
@@ -1005,7 +1053,7 @@ class client {
           $this->_open = true;
           $this->_folder = $folder;
 
-          if ($debug) sys::logger(sprintf(
+          if ($debug) logger::debug(sprintf(
             '<successfully half-opened:imap_open(%s,%s,%s)> %s',
             $this->_server_path . $folder,
             $this->_account,
@@ -1015,20 +1063,20 @@ class client {
         } else {
           if ($errors = imap_errors()) {
             foreach ($errors as $error) {
-              sys::logger(sprintf('<%s> %s', $error, __METHOD__));
+              logger::info(sprintf('<%s> %s', $error, __METHOD__));
             }
             if ($debug) sys::trace('imap open error');
           }
 
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
-          sys::logger(sprintf('<%s> %s', $this->_error, __METHOD__));
+          logger::info(sprintf('<%s> %s', $this->_error, __METHOD__));
         }
       }
 
       return ($this->_open);
     } else {
       $this->_error = 'invalid server';
-      sys::logger(sprintf('<%s> %s', $this->_error, __METHOD__));
+      logger::info(sprintf('<%s> %s', $this->_error, __METHOD__));
     }
 
     return false;
@@ -1037,7 +1085,7 @@ class client {
   public function renamemailbox($fldr, $fldrNew) {
     $_fldr = imap_utf7_encode(sprintf('{%s}%s', $this->_server, $fldr));
     $_fldrNew = imap_utf7_encode(sprintf('{%s}%s', $this->_server, $fldrNew));
-    // \sys::logger( sprintf('<%s => %s> %s', $_fldr, $_fldrNew, __METHOD__));
+    // \logger::info( sprintf('<%s => %s> %s', $_fldr, $_fldrNew, __METHOD__));
     return @imap_renamemailbox($this->_stream, $_fldr, $_fldrNew);
     // return false;
 
@@ -1056,7 +1104,7 @@ class client {
     $ret = [];
     $results = [];
     foreach ($options['criteria'] as $criteria) {
-      // \sys::logger( sprintf('<%s> %s', $criteria, __METHOD__));
+      // logger::info( sprintf('<%s> %s', $criteria, __METHOD__));
 
 
       set_time_limit($options['time_limit']);
@@ -1066,10 +1114,10 @@ class client {
           if (!in_array($email_number, $results)) {
             if ($options['term']) {
               if (preg_match('@^TEXT @', $criteria)) {
-                // 	\sys::logger( sprintf('<%s> %s', $criteria, __METHOD__));
+                // 	logger::info( sprintf('<%s> %s', $criteria, __METHOD__));
                 $txt = $this->_getmessageText($email_number);
                 if (false === strpos($txt, $options['term'])) {
-                  // \sys::logger( sprintf('<%s> not found in text %s', $options['term'], __METHOD__));
+                  // logger::info( sprintf('<%s> not found in text %s', $options['term'], __METHOD__));
                   continue;
                 }
               }
@@ -1136,7 +1184,7 @@ class client {
 
       $this->close();
     } else {
-      \sys::logger(sprintf('<failed to open folder : %s> <%s> %s', $folder, $this->_error, __METHOD__));
+      logger::info(sprintf('<failed to open folder : %s> <%s> %s', $folder, $this->_error, __METHOD__));
     }
 
     return ($ret);

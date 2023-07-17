@@ -675,33 +675,33 @@ class controller extends \Controller {
   }
 
   protected function _view(array $params = []) {
+
     $options = array_merge([
       'creds' => $this->creds,
       'folder' => 'default',
       'msg' => false,
       'uid' => false,
-
     ], $params);
 
     $msg = false;
     $inbox = inbox::instance($options['creds']);
     if ($options['msg']) {
+
       logger::info(sprintf('<byMSG %s> %s', $options['msg'], __METHOD__));
 
       $msg = $inbox->GetItemByMessageID(
         $options['msg'],
         $includeAttachments = true,
         $options['folder']
-
       );
     } elseif ($options['uid']) {
+
       // logger::info( sprintf('<byUID %s> %s', $options['uid'], __METHOD__));
 
       $msg = $inbox->GetItemByUID(
         $options['uid'],
         $includeAttachments = true,
         $options['folder']
-
       );
     }
 
@@ -892,22 +892,23 @@ class controller extends \Controller {
   }
 
   public function view() {
+
     $msg = $this->getParam('msg');
     $uid = $this->getParam('uid');
 
     if ($msg || $uid) {
+
       $this->_view([
         'creds' => $this->creds,
         'folder' => $this->getParam('folder', 'default'),
         'msg' => $msg,
         'uid' => $uid,
-
       ]);
     } else {
+
       $this->render([
         'title' => $this->title = 'View Message',
         'content' => 'missing-information'
-
       ]);
     }
   }
