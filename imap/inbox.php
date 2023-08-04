@@ -158,11 +158,14 @@ class inbox {
 
 		$ret = [];
 		try {
+
 			if ($this->_client->open(true, $options['folder'])) {
+
 				$ret = $this->_client->finditems($options);
 				$this->_client->close();
 			}
 		} catch (\Throwable $th) {
+
 			logger::info(sprintf('<%s> %s', $th->getMessage(), __METHOD__));
 		}
 

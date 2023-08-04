@@ -523,6 +523,8 @@ class client {
       // if ( currentUser::isDavid()) \sys::dump( $overview);
 
       $msg = $overview[0];
+      if (isset($msg->flagged)) $ret->flagged = ($msg->flagged  ? 'yes' : 'no');
+      if ($debug) logger::debug(sprintf('<flagged %s> %s', $ret->flagged, __METHOD__));
       if (isset($msg->seen)) $ret->seen = ($msg->seen ? 'yes' : 'no');
       if (isset($msg->answered)) $ret->answered = ($msg->answered ? 'yes' : 'no');
 
@@ -798,7 +800,8 @@ class client {
     // logger::info( sprintf('<%s> <headers:%s> %s', \application::timer()->elapsed(), count( $headers), __METHOD__));
 
     $ret = [];
-    if ($data['msgCount'] > 500) {
+    if ($data['msgCount'] > config::$IMAP_PAGE_SORT_THRESHOLD) {
+
       $start = max($data['msgCount'] - ((int)$options->page * (int)$options->pageSize) - ((int)$options->page > 0 ? 1 : 0), 0);
       $emails = \range($start, max($start - $options->pageSize, 0), -1);
       foreach ($emails as $email_number) {
@@ -809,7 +812,9 @@ class client {
         $ret[] = $msg;
       }
     } else {
+
       if ($emails = imap_sort($this->_stream, SORTARRIVAL, true, SE_NOPREFETCH)) {
+
         if ($debug) logger::debug(sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
         // sys::dump( $emails);
         $start = $i = 0;
@@ -817,9 +822,11 @@ class client {
         // logger::info( sprintf('<%s/%s> %s', $start, $_start, __METHOD__));
 
         foreach ($emails as $email_number) {
+
           if ($debug) logger::debug(sprintf('<%s> %s', $email_number, __METHOD__));
 
           if ($start++ >= $_start) {
+
             if ($i++ >= $options->pageSize) break;
             $msg = $this->_overview($email_number);
             // logger::info( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));

@@ -10,13 +10,11 @@
 
 $keyLastFolders = sprintf('%s-lastfolders', $this->route);
 $activeMessage = 'open-message';
-
 ?>
 <form id="<?= $uidFrm = strings::rand() ?>">
   <input type="hidden" name="user_id" value="<?= $this->data->user_id ?>">
   <input type="hidden" name="page" value="0">
   <input type="hidden" name="action">
-
 </form>
 
 <style>
@@ -430,7 +428,9 @@ $activeMessage = 'open-message';
 
 
         ctrl
-          .prepend($('<input type="checkbox" class="mr-1" searchThisFolder>').attr('data-folder', fldr.fullname).on('click', e => e.stopPropagation()))
+          .prepend($('<input type="checkbox" class="mr-1" searchThisFolder>')
+            .attr('data-folder', fldr.fullname)
+            .on('click', e => e.stopPropagation()))
           .attr('title', fldr.name)
           .data('folder', fldr.fullname)
           .on('click', function(e) {
@@ -624,15 +624,17 @@ $activeMessage = 'open-message';
 
             let src = $('#' + data);
             if (src.length) {
+
               let _data = $(e.originalEvent.target).data();
+              // console.log('srcData', _data, e.originalEvent.target);
 
               $('#' + data).trigger('execute-action', {
                 action: 'move-message',
                 targetFolder: _data.folder
-
               });
 
             } else {
+
               console.dir('cannot find src : ', src);
             }
 
@@ -702,7 +704,7 @@ $activeMessage = 'open-message';
           $(document).removeData('mail-messages-reloader');
         }
       })
-      .on('mail-folderlist', function(e) {
+      .on('mail-folderlist', e => {
 
         let lastFolders = sessionStorage.getItem('<?= $keyLastFolders ?>');
         // console.log( key, lastFolders);
@@ -715,32 +717,31 @@ $activeMessage = 'open-message';
         $(document).trigger('mail-folderlist-reload');
       });
 
-    $(document).on('mail-folderlist-reload', e => {
-      let frm = $('#<?= $uidFrm ?>');
-      let data = frm.serializeFormJSON();
-      data.action = 'get-folders';
-      // console.log( data);	// data from the form
+    $(document)
+      .on('mail-folderlist-reload', e => {
+        let frm = $('#<?= $uidFrm ?>');
+        let data = frm.serializeFormJSON();
+        data.action = 'get-folders';
+        // console.log( data);	// data from the form
 
-      $('#<?= $uidFolders ?>').trigger('spin');
+        $('#<?= $uidFolders ?>').trigger('spin');
 
-      _.post({
-        url: _.url('<?= $this->route ?>'),
-        data: data,
+        _.post({
+          url: _.url('<?= $this->route ?>'),
+          data: data,
+        }).then(function(d) {
 
-      }).then(function(d) {
-        if ('ack' == d.response) {
-          sessionStorage.setItem('<?= $keyLastFolders ?>', JSON.stringify(d.folders));
-          _list(d.folders, false);
+          if ('ack' == d.response) {
 
-        } else {
-          console.log(d);
-          _.growl(d);
+            sessionStorage.setItem('<?= $keyLastFolders ?>', JSON.stringify(d.folders));
+            _list(d.folders, false);
+          } else {
 
-        }
-
+            console.log(d);
+            _.growl(d);
+          }
+        });
       });
-
-    });
 
     $(document).on('mail-messages-reload', function(e, folder) {
       let key = '<?= $this->route ?>-lastmessages-';
@@ -970,23 +971,23 @@ $activeMessage = 'open-message';
 
       let email = msg.from;
       if (msg.folder == defaultFolders.Sent) email = msg.to;
-      let from = $('<div class="col d-flex" from></div>');
-
-      $('<span class="text-primary font-weight-bold d-none" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;" unseen>&bull;</span>').appendTo(from);
-
-      from
-        .append($('<div class="text-truncate font-weight-bold mr-auto"></div>').html(email))
+      let from = $(
+          `<div class="col d-flex" from>
+          <span class="text-primary font-weight-bold d-none js-unseen" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;">&bull;</span>
+          <div class="text-truncate font-weight-bold mr-auto">${email}</div>
+          <i class="bi bi-reply mx-1 d-none js-answered" title="you have replied to this message"></i>
+          <i class="bi bi-reply bi-flip-horizontal mx-1 d-none js-forwarded" title="your forwarded this message"></i>
+          <i class="bi bi-flag mx-1 js-flagged" title="flag"></i>
+        </div>`)
         .attr('title', email);
-
-      $('<i class="bi bi-reply mx-1 fade" title="you have replied to this message" answered></i>').appendTo(from);
-      $('<i class="bi bi-reply bi-flip-horizontal mx-1 fade" title="your forwarded this message" forwarded></i>').appendTo(from);
 
       let selector = $('<input class="mt-1" type="checkbox" selector></i>');
       if (withBulkSelector) selector.appendTo(from);
 
-      if ('no' == msg.seen) $('[unseen]', from).removeClass('d-none');
-      if ('yes' == msg.forwarded) $('[forwarded]', from).addClass('show');
-      if ('yes' == msg.answered) $('[answered]', from).addClass('show');
+      if ('no' == msg.seen) from.find('.js-unseen').removeClass('d-none');
+      if ('yes' == msg.flagged) from.find('.js-flagged').removeClass('bi-flag').addClass('bi-flag-fill');
+      if ('yes' == msg.forwarded) from.find('.js-forwarded').removeClass('d-none');
+      if ('yes' == msg.answered) from.find('.js-answered').removeClass('d-none');
       //----------------------------------------------------
 
 
@@ -999,12 +1000,13 @@ $activeMessage = 'open-message';
       received.html(stime);
 
       let rowID = 'uid_' + String(seed) + '_' + String(seed * seedI++);
-      row = $('<div class="row border-bottom border-light py-2"></div>');
+      let row = $('<div class="row border-bottom border-light py-2"></div>');
       row
         .attr('id', rowID)
         .attr('uid', msg.uid)
         .data('seen', true)
         .data('read', msg.seen)
+        .data('flagged', msg.flagged)
         .data('received', time.format('YYYYMMDDHHmmss'));
 
       $('<div class="col-2 d-none text-center bg-danger text-white pt-2" trash-control><i class="bi bi-trash mt-2"></i></div>').appendTo(row);
@@ -1014,6 +1016,7 @@ $activeMessage = 'open-message';
       $('<div class="row"></div>').append(subject).append(received).appendTo(cell);
 
       row
+        .attr('data-folder', msg.folder)
         .data('folder', msg.folder)
         .data('message', msg)
         .addClass('pointer')
@@ -1502,51 +1505,51 @@ $activeMessage = 'open-message';
 
         })
 
+      row.find('.js-flagged')
+        .on('click', function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+
+          if ($(this).hasClass('bi-flag-fill')) {
+
+            row.trigger('unflag');
+          } else {
+
+            row.trigger('flag');
+          }
+        });
+
       selector
         .data('rowid', rowID)
         .on('click', function(e) {
           e.stopPropagation();
 
           $('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
-
         });
 
       return row;
-
     };
 
     let _list_messages = (messages, cacheData, withBulkSelector) => {
       $('> [uid]', '#<?= $uidMsgs ?>').each((i, el) => $(el).data('seen', false));
 
       $.each(messages, (i, msg) => {
-        let row = $('[uid="' + msg.uid + '"]');
+
+        let row = $(`[uid="${msg.uid}"]`);
         if (row.length > 0) {
+
           row.data('seen', true);
           row.data('read', msg.seen);
-          // console.log('found : '+msg.uid);
           if ('no' == msg.seen) {
-            let _unseen = $('[unseen]', row);
-            if (_unseen.length == 0) {
-              $('[unseen]', row).removeClass('d-none');
 
-            }
-
+            row.find('.js-unseen').removeClass('d-none');
           } else {
-            $('[unseen]', row).addClass('d-none');
 
+            row.find('js-unseen').addClass('d-none');
           }
 
-          if ('yes' == msg.answered) {
-            let _answered = $('[answered]', row);
-            if (_answered.length == 0) {
-              $('[answered]', row).addClass('show');
-
-            }
-
-          }
-
+          if ('yes' == msg.answered) row.find('.js-answered').removeClass('d-none');
           return;
-
         }
         // console.log('build : [uid="'+msg.uid+'"]');
 
@@ -1574,171 +1577,131 @@ $activeMessage = 'open-message';
         });
 
         if (!!nextMsg) {
+
           row.insertBefore(nextMsg);
-
         } else {
-          row.appendTo('#<?= $uidMsgs ?>');
 
+          row.appendTo('#<?= $uidMsgs ?>');
         }
 
         row
           .on('contextmenu', function(e) {
-            if (e.shiftKey)
-              return;
 
-            e.stopPropagation();
-            e.preventDefault();
-
-            _.hideContexts();
+            if (e.shiftKey) return;
+            let _context = _.context(e);
 
             let _row = $(this);
             let _data = _row.data();
-            let _context = _.context();
             let defaultFolders = $(document).data('default_folders');
 
-            _context.append(
-              $('<a href="#"></a>')
-              .html('yes' == String(_data.read) ? 'mark unseen' : 'mark seen')
-              .on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
+            _context.append.a({
+              html: 'yes' == String(_data.flagged) ? 'unflag' : 'flag',
+              click: e => _row.trigger('yes' == String(_data.flagged) ? 'unflag' : 'flag')
+            });
 
-                _row.trigger('yes' == String(_data.read) ? 'mark-unseen' : 'mark-seen');
-
-                _context.close();
-
-              }));
+            _context.append.a({
+              html: 'yes' == String(_data.read) ? 'mark unseen' : 'mark seen',
+              click: e => _row.trigger('yes' == String(_data.read) ? 'mark-unseen' : 'mark-seen')
+            });
 
             if ('junkmail' == _data.folder) {
-              /**
-               * possibly this could be dynamic, but is current specific to SME Server (https://contribs.org)
-               * which has a Learn feature (https://wiki.koozali.org/Learn)
-               */
-              _context.append(
-                $('<a href="#" class="d-none"></a>')
-                .on('click', function(e) {
-                  e.stopPropagation();
-                  e.preventDefault();
 
-                  let _me = $(this);
-                  let _data = _me.data();
-                  // console.log( _data);
+              (cti => {
 
-                  _row.trigger('execute-action', {
-                    action: 'copy-message',
-                    targetFolder: _data.folder
+                cti.addClass('d-none');
+                /**
+                 * possibly this could be dynamic, but is current specific to SME Server (https://contribs.org)
+                 * which has a Learn feature (https://wiki.koozali.org/Learn)
+                 */
+                featureLearnAsHam()
+                  .then(d => {
 
-                  });
+                    if (!!d.available) {
 
-                  _context.close();
-
-                })
-                .on('check-availability', function(e) {
-                  let _me = $(this);
-                  featureLearnAsHam().then(d => {
-                    if (d.available) {
-                      // console.log( _me, d);
-                      _me
+                      cti
                         .html('<i class="bi bi-shield-check text-success"></i>Learn as NOT Spam')
                         .data('folder', d.folder)
+                        .on('click', e => {
+
+                          _row.trigger('execute-action', {
+                            action: 'copy-message',
+                            targetFolder: d.folder
+                          });
+                        })
                         .removeClass('d-none');
-
                     }
-
                   });
-
-                })
-                .trigger('check-availability')
-
-              );
+              })(_context.append.a())
 
             } else if (/^inbox$/i.test(_data.folder)) {
-              /**
-               * possibly this could be dynamic, but is current specific to SME Server (https://contribs.org)
-               * which has a Learn feature (https://wiki.koozali.org/Learn)
-               */
-              _context.append(
-                $('<a href="#" class="d-none"></a>')
-                .on('click', function(e) {
-                  e.stopPropagation();
-                  e.preventDefault();
 
-                  let _me = $(this);
-                  let _data = _me.data();
-                  // console.log( _data);
+              (cti => {
 
-                  _row.trigger('execute-action', {
-                    action: 'copy-message',
-                    targetFolder: _data.folder
+                cti.addClass('d-none');
+                /**
+                 * possibly this could be dynamic, but is current specific to SME Server (https://contribs.org)
+                 * which has a Learn feature (https://wiki.koozali.org/Learn)
+                 */
+                featureLearnAsSpam()
+                  .then(d => {
 
-                  });
+                    if (!!d.available) {
 
-                  _context.close();
-
-                })
-                .on('check-availability', function(e) {
-                  let _me = $(this);
-                  featureLearnAsSpam().then(d => {
-                    if (d.available) {
-                      // console.log( _me, d);
-                      _me
+                      cti
                         .html('<i class="bi bi-shield-check text-danger"></i>Learn as Spam')
                         .data('folder', d.folder)
+                        .on('click', e => {
+
+                          _row.trigger('execute-action', {
+                            action: 'copy-message',
+                            targetFolder: d.folder
+                          });
+                        })
                         .removeClass('d-none');
-
                     }
-
                   });
-
-                })
-                .trigger('check-availability')
-
-              );
-
+              })(_context.append.a())
             } else {
-              console.log('folder', _data.folder);
 
+              console.log('folder', _data.folder);
             }
 
             if (!!defaultFolders) {
+
               if (_data.folder == defaultFolders.Trash || _data.folder == 'junkmail') {
-                _context.append($('<a href="#"><i class="bi bi-trash"></i>delete</a>').on('click', function(e) {
-                  e.stopPropagation();
-                  e.preventDefault();
 
-                  _row.trigger('delete');
-
-                  _context.close();
-
-                }));
-
+                _context.append.a({
+                  html: '<i class="bi bi-trash"></i>delete',
+                  click: e => _row.trigger('delete')
+                });
               } else {
-                _context.append($('<a href="#"><i class="bi bi-trash"></i>move to ' + defaultFolders.Trash + '</a>').on('click', function(e) {
-                  e.stopPropagation();
-                  e.preventDefault();
 
-                  _row.trigger('delete');
-
-                  _context.close();
-
-                }));
-
+                _context.append.a({
+                  html: `<i class="bi bi-trash"></i>move to ${defaultFolders.Trash}`,
+                  click: e => _row.trigger('delete')
+                });
               }
-
             }
 
             /**
              * trigger back to the local system passing item and context menu,
-             * the local system can add some contexts ..
+             * the local syfostem can add some contexts ..
              */
             $(document).trigger('mail-messages-context', {
               element: this,
               context: _context
-
             });
 
-            _context.open(e);
+            if (!!_.currentUser.isDavid) {
 
+              _context.append('<hr>');
+              _context.append.a({
+                html: 'dump',
+                click: e => console.log(_data)
+              });
+            }
+
+            _context.open(e);
           })
           .on('delete', function(e) {
             let _row = $(this);
@@ -1806,8 +1769,8 @@ $activeMessage = 'open-message';
             _.post({
               url: _.url('<?= $this->route ?>'),
               data: data, //
-
             }).then(d => {
+
               if ('ack' == d.response) {
 
                 /**
@@ -1818,38 +1781,81 @@ $activeMessage = 'open-message';
                  *  */
                 // console.log( data.action);
                 if ('copy-message' == data.action) {
+
                   $('[from] > i.spinner-grow', _me).remove();
                   $('[selector]', _me)
                     .prop('checked', false)
                     .removeClass('d-none');
                   _me.removeClass('font-italic');
-
                 } else {
+
                   _me.remove();
                   // console.log( 'removed message ..', _me[0]);
                   // return;
 
                   if (_data.message.uid == $('#<?= $uidViewer ?>').data('uid')) {
+
                     $('#<?= $uidViewer ?>').trigger('clear');
                     $(document).trigger('mail-view-message-list');
-
                   }
-
                 }
-
               } else {
-                _.growl(d);
 
+                _.growl(d);
               }
 
               if ('no' != _data.refresh) $(document).trigger('mail-messages-refresh');
-
               $('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
-
             });
+          })
+          .on('flag', function(e) {
 
+            let _me = $(this);
+            let _data = _me.data();
+
+            let frm = $('#<?= $uidFrm ?>');
+            let data = frm.serializeFormJSON();
+            data.folder = _data.folder;
+            data.uid = _data.message.uid;
+            data.action = 'flag';
+
+            _.fetch
+              .post(_.url('<?= $this->route ?>'), data)
+              .then(d => {
+
+                _.growl(d);
+                if ('ack' == d.response) {
+
+                  _me.find('.js-flagged').removeClass('bi-flag').addClass('bi-flag-fill');
+                  _me.data('flagged', 'yes');
+                }
+              });
+          })
+          .on('unflag', function(e) {
+
+            let _me = $(this);
+            let _data = _me.data();
+
+            let frm = $('#<?= $uidFrm ?>');
+            let data = frm.serializeFormJSON();
+            data.folder = _data.folder;
+            data.uid = _data.message.uid;
+            data.action = 'flag-undo';
+
+            _.fetch
+              .post(_.url('<?= $this->route ?>'), data)
+              .then(d => {
+
+                _.growl(d);
+                if ('ack' == d.response) {
+
+                  _me.find('.js-flagged').removeClass('bi-flag-fill').addClass('bi-flag');
+                  _me.data('flagged', 'no');
+                }
+              });
           })
           .on('mark-seen', function(e) {
+
             let _me = $(this);
             let _data = _me.data();
 
@@ -1859,25 +1865,21 @@ $activeMessage = 'open-message';
             data.uid = _data.message.uid;
             data.action = 'mark-seen';
 
+            _.fetch
+              .post(_.url('<?= $this->route ?>'), data)
+              .then(d => {
+                if ('ack' == d.response) {
 
-            _.post({
-              url: _.url('<?= $this->route ?>'),
-              data: data,
+                  _me.find('.js-unseen').addClass('d-none');
+                  _me.data('read', 'yes');
+                } else {
 
-            }).then(function(d) {
-              if ('ack' == d.response) {
-                $('[unseen]', _me).addClass('d-none');
-                _me.data('read', 'yes');
-
-              } else {
-                _.growl(d);
-
-              }
-
-            });
-
+                  _.growl(d);
+                }
+              });
           })
           .on('mark-unseen', function(e) {
+
             let _me = $(this);
             let _data = _me.data();
 
@@ -1887,23 +1889,18 @@ $activeMessage = 'open-message';
             data.uid = _data.message.uid;
             data.action = 'mark-unseen';
 
+            _.fetch
+              .post(_.url('<?= $this->route ?>'), data)
+              .then(d => {
+                if ('ack' == d.response) {
 
-            _.post({
-              url: _.url('<?= $this->route ?>'),
-              data: data,
+                  _me.find('.js-unseen').removeClass('d-none');
+                  _me.data('read', 'no');
+                } else {
 
-            }).then(function(d) {
-              if ('ack' == d.response) {
-                $('[unseen]', _me).removeClass('d-none');
-                _me.data('read', 'no');
-
-              } else {
-                _.growl(d);
-
-              }
-
-            });
-
+                  _.growl(d);
+                }
+              });
           });
 
         $('[trash-control]', row).on('click', function(e) {

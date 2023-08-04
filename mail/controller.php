@@ -322,30 +322,68 @@ class controller extends \Controller {
       } else {
         json::nak($action);
       }
-    } elseif ('mark-seen' == $action || 'mark-unseen' == $action) {
+    } elseif ('flag' == $action || 'flag-undo' == $action) {
+
       $msgID = $this->getPost('messageid');
       $uid = $this->getPost('uid');
 
       if ($msgID || $uid) {
-        $folder = $this->getPost('folder', 'default');
 
+        $folder = $this->getPost('folder', 'default');
         $inbox = inbox::instance($this->creds);
-        if ('mark-unseen' == $action) {
+        if ('flag-undo' == $action) {
+
           $res = $uid ?
-            $inbox->clearflagByUID($uid, $folder, '\seen') :
-            $res = $inbox->clearflag($msgID, $folder, '\seen');
+            $inbox->clearflagByUID($uid, $folder, '\Flagged') :
+            $res = $inbox->clearflag($msgID, $folder, '\Flagged');
         } else {
+
           $res = $uid ?
-            $inbox->setflagByUID($uid, $folder, '\seen') :
-            $res = $inbox->setflag($msgID, $folder, '\seen');
+            $inbox->setflagByUID($uid, $folder, '\Flagged') :
+            $res = $inbox->setflag($msgID, $folder, '\Flagged');
         }
 
         if ($res) {
+
           json::ack($action);
         } else {
+
           json::nak($action);
         }
       } else {
+
+        json::nak($action);
+      }
+    } elseif ('mark-seen' == $action || 'mark-unseen' == $action) {
+
+      $msgID = $this->getPost('messageid');
+      $uid = $this->getPost('uid');
+
+      if ($msgID || $uid) {
+
+        $folder = $this->getPost('folder', 'default');
+        $inbox = inbox::instance($this->creds);
+        if ('mark-unseen' == $action) {
+
+          $res = $uid ?
+            $inbox->clearflagByUID($uid, $folder, '\Seen') :
+            $res = $inbox->clearflag($msgID, $folder, '\Seen');
+        } else {
+
+          $res = $uid ?
+            $inbox->setflagByUID($uid, $folder, '\Seen') :
+            $res = $inbox->setflag($msgID, $folder, '\Seen');
+        }
+
+        if ($res) {
+
+          json::ack($action);
+        } else {
+
+          json::nak($action);
+        }
+      } else {
+
         json::nak($action);
       }
     } elseif ('move-message' == $action) {
@@ -657,10 +695,7 @@ class controller extends \Controller {
 
     $a = [];
     foreach ($messages as $message) $a[] = $message->asArray();
-
     return $a;
-    // return $messages;
-
   }
 
   protected function _search(array $params = []): array {

@@ -64,21 +64,20 @@ class message {
   }
 
   public function asArray() {
-    // \sys::logger( $this->fromEmail);
 
     return [
-      'received' => $this->Recieved,
-      'messageid' => $this->MessageID,
-      'to' => $this->To,
+      'answered' => $this->answered,
+      'flagged' => $this->flagged,
+      'forwarded' => $this->forwarded,
+      'folder' => $this->Folder,
       'from' => $this->From,
       'fromEmail' => $this->fromEmail,
-      'subject' => $this->Subject,
-      'answered' => $this->answered,
-      'forwarded' => $this->forwarded,
+      'messageid' => $this->MessageID,
+      'received' => $this->Recieved,
       'seen' => $this->seen,
-      'folder' => $this->Folder,
+      'subject' => $this->Subject,
+      'to' => $this->To,
       'uid' => $this->Uid,
-
     ];
   }
 
