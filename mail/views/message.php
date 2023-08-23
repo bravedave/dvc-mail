@@ -412,7 +412,10 @@ if ($iMsgCount = count($msg->attachments)) {
 
                   );
                 } else {
+
                   if (preg_match('@^BEGIN:VCALENDAR@', $attachment)) {
+
+                    $attachment = str_replace(['END: VALARM'], ['END:VALARM'], $attachment);
                     $vcalendar = VObject\Reader::read($attachment, VObject\Reader::OPTION_IGNORE_INVALID_LINES);
                     /**
                      * BEGIN:VCALENDAR
