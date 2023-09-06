@@ -971,6 +971,9 @@ $activeMessage = 'open-message';
 
       let email = msg.from;
       if (msg.folder == defaultFolders.Sent) email = msg.to;
+
+      // console.log(email);
+
       let from = $(
           `<div class="col d-flex" from>
           <span class="text-primary font-weight-bold d-none js-unseen" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;">&bull;</span>
@@ -1021,17 +1024,17 @@ $activeMessage = 'open-message';
         .data('message', msg)
         .addClass('pointer')
         .on('set-next', function(e) {
+
           let _me = $(this);
           let _next = _me.next();
           if (_next.length > 0) {
+
             $('#<?= $uidViewer ?>').data('next', _next.attr('uid'))
             // console.log( 'next =', _next.attr('uid'));
-
           } else {
+
             $('#<?= $uidViewer ?>').removeData('next');
-
           }
-
         })
         .on('set-previous', function(e) {
           let _me = $(this);

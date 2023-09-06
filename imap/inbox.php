@@ -144,13 +144,13 @@ class inbox {
 	}
 
 	public function finditems($params) {
+
 		// 'pageSize' => 20,  need to specify ? it's the default
 		$options = array_merge([
 			'deep' => false,
 			'page' => 0,
 			'folder' => $this->defaults()->inbox,
 			'allPages' => false
-
 		], $params);
 
 		// sys::dump( $options);
@@ -205,6 +205,8 @@ class inbox {
 
 		// logger::info( sprintf('%s/%s :s: %s', $folder, $UID, __METHOD__));
 		$ret = $this->_client->getmessageByUID($UID, $folder);
+		// logger::info( sprintf('<%s> %s', count($ret->attachments), logger::caller()));
+
 		// logger::info( sprintf('%s/%s :e: %s', $folder, $MessageID, __METHOD__));
 
 		// if (currentUser::isDavid()) {

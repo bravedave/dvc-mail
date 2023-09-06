@@ -433,6 +433,11 @@ class client {
     $headers = imap_headerinfo($this->_stream, $email_number, 1);
     $_cache = $this->_cache_path($uid);
     if ($debug && \file_exists($_cache)) unlink($_cache);
+    // if (currentUser::isDavid() && \file_exists($_cache)) {
+
+    //   logger::info(sprintf('<not using cache> %s', logger::caller()));
+    //   unlink($_cache);
+    // }
 
     if (\file_exists($_cache)) {
 
@@ -488,18 +493,24 @@ class client {
          */
         $a = [];
         foreach ($headers->to as $to) {
+
           if (isset($to->personal)) {
+
             $name = util::decodeMimeStr((string)$to->personal);
             // logger::info( sprintf('<%s> %s', $name, __METHOD__));
 
-            if (false != strstr($name, "'")) {
-              $name = sprintf('"%s"', $name);
-            }
+            /**
+             * I may regret this, but can't think why I have encoded it like this ...
+             */
+            // if (false != strstr($name, "'")) $name = sprintf('"%s"', $name);
             $a[] = sprintf('%s <%s@%s>', $name, $to->mailbox, $to->host);
           } else {
+
             if (isset($to->host)) {
+
               $a[] = sprintf('%s@%s', $to->mailbox, $to->host);
             } elseif (isset($to->mailbox)) {
+
               $a[] = $to->mailbox;
             }
           }
@@ -540,6 +551,7 @@ class client {
       if (isset($msg->from)) {
         $ret->From = util::decodeMimeStr($msg->from);
         if ($debug) logger::debug(sprintf('<%s> %s', $msg->from, __METHOD__));
+        // logger::debug(sprintf('<%s> %s', $msg->from, __METHOD__));
         $ea = new EmailAddress($ret->From);
         $ret->fromEmail = $ea->email;
       }
@@ -813,6 +825,7 @@ class client {
       }
     } else {
 
+      // logger::info( sprintf('<%s> <msgCount:%s> %s', \application::timer()->elapsed(), $data['msgCount'], __METHOD__));
       if ($emails = imap_sort($this->_stream, SORTARRIVAL, true, SE_NOPREFETCH)) {
 
         if ($debug) logger::debug(sprintf('<%s> [sorted] %s', \application::timer()->elapsed(), __METHOD__));
