@@ -11,6 +11,7 @@
 namespace dvc\imap;
 
 use bravedave\dvc\logger;
+use currentUser;
 
 abstract class util {
   protected static function funnies(string $string): string {
@@ -32,72 +33,91 @@ abstract class util {
   public static function decodeMimeStr(string $string, $charset = 'UTF-8'): string {
     $debug = false;
     // $debug = true;
+    // $debug = currentUser::isDavid();
 
     $unsupportedEncodings = [
       'ks_c_5601-1987'
     ];
 
     $newString = '';
-    $elements = imap_mime_header_decode($string);
-    for ($i = 0; $i < count($elements); $i++) {
+    if ($debug) logger::debug(sprintf('<%s> %s', $string, logger::caller()));
+    if ($elements = imap_mime_header_decode($string)) {
 
-      if ('default' == $elements[$i]->charset) $elements[$i]->charset = 'iso-8859-1';
+      if ($debug) logger::debug(sprintf('<there is a %s element> %s', gettype($elements), logger::caller()));
+      if ($debug) logger::debug(sprintf('<there are %s element/s> %s', count($elements), logger::caller()));
+      for ($i = 0; $i < count($elements); $i++) {
 
-      /**
-       * Add checking to see if conversion is required
-       * but:
-       *  it may still rewquire work to add the //IGNORE flag, just that caused
-       *  an error when converting utf-8 to utf-8, so elected to just go
-       *  with checking at this stage - 3/3/2021
-       *
-       * possible more info:
-       *  * https://stackoverflow.com/questions/26092388/iconv-detected-an-incomplete-multibyte-character-in-input-string
-       *  * https://www.php.net/manual/en/function.iconv.php
-       *
-       * the thunderbird encodings are referenced here
-       *  * https://github.com/php-mime-mail-parser/php-mime-mail-parser/issues/26
-       *
-       */
-      if ('ks_c_5601-1987' == $elements[$i]->charset) $elements[$i]->charset = 'EUC-KR';  // thunderbird
+        if ('default' == $elements[$i]->charset) $elements[$i]->charset = 'iso-8859-1';
 
-      if ($debug) logger::debug(sprintf('<?%s:%s?> %s', $elements[$i]->charset, $charset, __METHOD__));
-      if (strtolower($elements[$i]->charset) == strtolower($charset)) {
+        if ($debug) logger::debug(sprintf('<%s> %s', $elements[$i]->charset, logger::caller()));
 
-        if ($debug) logger::debug(sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        $newString .= $elements[$i]->text;
-      } elseif (in_array($elements[$i]->charset, $unsupportedEncodings)) {
 
-        logger::info(sprintf('<unsupported encoding> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        $newString .= $elements[$i]->text;
-        // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+        /**
+         * Add checking to see if conversion is required
+         * but:
+         *  it may still rewquire work to add the //IGNORE flag, just that caused
+         *  an error when converting utf-8 to utf-8, so elected to just go
+         *  with checking at this stage - 3/3/2021
+         *
+         * possible more info:
+         *  * https://stackoverflow.com/questions/26092388/iconv-detected-an-incomplete-multibyte-character-in-input-string
+         *  * https://www.php.net/manual/en/function.iconv.php
+         *
+         * the thunderbird encodings are referenced here
+         *  * https://github.com/php-mime-mail-parser/php-mime-mail-parser/issues/26
+         *
+         */
+        if ('ks_c_5601-1987' == $elements[$i]->charset) $elements[$i]->charset = 'EUC-KR';  // thunderbird
 
-      } elseif ('windows-874' == $elements[$i]->charset) {
+        if ($debug) logger::debug(sprintf('<?%s:%s?> %s', $elements[$i]->charset, $charset, __METHOD__));
+        if (strtolower($elements[$i]->charset) == strtolower($charset)) {
 
-        $newString .= self::funnies(self::decodeWin874($elements[$i]->text));
+          if ($debug) logger::debug(sprintf('<no conversion> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+          $newString .= $elements[$i]->text;
+        } elseif (in_array($elements[$i]->charset, $unsupportedEncodings)) {
 
-        if ($debug) {
-          logger::debug(sprintf(
-            '<%s encoding> <%s> <%s> %s',
-            $elements[$i]->charset,
-            $newString,
-            $charset,
-            __METHOD__
-          ));
+          logger::info(sprintf('<unsupported encoding> <%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+          $newString .= $elements[$i]->text;
+          // $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+
+        } elseif ('windows-874' == $elements[$i]->charset) {
+
+          $newString .= self::funnies(self::decodeWin874($elements[$i]->text));
+
+          if ($debug) {
+            logger::debug(sprintf(
+              '<%s encoding> <%s> <%s> %s',
+              $elements[$i]->charset,
+              $newString,
+              $charset,
+              __METHOD__
+            ));
+          }
+
+          $funnyText = substr($newString, 12, 1);
+        } else {
+
+          if ($debug) logger::debug(sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
+          try {
+
+            $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
+          } catch (\Throwable $th) {
+
+            logger::info(sprintf('<%s> %s', $th->getMessage(), __METHOD__));
+            logger::info(sprintf('<%s => %s> %s', $elements[$i]->charset, $charset, __METHOD__));
+            logger::dump($elements[$i]->text, __METHOD__);
+          }
         }
+      }
+    } else {
 
-        $funnyText = substr($newString, 12, 1);
+      if (str_starts_with($string, '=?UTF-8?')) {
+
+        $newString = iconv_mime_decode($string);
+        if ($debug) logger::debug(sprintf('<converted : %s> %s', $newString, __METHOD__));
       } else {
 
-        if ($debug) logger::debug(sprintf('<%s:%s> %s', $elements[$i]->charset, $charset, __METHOD__));
-        try {
-
-          $newString .= iconv($elements[$i]->charset, $charset, $elements[$i]->text);
-        } catch (\Throwable $th) {
-
-          logger::info( sprintf('<%s> %s', $th->getMessage(), __METHOD__));
-          logger::info( sprintf('<%s => %s> %s', $elements[$i]->charset, $charset, __METHOD__));
-          logger::dump( $elements[$i]->text, __METHOD__);
-        }
+        $newString = $string;
       }
     }
 

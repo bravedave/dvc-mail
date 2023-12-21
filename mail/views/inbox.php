@@ -303,14 +303,13 @@ $activeMessage = 'open-message';
       let _list_subfolders = (i, fldr) => {
         // console.log( fldr);
 
-        let ctrl = $('<div class="text-truncate"></div>').html(fldr.name);
+        let ctrl = $('<div class="text-truncate py-1"></div>').html(fldr.name);
         if ('LearnAsHam' == fldr.name) {
           // console.log( fldr);
 
           _learnAsHam.checked = true;
           _learnAsHam.available = '' != String(fldr.fullname);
           _learnAsHam.folder = fldr.fullname;
-
         }
 
         if ('LearnAsSpam' == fldr.name) {
@@ -329,7 +328,7 @@ $activeMessage = 'open-message';
           .data('folder', fldr.fullname));
         searchCtrl.append($('<label class="form-check-label"></label>').html(fldr.name).attr('for', chkId));
 
-        let li = $('<li class="nav-item pointer py-1"></li>')
+        let li = $('<li class="nav-item pointer"></li>')
           .appendTo(ul)
           .append(ctrl);
 
@@ -345,6 +344,7 @@ $activeMessage = 'open-message';
 
         let idx = fldr.fullname.lastIndexOf(fldr.delimiter);
         if (idx > 0) {
+
           let realPath = fldr.fullname.substring(0, idx).trim();
           if (keys.hasOwnProperty(realPath)) {
             let realName = fldr.fullname.substring(idx + 1).trim();
@@ -358,107 +358,91 @@ $activeMessage = 'open-message';
               folderState = !!folderState ? JSON.parse(folderState) : {};
 
               let caret = $('<i class="bi bi-caret-left pointer float-right"></i>');
-              caret.on('click', function(e) {
-                e.stopPropagation();
-                // console.log( 'ckic');
+              caret
+                .on('click', function(e) {
+                  e.stopPropagation();
+                  // console.log( 'ckic');
 
-                let _me = $(this);
-                let sublist = _me.siblings('ul');
-                if (sublist.length > 0) {
-                  // console.log( sublist);
-                  if (_me.hasClass('bi-caret-left')) {
-                    _me.removeClass('bi-caret-left').addClass('bi-caret-down');
-                    sublist.removeClass('d-none');
-                    folderState[fldr.fullname] = true;
+                  let _me = $(this);
+                  let sublist = _me.siblings('ul');
+                  if (sublist.length > 0) {
 
-                  } else {
-                    _me.removeClass('bi-caret-down').addClass('bi-caret-left');
-                    sublist.addClass('d-none');
-                    folderState[fldr.fullname] = false;
+                    // console.log( sublist);
+                    if (_me.hasClass('bi-caret-left')) {
 
+                      _me.removeClass('bi-caret-left').addClass('bi-caret-down');
+                      sublist.removeClass('d-none');
+                      folderState[fldr.fullname] = true;
+                    } else {
+
+                      _me.removeClass('bi-caret-down').addClass('bi-caret-left');
+                      sublist.addClass('d-none');
+                      folderState[fldr.fullname] = false;
+                    }
+
+                    localStorage.setItem('mailFolderState', JSON.stringify(folderState));
                   }
-
-                  localStorage.setItem('mailFolderState', JSON.stringify(folderState));
-
-                }
-
-              });
-
-              caret.prependTo(keys[realPath]);
+                })
+                .prependTo(keys[realPath]);
 
               _ul = $('<ul class="nav flex-column pl-2"></ul>').appendTo(keys[realPath]);
               if (!!folderState[fldr.fullname]) {
+
                 caret.removeClass('bi-caret-left').addClass('bi-caret-down');
-
               } else {
+
                 _ul.addClass('d-none');
-
               }
-
             }
             li.appendTo(_ul);
-
           } else {
-            li.appendTo(ul);
 
+            li.appendTo(ul);
           }
 
           if (searchKeys.hasOwnProperty(realPath)) {
+
             let realName = fldr.fullname.substring(idx + 1).trim();
-            // console.log( realPath, ':', realName);
+
             $('label', searchCtrl).html(realName);
 
             // slight indent on new owner ...
             $('<div class="row" search-parameter-row><div class="col-auto"></div></div>')
               .append(searchLI)
               .appendTo(searchKeys[realPath]);
-
           }
-          // else {
-          // searchLI.appendTo( '#<?= $uidSearchAll ?>_folders');
-
-          // }
-
         } else {
-          li.appendTo(ul);
-          // searchLI.appendTo( '#<?= $uidSearchAll ?>_folders');
 
+          li.appendTo(ul);
         }
         /** [ recon flag ] */
 
-
         ctrl
-          .prepend($('<input type="checkbox" class="mr-1" searchThisFolder>')
+          .prepend(
+            $('<input type="checkbox" class="mr-1" searchThisFolder>')
             .attr('data-folder', fldr.fullname)
-            .on('click', e => e.stopPropagation()))
+            .on('click', e => e.stopPropagation())
+          )
           .attr('title', fldr.name)
           .data('folder', fldr.fullname)
           .on('click', function(e) {
-            e.stopPropagation();
+
+            _.hideContexts(e);
 
             let _me = $(this);
             let _data = _me.data();
 
             // console.log( _data.folder);
-            $('input[name="page"]', '#<?= $uidFrm ?>').val(0);
+            form.find('input[name="page"]').val(0);
             $(document).trigger('mail-messages', _data.folder);
-
-            //~ $('#submit-folder')
-            //~ .val( $(this).data('folder'))
-            //~ .closest('form').submit();
           })
           .on('contextmenu', function(e) {
-            if (e.shiftKey)
-              return;
 
-            e.stopPropagation();
-            e.preventDefault();
-
-            _.hideContexts();
+            if (e.shiftKey) return;
+            let _context = _.context(e);
 
             let _me = $(this);
             let _data = _me.data();
-            let _context = _.context();
 
             // console.log( 'contextmenu');
             _context.append($('<a href="#">create subfolder</a>').on('click', function(e) {
@@ -467,20 +451,18 @@ $activeMessage = 'open-message';
               _.textPrompt({
                 title: 'folder name',
                 verbatim: 'create a new folder'
-
               }).then(d => {
+
                 if (/[^a-zA-Z0-9_\- ]/.test(d)) {
+
                   _.ask.warning({
                     title: 'warning',
                     text: 'invalid characters detected'
-
                   });
                   return;
-
                 }
 
-                let frm = $('#<?= $uidFrm ?>');
-                let frmData = frm.serializeFormJSON();
+                let frmData = form.serializeFormJSON();
                 frmData.action = 'create-folder';
                 frmData.parent = _data.folder;
                 frmData.folder = d;
@@ -493,20 +475,15 @@ $activeMessage = 'open-message';
                 // console.log( frmData);	// data from the form
                 $('#<?= $uidFolders ?>').trigger('spin');
 
-                _.post({
-                  url: _.url('<?= $this->route ?>'),
-                  data: frmData,
-
-                }).then(function(d) {
-                  _.growl(d);
-                  $(document).trigger('mail-folderlist-reload');
-
-                });
-
+                _.fetch
+                  .post(_.url('<?= $this->route ?>'), frmData)
+                  .then(d => {
+                    _.growl(d);
+                    $(document).trigger('mail-folderlist-reload');
+                  });
               });
 
               _context.close();
-
             }));
 
             let docData = $(document).data();
@@ -647,15 +624,18 @@ $activeMessage = 'open-message';
         if (!!fldr.subFolders) {
           $.each(fldr.subFolders, _list_subfolders);
         }
-
       };
 
-      $('#<?= $uidFolders ?>').html('<div class="row bg-light text-muted"><div class="col d-flex"><h6 class="text-truncate pt-1 mb-1">folders</h6></div></div>');
+      $('#<?= $uidFolders ?>').html(
+        `<div class="row bg-light text-muted">
+          <div class="col d-flex"><h6 class="text-truncate pt-1 mb-1">folders</h6></div>
+        </div>`
+      );
       $('<button type="button" class="btn btn-sm ml-auto pl-2 pr-0"><i class="bi bi-arrow-repeat"></i></button>')
         .on('click', function(e) {
+
           $('i.bi-arrow-repeat', this).addClass('bi-spin');
           $(document).trigger('mail-folderlist-reload');
-
         })
         .appendTo('#<?= $uidFolders ?> > div > div.col');
 
@@ -665,10 +645,7 @@ $activeMessage = 'open-message';
 
       $.each(folders, _list_subfolders);
       $('#<?= $uidFolders ?>').append(ul);
-      //~ console.log( folders);
-
       if (!cacheData) $(document).trigger('mail-folderlist-complete');
-
     };
 
     $(document)
@@ -685,17 +662,16 @@ $activeMessage = 'open-message';
         let frmData = form.serializeFormJSON();
         frmData.action = 'get-default-folders';
 
-        _.post({
-          url: _.url('<?= $this->route ?>'),
-          data: frmData
-        }).then(d => {
+        _.fetch
+          .post(_.url('<?= $this->route ?>'), frmData)
+          .then(d => {
 
-          if ('ack' == d.response) {
+            if ('ack' == d.response) {
 
-            // console.log(d);
-            $(document).data('default_folders', d.data);
-          }
-        })
+              // console.log(d);
+              $(document).data('default_folders', d.data);
+            }
+          })
       })
       .on('mail-clear-reloader', e => {
         let i = $(document).data('mail-messages-reloader');
@@ -715,9 +691,7 @@ $activeMessage = 'open-message';
         }
 
         $(document).trigger('mail-folderlist-reload');
-      });
-
-    $(document)
+      })
       .on('mail-folderlist-reload', e => {
         let frm = $('#<?= $uidFrm ?>');
         let data = frm.serializeFormJSON();
@@ -741,33 +715,21 @@ $activeMessage = 'open-message';
             _.growl(d);
           }
         });
+      })
+      .on('mail-messages-reload', function(e, folder) {
+
+        let key = '<?= $this->route ?>-lastmessages-';
+        if ('undefined' != typeof folder) key += folder + '-';
+
+        sessionStorage.removeItem(key);
+        $(document).trigger('mail-messages', folder);
       });
-
-    $(document).on('mail-messages-reload', function(e, folder) {
-      let key = '<?= $this->route ?>-lastmessages-';
-      if ('undefined' != typeof folder) {
-        key += folder + '-';
-
-      }
-
-      sessionStorage.removeItem(key);
-
-      $(document).trigger('mail-messages', folder);
-
-    });
 
     $(document).data('default_folders', <?= json_encode($this->data->default_folders) ?>);
 
     // process mail messages into a list
     let seed = String(parseInt(Math.random() * 1000000));
     let seedI = 0;
-
-    const encodeHTMLEntities = function(html) {
-      let txt = document.createElement("span");
-      txt.textContent = html;
-      return txt.innerHTML;
-
-    }
 
     const reply = function(_data) {
       let frame = $('iframe', '#<?= $uidViewer ?>');
@@ -820,13 +782,13 @@ $activeMessage = 'open-message';
 
         _prepender.unshift('---------------------');
         _prepender.unshift('<strong>Subject:</strong> ' + _subject);
-        if (_ccs.length > 0) _prepender.unshift('<strong>Cc:</strong> ' + encodeHTMLEntities(_ccs.join(', ')));
-        if (_tos.length > 0) _prepender.unshift('<strong>To:</strong> ' + encodeHTMLEntities(_tos.join(', ')));
+        if (_ccs.length > 0) _prepender.unshift('<strong>Cc:</strong> ' + _.encodeHTMLEntities(_ccs.join(', ')));
+        if (_tos.length > 0) _prepender.unshift('<strong>To:</strong> ' + _.encodeHTMLEntities(_tos.join(', ')));
 
         let __time = $('[data-role="time"]', _document).text();
         if (__time != '') _prepender.unshift('<strong>Sent:</strong> ' + __time);
 
-        if (_tos.length > 0) _prepender.unshift('<strong>From:</strong> ' + encodeHTMLEntities(_to));
+        if (_tos.length > 0) _prepender.unshift('<strong>From:</strong> ' + _.encodeHTMLEntities(_to));
 
       } else if ('' != String(_time)) {
         if ('' != String(_to)) {
@@ -834,7 +796,7 @@ $activeMessage = 'open-message';
             let m = _.dayjs(_time);
             _time = m.format('lll');
           }
-          _prepender.push('from ' + encodeHTMLEntities(_to) + ' - ' + _time + '<br><br>');
+          _prepender.push('from ' + _.encodeHTMLEntities(_to) + ' - ' + _time + '<br><br>');
 
         } else {
           _prepender.push('message on ' + _time + ' contained:');
@@ -844,7 +806,7 @@ $activeMessage = 'open-message';
           let m = _.dayjs(_time);
           _time = m.format('lll');
         }
-        _prepender.push('from ' + encodeHTMLEntities(_to) + '<br><br>');
+        _prepender.push('from ' + _.encodeHTMLEntities(_to) + '<br><br>');
       }
 
       // console.table(_prepender);
@@ -1441,7 +1403,7 @@ $activeMessage = 'open-message';
                             _time = m.format('lll');
 
                           }
-                          _wrap.prepend('from ' + encodeHTMLEntities(_to) + ' on ' + _time + '<br><br>');
+                          _wrap.prepend('from ' + _.encodeHTMLEntities(_to) + ' on ' + _time + '<br><br>');
                         } else {
 
                           _wrap.prepend('message on ' + _time + ' contained:');
@@ -1525,8 +1487,8 @@ $activeMessage = 'open-message';
       selector
         .data('rowid', rowID)
         .on('click', function(e) {
-          e.stopPropagation();
 
+          _.hideContexts(e);
           $('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
         });
 
@@ -1867,6 +1829,7 @@ $activeMessage = 'open-message';
             data.folder = _data.folder;
             data.uid = _data.message.uid;
             data.action = 'mark-seen';
+            // console.log(data);
 
             _.fetch
               .post(_.url('<?= $this->route ?>'), data)
@@ -1999,100 +1962,85 @@ $activeMessage = 'open-message';
 
     $(document)
       .on('mail-messages-refresh', (e) => {
+
         let data = $(document).data('mail-messages-data');
         if (!!data) {
+
           $(document).trigger('mail-messages-loader', data);
-
         } else {
+
           $(document).trigger('mail-messages', data);
-
         }
-
       })
       .on('mail-messages-loader', (e, data) => {
 
         $(document).trigger('mail-clear-reloader');
         if (_.isWindowHidden()) {
+
           console.log('defer refresh, not visible')
           $(document).data('mail-messages-reloader', window.setTimeout(() => $(document).trigger('mail-messages-loader', data), 10000));
-
         } else {
+
           $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>').addClass('bi-spin');
 
           $(document).data('mail-messages-data', data);
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: data, // data from the form
+          _.fetch
+            .post(_.url('<?= $this->route ?>'), data)
+            .then(d => {
 
-          }).then(d => {
-            if ('ack' == d.response) {
-              // console.log( data.key);
-              sessionStorage.setItem(data.key, JSON.stringify(d.messages));
-              // console.log( 'messages - ' + data.folder);
-              // console.log( $('#<?= $uidMsgs ?>').data('folder'));
-              let fldrs = {
-                data: '',
-                current: ''
+              if ('ack' == d.response) {
 
-              };
+                sessionStorage.setItem(data.key, JSON.stringify(d.messages));
+                let fldrs = {
+                  data: '',
+                  current: ''
+                };
 
-              if (!/search/.test($('#<?= $uidMsgs ?>').data('controlstate'))) {
-                if (!!data.folder) fldrs.data = data.folder;
-                if (!!$('#<?= $uidMsgs ?>').data('folder')) fldrs.current = $('#<?= $uidMsgs ?>').data('folder');
+                if (!/search/.test($('#<?= $uidMsgs ?>').data('controlstate'))) {
 
-                if (fldrs.data == fldrs.current) {
-                  if (data.page == Number($('input[name="page"]', '#<?= $uidFrm ?>').val())) {
-                    _list_messages(d.messages, false, true);
+                  if (!!data.folder) fldrs.data = data.folder;
+                  if (!!$('#<?= $uidMsgs ?>').data('folder')) fldrs.current = $('#<?= $uidMsgs ?>').data('folder');
 
-                    if (0 == data.page) {
-                      $(document).trigger('mail-clear-reloader');
-                      $(document).data('mail-messages-reloader', window.setTimeout(() => {
-                        sessionStorage.removeItem(data.key);
-                        $(document).trigger('mail-messages-loader', data);
+                  if (fldrs.data == fldrs.current) {
 
-                      }, 20000));
+                    if (data.page == Number($('input[name="page"]', '#<?= $uidFrm ?>').val())) {
 
+                      _list_messages(d.messages, false, true);
+
+                      if (0 == data.page) {
+                        $(document).trigger('mail-clear-reloader');
+                        $(document).data('mail-messages-reloader', window.setTimeout(() => {
+                          sessionStorage.removeItem(data.key);
+                          $(document).trigger('mail-messages-loader', data);
+
+                        }, 20000));
+                      }
                     }
-
                   }
-
                 }
+              } else {
 
+                _.growl(d);
               }
-
-            } else {
-              _.growl(d);
-
-            }
-            $('i.bi-arrow-repeat', '#<?= $uidMsgs ?>')
-              .removeClass('bi-spin');
-
-          });
-
+              $('#<?= $uidMsgs ?>').find('i.bi-arrow-repeat').removeClass('bi-spin');
+            });
         }
-
       })
       .on('mail-messages-flush', e => {
+
         let frm = $('#<?= $uidFrm ?>');
         let data = frm.serializeFormJSON();
         let key = '<?= $this->route ?>-lastmessages-';
 
         if (!!data.folder) {
-          if ('inbox' != String(data.folder).toLowerCase()) {
-            key += data.folder + '-';
 
-          }
-
+          if ('inbox' != String(data.folder).toLowerCase()) key += data.folder + '-';
         }
 
         let lastMessages = sessionStorage.getItem(key);
-        if (!!lastMessages) {
-          sessionStorage.removeItem(key);
-
-        }
+        if (!!lastMessages) sessionStorage.removeItem(key);
 
         $(document).trigger('mail-messages');
-
       })
       .on('mail-messages', (e, folder) => { // header view set here
 
@@ -2128,15 +2076,13 @@ $activeMessage = 'open-message';
                 $(document)
                   .data('view', 'search')
                   .trigger('mail-set-view');
-
               } else {
+
                 $('#<?= $uidMsgs ?>').trigger('expose-search-controls');
 
                 $(document).trigger('mail-clear-reloader');
                 $('input[type="search"]', search).focus();
-
               }
-
             });
 
           $('<button type="button" class="btn btn-sm"><i class="bi bi-chevron-left" title="previous page"></i></button>')
@@ -3055,7 +3001,7 @@ $activeMessage = 'open-message';
       .data('route', '<?= $this->route ?>')
       .data('autoloadnext', '<?= (currentUser::option('email-autoloadnext') == 'yes' ? 'yes' : 'no') ?>');
 
-    $(document).ready(() => {
+    _.ready(() => {
 
       $('div[data-role="content"], div[data-role="main-content-wrapper"]').removeClass('pt-0 pt-2 pt-3 pt-4 pb-0 pb-1 pb-2 pb-3 pb-4');
       $('html, body, div[data-role="main-content-wrapper"] > .row, div[data-role="main-content-wrapper"] > .row > .col').addClass('h-100');

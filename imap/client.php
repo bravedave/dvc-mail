@@ -463,6 +463,7 @@ class client {
 
     if ($headers) {
 
+      if ($debug) logger::debug(sprintf('<have headers:%s> %s', \application::timer()->elapsed(), __METHOD__));
       $ret->Uid = $uid;
 
       if (isset($headers->message_id)) $ret->MessageID = $headers->message_id;
@@ -494,6 +495,7 @@ class client {
         $a = [];
         foreach ($headers->to as $to) {
 
+
           if (isset($to->personal)) {
 
             $name = util::decodeMimeStr((string)$to->personal);
@@ -506,11 +508,14 @@ class client {
             $a[] = sprintf('%s <%s@%s>', $name, $to->mailbox, $to->host);
           } else {
 
+
             if (isset($to->host)) {
 
               $a[] = sprintf('%s@%s', $to->mailbox, $to->host);
+              if ($debug) logger::debug(sprintf('<no personal ..: %s@%s %s> %s', $to->mailbox, $to->host, \application::timer()->elapsed(), __METHOD__));
             } elseif (isset($to->mailbox)) {
 
+              if ($debug) logger::debug(sprintf('<no personal ..:%s> %s', \application::timer()->elapsed(), __METHOD__));
               $a[] = $to->mailbox;
             }
           }
@@ -523,11 +528,15 @@ class client {
       }
 
       if (isset($headers->reply_toaddress)) {
+
+        if ($debug) logger::debug(sprintf('<reply address ..: %s %s> %s', $headers->reply_toaddress, \application::timer()->elapsed(), __METHOD__));
         $ret->ReplyTo = util::decodeMimeStr($headers->reply_toaddress);
+        if ($debug) logger::debug(sprintf('<reply address ..: %s %s> %s', $ret->ReplyTo, \application::timer()->elapsed(), __METHOD__));
         // logger::info( sprintf('<%s> %s', $ret->ReplyTo, __METHOD__));
 
       }
     }
+    if ($debug) logger::debug(sprintf('<done headers:%s> %s', \application::timer()->elapsed(), __METHOD__));
 
     if ($overview = imap_fetch_overview($this->_stream, $email_number, 0)) {
 
@@ -791,6 +800,7 @@ class client {
   public function finditems(array $params): array {
     $debug = false;
     // $debug = true;
+    // $debug = currentUser::isDavid();
 
     $options = (object)array_merge([
       'deep' => false,
@@ -841,7 +851,9 @@ class client {
           if ($start++ >= $_start) {
 
             if ($i++ >= $options->pageSize) break;
+            if ($debug) logger::debug(sprintf('<going for overview %s> %s', $email_number, __METHOD__));
             $msg = $this->_overview($email_number);
+            if ($debug) logger::debug(sprintf('<got overview %s> %s', $email_number, __METHOD__));
             // logger::info( sprintf('<%s> [%s] %s', \application::timer()->elapsed(), $email_number, __METHOD__));
             $msg->Folder = $this->_folder;
             $ret[] = $msg;

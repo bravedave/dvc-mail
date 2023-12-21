@@ -363,6 +363,9 @@ class controller extends \Controller {
 
         $folder = $this->getPost('folder', 'default');
         $inbox = inbox::instance($this->creds);
+        // logger::info( sprintf('<%s> %s', $this->creds->account, logger::caller()));
+
+
         if ('mark-unseen' == $action) {
 
           $res = $uid ?

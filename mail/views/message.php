@@ -10,6 +10,7 @@
 
 namespace dvc\mail;
 
+use bravedave\dvc\logger;
 use dvc\imap\config;
 use Sabre\VObject;
 
@@ -416,6 +417,7 @@ if ($iMsgCount = count($msg->attachments)) {
                   if (preg_match('@^BEGIN:VCALENDAR@', $attachment)) {
 
                     $attachment = str_replace(['END: VALARM'], ['END:VALARM'], $attachment);
+                    // $attachment = str_replace(['W. Australia Standard Time'], ['Australia/Perth'], $attachment);
                     $vcalendar = VObject\Reader::read($attachment, VObject\Reader::OPTION_IGNORE_INVALID_LINES);
                     /**
                      * BEGIN:VCALENDAR
@@ -454,8 +456,68 @@ if ($iMsgCount = count($msg->attachments)) {
                      * BEGIN:VCALENDAR
                      */
 
-                    $start = strtotime($vcalendar->VEVENT->DTSTART);
-                    $end = strtotime($vcalendar->VEVENT->DTEND);
+                    $start = strtotime($startDT = $vcalendar->VEVENT->DTSTART);
+                    $end = strtotime($endDT = $vcalendar->VEVENT->DTEND);
+
+                    $debug = false;
+                    // $debug = true;
+                    if ($debug) logger::debug(sprintf('<%s> %s', $startDT ?? '', __FILE__));
+
+                    if ($vcalendar->VTIMEZONE ?? false) {
+
+                      if ($tzid = ($vcalendar->VTIMEZONE->TZID ?? '')) {
+
+                        if ($tzid == 'W. Australia Standard Time') $tzid = 'Australia/Perth';
+                        if ($tzid == 'E. Australia Standard Time') $tzid = 'Australia/Brisbane';
+                        $validTZs = \DateTimeZone::listIdentifiers();
+                        if (in_array($tzid, $validTZs)) {
+
+                          if ($tz = new \DateTimeZone($tzid)) {
+
+                            $od = new \DateTime($startDT, $tz);
+                            $start = $od->getTimestamp();
+                            $od->setTimezone(new \DateTimeZone(\config::$TIMEZONE));
+                            if ($debug) logger::debug(sprintf('<DTSTART    : %s> %s',  $startDT, __FILE__));
+                            if ($debug) logger::debug(sprintf('<DTSTART -m : %s> %s',  $od->format('Ymd\This'), __FILE__));
+                            $startDT = $od->format('Ymd\This');
+
+                            $od = new \DateTime($vcalendar->VEVENT->DTEND, $tz);
+                            $end = $od->getTimestamp();
+                            $od->setTimezone(new \DateTimeZone(\config::$TIMEZONE));
+                            if ($debug) logger::debug(sprintf('<DTEND    : %s> %s',  $endDT, __FILE__));
+                            if ($debug) logger::debug(sprintf('<DTEND -m : %s> %s',  $od->format('Ymd\This'), __FILE__));
+                            $endDT = $od->format('Ymd\This');
+
+                            // if ($debug) logger::debug(sprintf('<%s> %s',  $od->getTimestamp(), $start, __FILE__));
+
+
+                            // if ($debug) logger::debug(sprintf('<%s> %s',  $od->format('c'), __FILE__));
+                            if ($debug) logger::debug(sprintf('<%s> %s',  $tzid, __FILE__));
+                          } else {
+
+                            logger::info(sprintf('<invalid timezone %s> %s', $tzid, __FILE__));
+                          }
+                        } else {
+
+                          logger::info(sprintf('<invalid timezone %s> %s', $tzid, __FILE__));
+                        }
+                      } elseif ($vcalendar->VTIMEZONE->STANDARD ?? false) {
+
+                        //     // \bravedave\dvc\logger::dump($vcalendar->VTIMEZONE, __METHOD__);
+                        //     \bravedave\dvc\logger::info($vcalendar->VTIMEZONE->STANDARD->TZOFFSETFROM ?? '');
+                        //     // \bravedave\dvc\logger::info($vcalendar->VTIMEZONE->TZID ?? '');
+                        //     // $tz = new \DateTimeZone($vcalendar->VTIMEZONE->TZID ?? '');
+                        //     // \bravedave\dvc\logger::info($tz->getOffset(new \DateTimeZone( \config::$TIMEZONE)));
+
+                        logger::info(sprintf('<has standard timezone %s> %s', $tzid, __FILE__));
+                      } else {
+
+                        if ($debug) logger::debug(sprintf('<no standard timezone> %s', __FILE__));
+                      }
+                    } else {
+
+                      if ($debug) logger::debug(sprintf('<no timezone> %s', __FILE__));
+                    }
 
                     if (date('Y-m-d') == date('Y-m-d')) {
                       $end = preg_replace('/m$/', '', date(\config::$TIME_FORMAT, $end));
@@ -478,8 +540,8 @@ if ($iMsgCount = count($msg->attachments)) {
                       json_encode((string)$vcalendar->VEVENT->SUMMARY),
                       json_encode((string)$vcalendar->VEVENT->DESCRIPTION, JSON_UNESCAPED_SLASHES),
                       json_encode((string)$vcalendar->VEVENT->LOCATION, JSON_UNESCAPED_SLASHES),
-                      json_encode((string)$vcalendar->VEVENT->DTSTART, JSON_UNESCAPED_SLASHES),
-                      json_encode((string)$vcalendar->VEVENT->DTEND, JSON_UNESCAPED_SLASHES),
+                      json_encode((string)$startDT, JSON_UNESCAPED_SLASHES),
+                      json_encode((string)$endDT, JSON_UNESCAPED_SLASHES),
                       strings::htmlentities($vcalendar->VEVENT->SUMMARY),
                       $start,
                       $end,

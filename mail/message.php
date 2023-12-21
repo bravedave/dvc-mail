@@ -384,6 +384,7 @@ class message {
     $cidContent = [];
 
     foreach ($doc->getElementsByTagName('img') as $img) {
+
       if ($img->hasAttributes()) {
 
         $src = $img->getAttribute('src');
