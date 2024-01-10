@@ -946,7 +946,7 @@ $activeMessage = 'open-message';
         </div>`)
         .attr('title', email);
 
-      let selector = $('<input class="mt-1" type="checkbox" selector></i>');
+      let selector = $('<input class="mt-1 ml-2" type="checkbox" selector></i>');
       if (withBulkSelector) selector.appendTo(from);
 
       if ('no' == msg.seen) from.find('.js-unseen').removeClass('d-none');
@@ -1489,6 +1489,8 @@ $activeMessage = 'open-message';
         .on('click', function(e) {
 
           _.hideContexts(e);
+          // e.stopPropagation();
+          // e.preventDefault();
           $('#<?= $uidMsgs ?>').trigger('expose-bulk-controls');
         });
 
