@@ -37,7 +37,7 @@ abstract class config extends \config {
 
   static $WEBNAME = 'IMAP Interface for DVC';
   static $IMAP_PAGE_SIZE = 20;
-  static $IMAP_PAGE_SORT_THRESHOLD = 2000;
+  static $IMAP_PAGE_SORT_THRESHOLD = 4000;
 
   static protected $_IMAP_VERSION = 0;
 
