@@ -1125,27 +1125,32 @@ class client {
   }
 
   public function search(array $params): array {
+
     $options = array_merge([
       'criteria' => [],
       'charset' => 'US-ASCII',
       'term' => '',
       'time_limit' => 120
-
     ], $params);
 
     $ret = [];
     $results = [];
     foreach ($options['criteria'] as $criteria) {
+      
       // logger::info( sprintf('<%s> %s', $criteria, __METHOD__));
-
 
       set_time_limit($options['time_limit']);
 
       if ($emails = imap_search($this->_stream, $criteria, SE_FREE, $options['charset'])) {
+
         foreach ($emails as $email_number) {
+
           if (!in_array($email_number, $results)) {
+
             if ($options['term']) {
+
               if (preg_match('@^TEXT @', $criteria)) {
+
                 // 	logger::info( sprintf('<%s> %s', $criteria, __METHOD__));
                 $txt = $this->_getmessageText($email_number);
                 if (false === strpos($txt, $options['term'])) {
@@ -1162,6 +1167,7 @@ class client {
     }
 
     foreach ($results as $email_number) {
+
       if ($msg = $this->_overview($email_number)) {
         $msg->Folder = $this->_folder;
         $ret[] = $msg;

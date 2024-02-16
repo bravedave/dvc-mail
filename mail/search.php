@@ -33,7 +33,6 @@ class search {
       'folder' => 'default',
       'term' => '',
       'body' => 'no',
-
     ], $params);
 
     $inbox = inbox::instance($this->creds);
@@ -46,7 +45,6 @@ class search {
 
     return $a;
     // return $messages;
-
   }
 
   function searchall(object $fldr) {
@@ -61,7 +59,6 @@ class search {
     $msgs = $this->search([
       'folder' => $fldr->fullname,
       'term' => $this->options['term'],
-
     ]);
 
     foreach ($msgs as $msg) {

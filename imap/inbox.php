@@ -14,20 +14,23 @@ use bravedave\dvc\logger;
 use currentUser;
 use sys;
 
-class inbox {
+class inbox
+{
   protected $_client = null;
 
   protected $_creds = null;
 
   var $errors = [];
 
-  function __construct($creds = null) {
+  function __construct($creds = null)
+  {
     // sys::dump( $creds);
     $this->_creds = $creds;
     $this->_client = client::instance($creds);
   }
 
-  public function clearflag($id, $folder, $flag) {
+  public function clearflag($id, $folder, $flag)
+  {
     if ($this->_client->open(true, $folder)) {
       $ret = $this->_client->clearflag($id, $flag);
       $this->_client->close();
@@ -38,7 +41,8 @@ class inbox {
     return false;
   }
 
-  public function clearflagByUID($uid, $folder, $flag) {
+  public function clearflagByUID($uid, $folder, $flag)
+  {
     if ($this->_client->open(true, $folder)) {
       $ret = $this->_client->clearflagByUID($uid, $flag);
       $this->_client->close();
@@ -85,7 +89,8 @@ class inbox {
     return ($ret);
   }
 
-  public function defaults() {
+  public function defaults()
+  {
     return (object)[
       'inbox' => client::INBOX
 
@@ -126,7 +131,8 @@ class inbox {
     return ($ret);
   }
 
-  public function EmptyTrash($folder) {
+  public function EmptyTrash($folder)
+  {
     $ret = false;
     $folders = new folders($this->_creds);
     if ($folder == $folders::$default_folders['Trash']) {
@@ -143,7 +149,8 @@ class inbox {
     return $ret;
   }
 
-  public function finditems($params) {
+  public function finditems($params)
+  {
 
     // 'pageSize' => 20,  need to specify ? it's the default
     $options = array_merge([
@@ -218,7 +225,8 @@ class inbox {
     return $ret;
   }
 
-  public function headers($params) {
+  public function headers($params)
+  {
 
     $options = array_merge([
       'folder' => $this->defaults()->inbox,
@@ -243,7 +251,8 @@ class inbox {
     return ($ret);
   }
 
-  public function Info($folder = 'default') {
+  public function Info($folder = 'default')
+  {
     $ret = $this->_client->Info($folder);
     return $ret;
   }
@@ -284,7 +293,8 @@ class inbox {
     return ($ret);
   }
 
-  public function SaveToFile($message, $msgStore) {
+  public function SaveToFile($message, $msgStore)
+  {
     $debug = false;
     //~ $debug = true;
     // $debug = currentUser::isDavid();
@@ -359,7 +369,8 @@ class inbox {
 
   }
 
-  public function setflag($id, $folder, $flag) {
+  public function setflag($id, $folder, $flag)
+  {
 
     if ($this->_client->open(true, $folder)) {
 
@@ -372,7 +383,8 @@ class inbox {
     return false;
   }
 
-  public function setflagByUID($uid, $folder, $flag) {
+  public function setflagByUID($uid, $folder, $flag)
+  {
     if ($this->_client->open(true, $folder)) {
       $ret = $this->_client->setflagByUID($uid, $flag);
       $this->_client->close();
@@ -383,13 +395,14 @@ class inbox {
     return false;
   }
 
-  public function search($params) {
+  public function search($params)
+  {
+
     $options = array_merge([
       'folder' => $this->defaults()->inbox,
       'term' => '',
       'criteria' => [],
       'body' => 'no',
-
     ], $params);
 
     // sys::dump( $options);
@@ -424,14 +437,14 @@ class inbox {
         $since = strtotime($options['from']);
         $from .= sprintf(' SINCE "%s"', date('d-M-Y', $since));
         $subject .= sprintf(' SINCE "%s"', date('d-M-Y', $since));
-        $text .= sprintf(' SINCE "%s"', date('d-M-Y', $since));
+        if ($text) $text .= sprintf(' SINCE "%s"', date('d-M-Y', $since));
       }
 
       if (isset($options['to']) && strtotime($options['to']) > 0) {
         $before = strtotime($options['to']);
         $from .= sprintf(' BEFORE "%s"', date('d-M-Y', $before));
         $subject .= sprintf(' BEFORE "%s"', date('d-M-Y', $before));
-        $text .= sprintf(' BEFORE "%s"', date('d-M-Y', $before));
+        if ($text) $text .= sprintf(' BEFORE "%s"', date('d-M-Y', $before));
       }
 
 
@@ -465,11 +478,13 @@ class inbox {
     return ($ret);
   }
 
-  public function status(string $folder = 'default') {
+  public function status(string $folder = 'default')
+  {
     return $this->_client->status($folder);
   }
 
-  public function verify(): bool {
+  public function verify(): bool
+  {
     if ($this->_client->open(true)) {
       return true;
     }

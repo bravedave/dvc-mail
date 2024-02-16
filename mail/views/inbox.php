@@ -2957,32 +2957,32 @@ $activeMessage = 'open-message';
          *		delete = 46
          */
 
-        // console.log( e);
 
         if (38 == e.keyCode) {
 
+          if ('INPUT' == e.target.tagName) return;
           if ($('body').hasClass('modal-open')) return;
 
           e.stopPropagation();
           $(document).trigger('mail-message-load-prev');
-
         } else if (40 == e.keyCode) {
 
+          if ('INPUT' == e.target.tagName) return;
           if ($('body').hasClass('modal-open')) return;
 
           e.stopPropagation();
           // console.log(e.keyCode, 'mail-message-load-next');
           $(document).trigger('mail-message-load-next');
-
         } else if (39 == e.keyCode) {
 
+          if ('INPUT' == e.target.tagName) return;
           if ($('body').hasClass('modal-open')) return;
 
           e.stopPropagation();
           $('iframe', '#<?= $uidViewer ?>').focus();
-
         } else if (46 == e.keyCode) { // delete
 
+          if ('INPUT' == e.target.tagName) return;
           if ($('body').hasClass('modal-open')) return;
 
           e.stopPropagation();

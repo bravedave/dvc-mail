@@ -425,11 +425,9 @@ class controller extends \Controller {
         'to' => $this->getPost('to'),
         'body' => $this->getPost('search-body'),
         'time_limit' => 240,
-
       ];
 
       logger::info(sprintf('<%s> %s', $params['body'], __METHOD__));
-
 
       json::ack($action)
         ->add('messages', $this->_search($params));
@@ -444,7 +442,6 @@ class controller extends \Controller {
         'to' => $this->getPost('to'),
         'body' => $this->getPost('search-body'),
         'time_limit' => 240,
-
       ];
 
       json::ack($action)
