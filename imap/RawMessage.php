@@ -45,26 +45,28 @@ class RawMessage {
 
     $s = imap_fetchstructure($stream, $email_number);
     if (!isset($s->parts) || !$s->parts) { // simple
-      if ($debug) sys::logger(sprintf('simple : %s', __METHOD__));
+
+      if ($debug) logger::info(sprintf('simple : %s', __METHOD__));
       $this->getpart($stream, $email_number, $s, 0);  // pass 0 as part-number
       if ($debug) logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
     } else {  // multipart: cycle through each part
+
       foreach ($s->parts as $partno0 => $p) {
+
         if ($debug) logger::debug(sprintf('<type %s> %s', $p->type, __METHOD__));
         $this->getpart($stream, $email_number, $p, $partno0 + 1);
       }
 
       if ($debug) {
+
         logger::debug(sprintf('get parts :e: %s', __METHOD__));
         logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
         // \sys::trace( sprintf('exit : %s', __METHOD__));
         // \sys::dump( $this);
-
       }
     }
 
     // \sys::dump( $this);
-
   }
 
   protected function getpart($mbox, $mid, $p, $partno) {
