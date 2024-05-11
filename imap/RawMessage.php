@@ -43,29 +43,35 @@ class RawMessage {
     // BODY
     if ($debug) logger::debug(sprintf('<-----------------[debug]-----------------> %s', __METHOD__));
 
-    $s = imap_fetchstructure($stream, $email_number);
-    if (!isset($s->parts) || !$s->parts) { // simple
+    try {
 
-      if ($debug) logger::info(sprintf('simple : %s', __METHOD__));
-      $this->getpart($stream, $email_number, $s, 0);  // pass 0 as part-number
-      if ($debug) logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
-    } else {  // multipart: cycle through each part
+      $s = imap_fetchstructure($stream, $email_number);
+      if (!isset($s->parts) || !$s->parts) { // simple
 
-      foreach ($s->parts as $partno0 => $p) {
+        if ($debug) logger::info(sprintf('simple : %s', __METHOD__));
+        $this->getpart($stream, $email_number, $s, 0);  // pass 0 as part-number
+        if ($debug) logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
+      } else {  // multipart: cycle through each part
 
-        if ($debug) logger::debug(sprintf('<type %s> %s', $p->type, __METHOD__));
-        $this->getpart($stream, $email_number, $p, $partno0 + 1);
+        foreach ($s->parts as $partno0 => $p) {
+
+          if ($debug) logger::debug(sprintf('<type %s> %s', $p->type, __METHOD__));
+          $this->getpart($stream, $email_number, $p, $partno0 + 1);
+        }
+
+        if ($debug) {
+
+          logger::debug(sprintf('get parts :e: %s', __METHOD__));
+          logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
+          // \sys::trace( sprintf('exit : %s', __METHOD__));
+          // \sys::dump( $this);
+        }
       }
+    } catch (\Exception $e) {
 
-      if ($debug) {
-
-        logger::debug(sprintf('get parts :e: %s', __METHOD__));
-        logger::debug(sprintf('exit : %s : %s', $this->messageType, __METHOD__));
-        // \sys::trace( sprintf('exit : %s', __METHOD__));
-        // \sys::dump( $this);
-      }
+      logger::info(sprintf('<error ! %s> %s', $e->getMessage(), logger::caller()));
+      $this->message = $e->getMessage();
     }
-
     // \sys::dump( $this);
   }
 
