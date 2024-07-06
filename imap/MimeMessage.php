@@ -10,10 +10,10 @@
 
 namespace dvc\imap;
 
-use bravedave\dvc\EmailAddress;
+use bravedave\dvc\{EmailAddress, logger};
 use PHPMailer\PHPMailer\PHPMailer;
 use RuntimeException;
-use sys;
+use cms\sys;
 
 class MimeMessage {
   protected $msg;
@@ -26,7 +26,7 @@ class MimeMessage {
      * acts just as it does in extract_headers method.
      */
     try {
-      \sys::logger(sprintf('<%s> %s', 'ooh ...', __METHOD__));
+      logger::info(sprintf('<%s> %s', 'ooh ...', __METHOD__));
       $body = $msg->extract_body(MAILPARSE_EXTRACT_RETURN);
       return htmlentities($body);
     } catch (\Exception $e) {
@@ -250,24 +250,24 @@ class MimeMessage {
 
     $file = sprintf('%s/msg.json', $msgStore);
     if (file_exists($file)) {
-      if ($debug) \sys::logger(sprintf('msg exists : %s :: %s', $file, __METHOD__));
+      if ($debug) logger::debug(sprintf('msg exists : %s :: %s', $file, __METHOD__));
     } else {
       file_put_contents($file, json_encode($j, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-      if ($debug) \sys::logger(sprintf('save msg : %s :: %s', $file, __METHOD__));
+      if ($debug) logger::debug(sprintf('save msg : %s :: %s', $file, __METHOD__));
     }
 
     foreach ($files as $file) {
       $_file = sprintf('%s/%s', $attachmentPath, $file->Name);
-      if ($debug) \sys::logger(sprintf('<%s> : %s', $_file, __METHOD__));
+      if ($debug) logger::debug(sprintf('<%s> : %s', $_file, __METHOD__));
       if (file_exists($_file)) {
-        if ($debug) \sys::logger(sprintf('attachment exists : %s :: %s', $_file, __METHOD__));
+        if ($debug) logger::debug(sprintf('attachment exists : %s :: %s', $_file, __METHOD__));
       } else {
         if (!link($file->Path, $_file)) {
           copy($file->Path, $_file);    // takes up more space
 
         }
 
-        if ($debug) \sys::logger(sprintf('saved attachment : %s :: %s', $_file, __METHOD__));
+        if ($debug) logger::debug(sprintf('saved attachment : %s :: %s', $_file, __METHOD__));
       }
     }
 
