@@ -11,6 +11,7 @@
 namespace dvc\imap;
 
 use bravedave\dvc\EmailAddress;
+use PHPMailer\PHPMailer\PHPMailer;
 use RuntimeException;
 use sys;
 
@@ -205,7 +206,7 @@ class MimeMessage {
     }
   }
 
-  public function SaveToFile(\PHPMailer $message, $msgStore, array $files = []) {
+  public function SaveToFile(PHPMailer $message, $msgStore, array $files = []) {
     /**
      * this message can be restored with
      *
