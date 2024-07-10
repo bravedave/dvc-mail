@@ -940,8 +940,8 @@ $activeMessage = 'open-message';
           `<div class="col d-flex" from>
           <span class="text-primary font-weight-bold d-none js-unseen" style="margin-left: -.8rem; font-size: 2rem; line-height: .5;">&bull;</span>
           <div class="text-truncate font-weight-bold mr-auto">${email}</div>
-          <i class="bi bi-reply text-success mx-1 d-none js-answered" title="you have replied to this message"></i>
-          <i class="bi bi-reply text-success bi-flip-horizontal mx-1 d-none js-forwarded" title="your forwarded this message"></i>
+          <i class="bi bi-reply-fill text-success mx-1 d-none js-answered" title="you have replied to this message"></i>
+          <i class="bi bi-reply-fill text-success bi-flip-horizontal mx-1 d-none js-forwarded" title="your forwarded this message"></i>
           <i class="bi bi-flag mx-1 js-flagged" title="flag"></i>
         </div>`)
         .attr('title', email);
