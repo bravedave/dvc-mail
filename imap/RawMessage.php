@@ -12,7 +12,7 @@ namespace dvc\imap;
 
 use bravedave\dvc\logger;
 use dvc\mail\attachment;
-use strings;
+use cms\{strings};
 use sys;
 
 use Sabre\VObject;
