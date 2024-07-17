@@ -578,11 +578,11 @@ class client {
 
     if ($errors = imap_errors()) {
 
-      foreach ($errors as $error) {
+      array_walk($errors, function ($error) {
 
-        if (str_starts_with($error, 'Unterminated mailbox:')) continue;
+        if (str_starts_with($error, 'Unterminated mailbox:')) return;
         logger::info(sprintf('<overview : %s> %s', $error, __METHOD__));
-      }
+      });
     }
 
     $_headers = imap_fetchheader($this->_stream, $email_number);
@@ -632,8 +632,13 @@ class client {
       }
     }
 
-    if ($errors = imap_errors()) array_walk($errors, fn ($error) => logger::info(sprintf('<error : %s> %s', $error, __METHOD__)));
+    if ($errors = imap_errors()) {
 
+      array_walk($errors, fn ($error) => logger::info(sprintf('<error : %s> <%s> %s', $error, $this->_account, __METHOD__)));
+      logger::info(sprintf('<errors on account %s/%s> %s', $this->_account, $this->_folder, __METHOD__));
+    }
+
+    // logger::info(sprintf('<%s> %s', $this->_account, __METHOD__));
     return ($ret);
   }
 
@@ -1062,9 +1067,8 @@ class client {
           }
         } else {
           if ($errors = imap_errors()) {
-            foreach ($errors as $error) {
-              logger::info(sprintf('<%s> %s', $error, __METHOD__));
-            }
+
+            array_walk($errors, fn ($error) => logger::info(sprintf('<error ::: %s> %s', $error, __METHOD__)));
             if ($debug) sys::trace('imap open error');
           }
 
@@ -1136,7 +1140,7 @@ class client {
     $ret = [];
     $results = [];
     foreach ($options['criteria'] as $criteria) {
-      
+
       // logger::info( sprintf('<%s> %s', $criteria, __METHOD__));
 
       set_time_limit($options['time_limit']);
