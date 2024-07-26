@@ -370,7 +370,26 @@ class RawMessage {
             if (($params['charset'] ?? '') == 'windows-874') {
               // sys::dump($data);
               $this->messageHTML .= util::decodeWin874($data);  // . "<br /><br />";
+            } elseif (($params['charset'] ?? '') == 'gb2312') {
+
+              // logger::dump($params, __METHOD__);
+              $msg__ = $data;
+              $msg__ = iconv('GB2312', 'UTF-8', $data);
+              $msg__ = str_replace('text/html; charset=gb2312', "text/html; charset=UTF-8", $msg__);
+              // $msg__ = mb_convert_encoding($data, 'UTF-8', 'GB2312');
+
+              if ($debug) {
+
+                // logger::info( sprintf('<%s> %s', mb_detect_encoding($data), __METHOD__));
+                $f = sprintf('%s/temp-1-%s-rawmessage-converted.txt', rtrim(config::dataPath(), '/'), $partno);
+                if (file_exists($f)) unlink($f);
+                file_put_contents($f, $msg__);
+                logger::debug(sprintf('<%s> %s', $f, __METHOD__));
+              }
+
+              $this->messageHTML = $msg__;
             } else {
+
               $this->messageHTML .= \str_replace(chr(146), "'", $data);  // . "<br /><br />";
             }
 
