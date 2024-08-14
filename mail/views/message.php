@@ -215,8 +215,8 @@ $colStyle = 'width: 5rem; font-size: small;';
 
 <div class="grid-container">
   <div class="grid-item">
-    <span style="float: right;"><?= strings::asLocalDate($msg->Recieved, $time = true) ?></span>
-    <span style="display: none;" data-role="time"><?= $msg->Recieved ?></span>
+    <span style="float: right;"><?= strings::asLocalDate($msg->Received, $time = true) ?></span>
+    <span style="display: none;" data-role="time"><?= $msg->Received ?></span>
     <?php
     if ($this->data->default_folders['Sent'] == $msg->Folder) {
       $_to = array_map(function ($v) {

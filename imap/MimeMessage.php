@@ -178,6 +178,7 @@ class MimeMessage {
        */
       $uue = $this->msg->enum_uue();
       if ($uue !== false) {
+
         var_dump($uue);
         foreach ($uue as $index => $data) {
           /**
@@ -243,7 +244,7 @@ class MimeMessage {
       'Folder' => 'Sent',
       'From' => $from,
       'MessageID' => $this->getHeader('message-id'),
-      'Recieved' => '',
+      'Received' => '',
       'Subject' => $this->getHeader('subject'),
       'To' => $this->getHeader('to'),
     ];

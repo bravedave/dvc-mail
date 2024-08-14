@@ -314,7 +314,7 @@ class client {
     $ret->To = util::decodeMimeStr((string)$to);
     $ret->CC = util::decodeMimeStr((string)$cc);
     $ret->MessageID = $_headers_rfc822->message_id;
-    $ret->Recieved = $headerDate;
+    $ret->Received = $headerDate;
 
     if ($ret->headers = imap_headerinfo($this->_stream, $msgno)) {
       $ret->MSGNo = $ret->headers->Msgno;
@@ -566,10 +566,10 @@ class client {
       }
 
       if (isset($msg->date)) {
-        $ret->Recieved = $msg->date;
+        $ret->Received = $msg->date;
 
         if (preg_match("/^Date:/", $msg->date))
-          $ret["Recieved"] = preg_replace("/^Date:/", "", $msg->date);
+          $ret["Received"] = preg_replace("/^Date:/", "", $msg->date);
       }
 
       if (isset($msg->in_reply_to)) $ret->in_reply_to = $msg->in_reply_to;

@@ -322,7 +322,7 @@ class inbox
       'Folder' => $message->Folder,
       'From' => $message->From,
       'MessageID' => $message->MessageID,
-      'Recieved' => $message->Recieved,
+      'Received' => $message->Received,
       'Subject' => $message->Subject,
       'To' => $message->To,
       'attachments' => array_map(fn ($a) => (object)[

@@ -15,11 +15,10 @@ class parser extends \PhpMimeMailParser\Parser {
 
     $msg = new message;
 
-    $msg->Recieved = $this->getHeader('date');
+    $msg->Received = $this->getHeader('date');
     $msg->Body = $this->getMessageBody('htmlEmbedded');
     $msg->From = $this->getHeader('from');
     $msg->MessageID = $this->getHeader('message-id');
-    $msg->Recieved = $this->getHeader('date');
     $msg->Subject = $this->getHeader('subject');
     $msg->To = $this->getHeader('to');
     $attachments = $this->getAttachments(false);

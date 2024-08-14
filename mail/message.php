@@ -10,7 +10,7 @@
 
 namespace dvc\mail;
 
-use strings;
+use cms\strings;
 use sys;
 
 class message {
@@ -38,7 +38,7 @@ class message {
   public $ReplyTo = '';
   public $ItemId = '';
   public $MessageID = '';
-  public $Recieved = '';
+  public $Received = '';
   public $Subject = '';
   public $To = '';
   public $CC = '';    // imap
@@ -73,7 +73,7 @@ class message {
       'from' => $this->From,
       'fromEmail' => $this->fromEmail,
       'messageid' => $this->MessageID,
-      'received' => $this->Recieved,
+      'received' => $this->Received,
       'seen' => $this->seen,
       'subject' => $this->Subject,
       'to' => $this->To,
@@ -99,7 +99,7 @@ class message {
       'From' => $this->From,
       'ItemId' => $this->ItemId,
       'MessageID' => $this->MessageID,
-      'Recieved' => $this->Recieved,
+      'Received' => $this->Received,
       'Subject' => $this->Subject,
       'To' => $this->To,
       'CC' => $this->CC,
@@ -144,7 +144,7 @@ class message {
       $this->From = (string)$o->From;
       $this->ItemId = (string)$o->ItemId;
       $this->MessageID = (string)$o->MessageID;
-      $this->Recieved = (string)$o->Recieved;
+      $this->Received = (string)$o->Received;
       $this->Subject = (string)$o->Subject;
       $this->To = (string)$o->To;
       $this->CC = (string)$o->CC;
@@ -336,6 +336,8 @@ class message {
 
     if ($debug) \sys::logger("processing ...");
     foreach ($doc->getElementsByTagName('body') as $el) {
+
+      /** @var DOMElement $el */
       if ($el->hasAttribute('bgcolor')) {
         $bgcolor = $el->getAttribute('bgcolor');
         $el->removeAttribute('bgcolor');
@@ -349,13 +351,20 @@ class message {
       }
     }
 
-    foreach ($doc->getElementsByTagName('a') as $img)
+    foreach ($doc->getElementsByTagName('a') as $img) {
+
+      /** @var DOMElement $img */
       $img->setAttribute('target', '_blank');
+    }
 
     foreach ($doc->getElementsByTagName('link') as $link) {
-      if ($link->hasAttributes()) {
+
+      /** @var DOMElement $link */
+      if ($link->hasAttributes())
+      {
         $href = $link->getAttribute('href');
         if ($href) {
+
           $link->removeAttribute('href');
           $link->setAttribute('data-safe-href', $href);
         }
@@ -363,9 +372,13 @@ class message {
     }
 
     foreach ($doc->getElementsByTagName('a') as $anchor) {
+
+      /** @var DOMElement $anchor */
       if ($anchor->hasAttributes()) {
+
         $href = $anchor->getAttribute('href');
         if ($href) {
+
           if (preg_match('@^mailto:@', $href)) {
             $anchor->removeAttribute('href');
             $anchor->setAttribute('data-role', 'email-link');
@@ -385,6 +398,7 @@ class message {
 
     foreach ($doc->getElementsByTagName('img') as $img) {
 
+      /** @var DOMElement $img */
       if ($img->hasAttributes()) {
 
         $src = $img->getAttribute('src');
