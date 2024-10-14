@@ -598,14 +598,20 @@ class controller extends \Controller {
                 return;
               }
             } elseif ('string' == $attachmentType) {
+
               if (preg_match('@^BEGIN:VCALENDAR@', $attachment)) {
+
                 header('Content-type: text/calendar');
                 header('Content-Disposition: inline; filename="invite.ics"');
                 print $attachment;
+                return;
               } else {
+
                 print $attachment;
+                return;
               }
             } else {
+              
               print gettype($attachment);
               return;
             }
