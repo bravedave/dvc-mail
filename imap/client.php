@@ -581,6 +581,7 @@ class client {
       array_walk($errors, function ($error) {
 
         if (str_starts_with($error, 'Unterminated mailbox:')) return;
+        if (str_starts_with($error, 'Must use comma to separate addresses:')) return;
         logger::info(sprintf('<overview : %s> %s', $error, __METHOD__));
       });
     }

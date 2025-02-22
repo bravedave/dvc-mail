@@ -4,3 +4,4 @@ vendor
 composer.lock
 application/controller/x.php
 application/app/public/css/dvc.min.css
+.vscode/settings.json
