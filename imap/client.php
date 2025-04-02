@@ -204,12 +204,19 @@ class client {
     // if (currentUser::isDavid()) sys::dump($h_array);
 
     $_headers_rfc822 = imap_rfc822_parse_headers($_headers);
-    if ($errors = imap_errors()) array_walk($errors, fn ($error) => logger::info(sprintf('<%s> %s', $error, __METHOD__)));
+    if ($errors = imap_errors()) {
+
+      $errors = array_filter($errors, fn($e) => !str_starts_with($e, 'Must use comma to separate addresses:'));
+      if (count($errors)) {
+
+        array_walk($errors, fn($error) => logger::debug(sprintf('<imap_rfc822 : %s> %s', $error, __METHOD__)));
+      } else {
+
+        // logger::info(sprintf('<%s> %s', 'dropped errors', logger::caller()));
+      }
+    }
 
     if (!$overview) $overview = $this->_Overview($msgno);
-    // if (currentUser::isDavid()) sys::dump($overview, 'overview');
-    // sys::dump($_headers_rfc822, 'overview');
-
     $overview = (object)$overview;
 
     /* add code here to get date, from, to, cc, subject... */
@@ -635,7 +642,7 @@ class client {
 
     if ($errors = imap_errors()) {
 
-      array_walk($errors, fn ($error) => logger::info(sprintf('<error : %s> <%s> %s', $error, $this->_account, __METHOD__)));
+      array_walk($errors, fn($error) => logger::info(sprintf('<error : %s> <%s> %s', $error, $this->_account, __METHOD__)));
       logger::info(sprintf('<errors on account %s/%s> %s', $this->_account, $this->_folder, __METHOD__));
     }
 
@@ -1069,7 +1076,7 @@ class client {
         } else {
           if ($errors = imap_errors()) {
 
-            array_walk($errors, fn ($error) => logger::info(sprintf('<error ::: %s> %s', $error, __METHOD__)));
+            array_walk($errors, fn($error) => logger::info(sprintf('<error ::: %s> %s', $error, __METHOD__)));
             if ($debug) sys::trace('imap open error');
           }
 
