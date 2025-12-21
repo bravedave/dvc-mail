@@ -1077,7 +1077,7 @@ class client {
           if ($errors = imap_errors()) {
 
             array_walk($errors, fn($error) => logger::info(sprintf('<error ::: %s> %s', $error, __METHOD__)));
-            if ($debug) sys::trace('imap open error');
+            if ($debug) logger::trace('imap open error');
           }
 
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
@@ -1109,7 +1109,7 @@ class client {
             foreach ($errors as $error) {
               logger::info(sprintf('<%s> %s', $error, __METHOD__));
             }
-            if ($debug) sys::trace('imap open error');
+            if ($debug) logger::trace('imap open error');
           }
 
           $this->_error = sprintf('Cannot connect to %s :: %s', $this->_server_path, imap_last_error());
