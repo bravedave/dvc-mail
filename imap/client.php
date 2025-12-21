@@ -45,7 +45,7 @@ class client {
 
   const INBOX = 'Inbox';
 
-  protected static function _instance(credentials $cred = null): ?self {
+  protected static function _instance(null|credentials $cred = null): ?self {
     if (is_null($cred))
       $cred = credentials::getCurrentUser();
 
@@ -92,7 +92,7 @@ class client {
     return folders::$default_folders;
   }
 
-  static function instance(credentials $cred = null): ?self {
+  static function instance(null|credentials $cred = null): ?self {
     if ($client = self::_instance($cred)) {
       // if ( isset( \config::$exchange_timezone))
       // 	$client->setTimezone( \config::$exchange_timezone);
@@ -102,11 +102,11 @@ class client {
     return $client;
   }
 
-  static function instanceForDelete(credentials $cred = null): ?self {
+  static function instanceForDelete(null|credentials $cred = null): ?self {
     return self::_instance($cred);
   }
 
-  static function instanceForSync(credentials $cred = null): ?self {
+  static function instanceForSync(null|credentials $cred = null): ?self {
     return self::_instance($cred);
   }
 
@@ -136,7 +136,7 @@ class client {
     }
   }
 
-  protected function _flush_cache(string $uid = null) {
+  protected function _flush_cache(null|string $uid = null) {
     if (\is_null($uid)) {
       if (!config::$_imap_cache_flushing) return;
 
@@ -421,13 +421,13 @@ class client {
   }
 
   /** get information for this specific email */
-  protected function _overview($email_number = -1): \dvc\mail\message {
+  protected function _overview($email_number = -1): \dvc\mail\message|null {
 
     $debug = false;
     // $debug = true;
     // $debug = currentUser::isDavid();
 
-    if ($email_number < 0) return (false);
+    if ($email_number < 0) return null;
 
     $socket = $this->_socket();
 
