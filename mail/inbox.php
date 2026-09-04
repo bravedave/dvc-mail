@@ -57,7 +57,7 @@ abstract class inbox {
     return false;
   }
 
-  static public function ReadFromFile($msgStore) {
+  static public function ReadFromFile($msgStore) : ?object {
 
     if (self::FiledMessageExists($msgStore)) {
 
@@ -97,6 +97,6 @@ abstract class inbox {
       return $j;
     }
 
-    return false;
+    return null;
   }
 }
