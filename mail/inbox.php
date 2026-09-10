@@ -41,6 +41,7 @@ abstract class inbox {
     return false;
   }
 
+  #[\Deprecated('use cms\inbox\inbox::FiledMessageExists instead')]
   static public function FiledMessageExists($msgStore) {
     $file = implode([$msgStore, DIRECTORY_SEPARATOR, 'msg.json']);
     if (file_exists($file)) {
@@ -57,7 +58,8 @@ abstract class inbox {
     return false;
   }
 
-  static public function ReadFromFile($msgStore) : ?object {
+  #[\Deprecated('use cms\inbox\inbox::ReadFromFile instead')]
+  static public function ReadFromFile($msgStore): ?object {
 
     if (self::FiledMessageExists($msgStore)) {
 
