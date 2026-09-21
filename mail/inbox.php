@@ -38,7 +38,7 @@ abstract class inbox {
         break;
     }
 
-    return false;
+    return [];
   }
 
   #[\Deprecated('use cms\inbox\inbox::FiledMessageExists instead')]
