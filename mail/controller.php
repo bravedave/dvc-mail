@@ -24,10 +24,11 @@ use bravedave\dvc\{
 use dvc\imap\config;
 
 class controller extends \Controller {
-  protected $creds = null;  // credentials
+  protected ?credentials $creds = null;  // credentials
   protected $label = 'webmail';
   protected $viewPath = __DIR__ . '/views';
 
+  /** @disregard P1132 */
   protected static function formatBytes($bytes, $precision = 2) {
     $units = ['b', 'kb', 'mb', 'gb', 'tb'];
 
@@ -611,7 +612,7 @@ class controller extends \Controller {
                 return;
               }
             } else {
-              
+
               print gettype($attachment);
               return;
             }
