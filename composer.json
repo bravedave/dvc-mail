@@ -29,7 +29,7 @@
 		"php-mime-mail-parser/php-mime-mail-parser": "*"
 	},
 	"require-dev": {
-		"bravedave/dvc-ews": "dev-master"
+		"bravedave/dvc-ews": "*"
 	},
 	"autoload": {
 		"psr-4": {
