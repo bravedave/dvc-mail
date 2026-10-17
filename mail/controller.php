@@ -824,7 +824,7 @@ class controller extends \Controller {
 
       $localTimeStamp = max([$this->_get_local_js_timestamp(), $cacheLocal = $cache->get('mail-js-local-timestamp')]);
       $mailTimeStamp = max([$this->_get_mailjs_timestamp(), $cacheMail = $cache->get('mail-js-mail-timestamp')]);
-      if (config::$DB_CACHE == 'APC') {
+      if (cache::enabled()) {
 
         if ($cacheLocal != $localTimeStamp) $cache->set('mail-js-local-timestamp', $localTimeStamp, 600);
         if ($cacheMail != $mailTimeStamp) $cache->set('mail-js-mail-timestamp', $mailTimeStamp, 600);
@@ -913,7 +913,8 @@ class controller extends \Controller {
       $mtime = filemtime($file);
       $cache = cache::instance();
       $TS = max([$mtime, $cacheLocal = $cache->get('mail-normalizecss-timestamp')]);
-      if (config::$DB_CACHE == 'APC') {
+
+      if (cache::enabled()) {
 
         if ($cacheLocal != $TS) $cache->set('mail-js-local-timestamp', $TS, 600);
       }
