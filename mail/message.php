@@ -1,16 +1,14 @@
 <?php
 /*
- * David Bray
- * BrayWorth Pty Ltd
- * e. david@brayworth.com.au
- *
- * MIT License
- *
+ * Copyright (c) 2026 David Bray
+ * Licensed under the MIT License. See LICENSE file for details.
 */
 
 namespace dvc\mail;
 
+use bravedave\dvc\logger;
 use cms\strings;
+use DOMElement;
 use sys;
 
 class message {
@@ -50,6 +48,7 @@ class message {
   public $in_reply_to = '';  // imap
   public $references = '';  // imap
   public $cids = '';  // imap
+  /** @disregard P1132 */
   public $headers;
   public $comments = '';
 
@@ -117,16 +116,16 @@ class message {
 
     if (!$ret) {
       // foreach ($input as $k => $v) {
-      //   \sys::logger(sprintf('<%s => %s> %s', $k, print_r($v,true), __METHOD__));
+      //   logger::info(sprintf('<%s => %s> %s', $k, print_r($v,true), __METHOD__));
       // }
 
-      \sys::logger(sprintf('<%s> %s', json_last_error_msg(), __METHOD__));
+      logger::info(sprintf('<%s> %s', json_last_error_msg(), __METHOD__));
     }
 
     return $ret;
   }
 
-  public function fromJson($json) {
+  public function fromJson(string $json) {
     if ($o = \json_decode($json)) {
       $this->attachmentIDs = (array)$o->attachmentIDs;
       $this->attachments = (array)$o->attachments;
@@ -156,7 +155,7 @@ class message {
       $this->references = (string)$o->references;
       $this->cids = (string)$o->cids;
     } else {
-      \sys::logger(sprintf('<%s> %s', 'unable to decode', __METHOD__));
+      logger::info(sprintf('<%s> %s', 'unable to decode', __METHOD__));
     }
   }
 
@@ -234,17 +233,17 @@ class message {
     /**
      * probably expand this section ... 28/04/2021
      */
-    if ($debug) \sys::logger(sprintf('<CharSet : %s> %s', $this->CharSet, __METHOD__));
+    if ($debug) logger::debug(sprintf('<CharSet : %s> %s', $this->CharSet, __METHOD__));
     if ('ks_c_5601-1987' == $this->CharSet) {
       $_string = iconv('EUC-KR', 'utf-8', $_string);
     } elseif (in_array($this->CharSet, mb_list_encodings())) {
       if (!in_array($this->CharSet, ['UTF-8'])) {
         $_string = iconv($this->CharSet, 'utf-8', $_string);
         if ($debug) {
-          \sys::logger(sprintf('<converted : %s to utf8> %s', $this->CharSet, __METHOD__));
+          logger::debug(sprintf('<converted : %s to utf8> %s', $this->CharSet, __METHOD__));
         }
       } elseif ($debug) {
-        \sys::logger(sprintf('<not converting : %s> %s', $this->CharSet, __METHOD__));
+        logger::debug(sprintf('<not converting : %s> %s', $this->CharSet, __METHOD__));
       }
     }
 
@@ -261,10 +260,10 @@ class message {
       }
       if (strtolower($encoding) != 'utf-8') {
         $_string = mb_convert_encoding($_string, 'utf-8', $encoding);
-        if ($debug) \sys::logger(sprintf('<converted : %s to utf8> %s', $encoding, __METHOD__));
+        if ($debug) logger::debug(sprintf('<converted : %s to utf8> %s', $encoding, __METHOD__));
       }
       $_string = mb_convert_encoding($_string, 'html-entities', 'utf-8');
-      if ($debug) \sys::logger(sprintf('<converted : utf8 to html-entities> %s', __METHOD__));
+      if ($debug) logger::debug(sprintf('<converted : utf8 to html-entities> %s', __METHOD__));
     } else {
       if ($debug) sys::logger(sprintf('no encoding on string :: %s', __METHOD__));
     }
@@ -334,7 +333,7 @@ class message {
 
     $unsets = [];
 
-    if ($debug) \sys::logger("processing ...");
+    if ($debug) logger::debug("processing ...");
     foreach ($doc->getElementsByTagName('body') as $el) {
 
       /** @var DOMElement $el */
@@ -403,7 +402,7 @@ class message {
 
         $src = $img->getAttribute('src');
         if ($src) {
-          // if ( $debug) \sys::logger( "processing .... :::" . count( $this->attachments));
+          // if ( $debug) logger::debug( "processing .... :::" . count( $this->attachments));
 
           if (preg_match('@^data:image@', $src)) continue;
 
@@ -411,7 +410,7 @@ class message {
           $img->setAttribute('data-safe-src', $src);
           $img->setAttribute('src', \dvc\icon::base64_data(\dvc\icon::image));
 
-          if ($debug) \sys::logger(sprintf('<processing attachments for inlinement> %s', __METHOD__));
+          if ($debug) logger::debug(sprintf('<processing attachments for inlinement> %s', __METHOD__));
 
           // $_attachments = [];
           foreach ($this->attachments as $key => $data) {
@@ -427,7 +426,7 @@ class message {
             ) {
 
               // \sys::dump( $data);
-              if ($debug) \sys::logger(sprintf('<%s == %s> <attachment> <processing> %s', $src, $name, $data->ContentId, __METHOD__));
+              if ($debug) logger::debug(sprintf('<%s == %s> <attachment> <processing> %s', $src, $name, $data->ContentId, __METHOD__));
 
               if (preg_match("@.gif$@i", $name)) {
                 $_uid = strings::rand();
@@ -442,7 +441,7 @@ class message {
                 $img->setAttribute('data-name', $data->Name);
                 $img->setAttribute('data-contentid', $data->ContentId);
                 $img->removeAttribute('data-safe-src');
-                if ($debug) \sys::logger(sprintf('process gif ..... %s, %s : %s', $src, $name, __METHOD__));
+                if ($debug) logger::debug(sprintf('process gif ..... %s, %s : %s', $src, $name, __METHOD__));
               } elseif (preg_match("@.jpe?g$@i", $name)) {
                 $_uid = strings::rand();
                 $cidContent[] = (object)[
@@ -456,7 +455,7 @@ class message {
                 $img->setAttribute('data-name', $data->Name);
                 $img->setAttribute('data-contentid', $data->ContentId);
                 $img->removeAttribute('data-safe-src');
-                if ($debug) \sys::logger(sprintf('process jpg ..... %s, %s : %s', $src, $name, __METHOD__));
+                if ($debug) logger::debug(sprintf('process jpg ..... %s, %s : %s', $src, $name, __METHOD__));
               } elseif (preg_match("@.png$@i", $name)) {
                 $_uid = strings::rand();
                 $cidContent[] = (object)[
@@ -470,7 +469,7 @@ class message {
                 $img->setAttribute('data-name', $data->Name);
                 $img->setAttribute('data-contentid', $data->ContentId);
                 $img->removeAttribute('data-safe-src');
-                if ($debug) \sys::logger(sprintf('process png ..... %s, %s : %s', $src, $name, __METHOD__));
+                if ($debug) logger::debug(sprintf('process png ..... %s, %s : %s', $src, $name, __METHOD__));
               } else {
 
                 $finfo = new \finfo(FILEINFO_MIME);
@@ -489,7 +488,7 @@ class message {
                   $img->setAttribute('data-name', $data->Name);
                   $img->setAttribute('data-contentid', $data->ContentId);
                   $img->removeAttribute('data-safe-src');
-                  if ($debug) \sys::logger(sprintf('processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
+                  if ($debug) logger::debug(sprintf('processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
                 } elseif (preg_match("@image/jpe?g@i", $mimetype)) {
                   $_uid = strings::rand();
                   $cidContent[] = (object)[
@@ -503,7 +502,7 @@ class message {
                   $img->setAttribute('data-name', $data->Name);
                   $img->setAttribute('data-contentid', $data->ContentId);
                   $img->removeAttribute('data-safe-src');
-                  if ($debug) \sys::logger(sprintf('processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
+                  if ($debug) logger::debug(sprintf('processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
                 } elseif (preg_match("@image/png@i", $mimetype)) {
                   $_uid = strings::rand();
                   $cidContent[] = (object)[
@@ -517,17 +516,17 @@ class message {
                   $img->setAttribute('data-name', $data->Name);
                   $img->setAttribute('data-contentid', $data->ContentId);
                   $img->removeAttribute('data-safe-src');
-                  if ($debug) \sys::logger(sprintf('processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
+                  if ($debug) logger::debug(sprintf('processing %s ..... %s, %s : %s', $mimetype, $src, $name, __METHOD__));
                 } elseif ($debug) {
-                  \sys::logger($mimetype);
-                  \sys::logger("what about : $src, $name");
+                  logger::debug($mimetype);
+                  logger::debug("what about : $src, $name");
                 }
               }
 
               $unsets[] = $key;
-              if ($debug) \sys::logger(sprintf('unsetting %s : %s', $key, __METHOD__));
+              if ($debug) logger::debug(sprintf('unsetting %s : %s', $key, __METHOD__));
             } else {
-              // if ( $debug) \sys::logger( sprintf('<%s:%s> <not processing attachment> %s', $name, $data->ContentId, __METHOD__));
+              // if ( $debug) logger::debug( sprintf('<%s:%s> <not processing attachment> %s', $name, $data->ContentId, __METHOD__));
 
             }
           }
@@ -537,21 +536,21 @@ class message {
       }
     }
 
-    if ($debug) \sys::logger(sprintf('attachments %d : %s ', count($this->attachments), __METHOD__));
+    if ($debug) logger::debug(sprintf('attachments %d : %s ', count($this->attachments), __METHOD__));
     foreach ($unsets as $u) {
-      if ($debug) \sys::logger(sprintf('unset %s : %s', $u, __METHOD__));
+      if ($debug) logger::debug(sprintf('unset %s : %s', $u, __METHOD__));
       if (isset($this->attachments[$u])) {
-        if ($debug) \sys::logger(sprintf('unset %s : %s : attachment ', $u, __METHOD__));
+        if ($debug) logger::debug(sprintf('unset %s : %s : attachment ', $u, __METHOD__));
         unset($this->attachments[$u]);
       }
 
       if (isset($this->cids[$u])) {
-        if ($debug) \sys::logger(sprintf('<unset cid : %s> %s', $u, __METHOD__));
+        if ($debug) logger::debug(sprintf('<unset cid : %s> %s', $u, __METHOD__));
         unset($this->cids[$u]);
       }
     }
 
-    if ($debug) \sys::logger(sprintf('... attachments %d : %s ', count($this->attachments), __METHOD__));
+    if ($debug) logger::debug(sprintf('... attachments %d : %s ', count($this->attachments), __METHOD__));
 
     $frameQ = [];
     foreach ($doc->getElementsByTagName('iframe') as $frame) {
@@ -560,7 +559,7 @@ class message {
 
     foreach ($frameQ as $frame) {
       $frame->parentNode->removeChild($frame);
-      // \sys::logger( sprintf('<%s> %s', 'remove iframe', __METHOD__));
+      // logger::info( sprintf('<%s> %s', 'remove iframe', __METHOD__));
 
     }
 
@@ -579,7 +578,7 @@ class message {
     foreach ($cidContent as $cid) {
       $html = \str_replace($cid->refer, $cid->content, $html);
       // $cache = implode([ \dvc\imap\config::IMAP_CACHE(), $cid->cache]);
-      // \sys::logger( sprintf('<%s> %s', $cache, __METHOD__));
+      // logger::info( sprintf('<%s> %s', $cache, __METHOD__));
 
 
     }
